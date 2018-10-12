@@ -41,6 +41,7 @@
 #include <QNetworkProxy>
 #include <QDir>
 #include <QScopedValueRollback>
+#include <QStandardPaths>
 
 #include <private/qzipwriter_p.h>
 
@@ -331,16 +332,10 @@ void GeneralSettings::slotToggleOptionalServerNotifications(bool enable)
         QString defaultFileStreamMirrorPath = cfgFile.defaultFileStreamMirrorPath();
 
         if (defaultFileStreamSyncPath.isEmpty() || defaultFileStreamSyncPath.compare(QString("")) == 0)
-        {
             cfgFile.setDefaultFileStreamSyncPath(QString("/Volumes/" + _theme->appName() + "fs"));
-            //?? defaultFileStreamSyncPath = cfgFile.defaultFileStreamSyncPath();
-        }
 
         if (defaultFileStreamMirrorPath.isEmpty() || defaultFileStreamMirrorPath.compare(QString("")) == 0)
-        {
             cfgFile.setDefaultFileStreamMirrorPath(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/.cachedFiles");
-            //?? defaultFileStreamMirrorPath = cfgFile.defaultFileStreamMirrorPath();
-        }
     #endif
 
 #ifdef Q_OS_WIN
