@@ -232,7 +232,8 @@ public:
     void appendJob(PropagatorJob *job);
     void appendTask(const SyncFileItemPtr &item)
     {
-        _tasksToDo.append(item);
+        if(SyncJournalDb::instance()->getSyncMode(item->_file) == SyncJournalDb::SyncMode::SYNCMODE_OFFLINE)
+             _tasksToDo.append(item);
     }
 
     bool scheduleSelfOrChild() override;
@@ -298,10 +299,7 @@ public:
 
     void appendTask(const SyncFileItemPtr &item)
     {
-        // Nothing to do if the file is Offline
-        if(SyncJournalDb::instance()->getSyncMode(item->_file) == SyncJournalDb::SyncMode::SYNCMODE_ONLINE){
-            _subJobs.appendTask(item);
-        }
+        _subJobs.appendTask(item);
     }
 
     bool scheduleSelfOrChild() override;
@@ -522,8 +520,9 @@ private slots:
     /** Emit the finished signal and make sure it is only emitted once */
     void emitFinished(SyncFileItem::Status status)
     {
-        if (!_finishedEmited)
+        if (!_finishedEmited){
             emit finished(status == SyncFileItem::Success);
+        }
         _finishedEmited = true;
     }
 
