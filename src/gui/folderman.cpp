@@ -967,6 +967,7 @@ Folder *FolderMan::addFolderInternal(FolderDefinition folderDefinition,
 
     folder->registerFolderWatcher();
     registerFolderWithSocketApi(folder);
+
     return folder;
 }
 
