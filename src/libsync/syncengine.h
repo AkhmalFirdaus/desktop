@@ -260,7 +260,6 @@ private:
     QSet<QString> _temporarilyUnavailablePaths;
 
     QThread _thread;
-    QThread _fuseThread;
 
     QScopedPointer<ProgressInfo> _progressInfo;
 
