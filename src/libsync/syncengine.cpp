@@ -326,17 +326,12 @@ void SyncEngine::deleteStaleErrorBlacklistEntries(const SyncFileItemVector &sync
     _journal->deleteStaleErrorBlacklistEntries(blacklist_file_paths);
 }
 
-#if (QT_VERSION < 0x050600)
-template <typename T>
-constexpr typename std::add_const<T>::type &qAsConst(T &t) noexcept { return t; }
-#endif
-
 void SyncEngine::conflictRecordMaintenance()
 {
     // Remove stale conflict entries from the database
     // by checking which files still exist and removing the
     // missing ones.
-    const auto conflictRecordPaths = _journal->conflictRecordPaths();
+    auto conflictRecordPaths = _journal->conflictRecordPaths();
     for (const auto &path : conflictRecordPaths) {
         auto fsPath = _propagator->getFilePath(QString::fromUtf8(path));
         if (!QFileInfo(fsPath).exists()) {
@@ -349,7 +344,7 @@ void SyncEngine::conflictRecordMaintenance()
     //
     // This happens when the conflicts table is new or when conflict files
     // are downlaoded but the server doesn't send conflict headers.
-    for (const auto &path : qAsConst(_seenFiles)) {
+    for (const auto &path : _seenFiles) {
         if (!Utility::isConflictFile(path))
             continue;
 
@@ -766,7 +761,7 @@ void SyncEngine::startSync()
         QVector<SyncJournalDb::PollInfo> pollInfos = _journal->getPollInfos();
         if (!pollInfos.isEmpty()) {
             qCInfo(lcEngine) << "Finish Poll jobs before starting a sync";
-            auto *job = new CleanupPollsJob(pollInfos, _account,
+            CleanupPollsJob *job = new CleanupPollsJob(pollInfos, _account,
                 _journal, _localPath, this);
             connect(job, &CleanupPollsJob::finished, this, &SyncEngine::startSync);
             connect(job, &CleanupPollsJob::aborted, this, &SyncEngine::slotCleanPollsJobAborted);
@@ -971,7 +966,7 @@ void SyncEngine::slotStartDiscovery()
         connect(_discoveryMainThread.data(), &DiscoveryMainThread::etagConcatenation, this, &SyncEngine::slotRootEtagReceived);
     }
 
-    auto *discoveryJob = new DiscoveryJob(_csync_ctx.data());
+    DiscoveryJob *discoveryJob = new DiscoveryJob(_csync_ctx.data());
     discoveryJob->_selectiveSyncBlackList = selectiveSyncBlackList;
     discoveryJob->_selectiveSyncWhiteList =
         _journal->getSelectiveSyncList(SyncJournalDb::SelectiveSyncWhiteList, &ok);
@@ -1163,7 +1158,7 @@ void SyncEngine::slotDiscoveryJobFinished(int discoveryResult)
     // Get CHANGE instructions to the top first
     if (syncItems.count() > 0) {
         std::sort(syncItems.begin(), syncItems.end(),
-            [](SyncFileItemVector::const_reference &a, SyncFileItemVector::const_reference &b) -> bool {
+            [](const SyncFileItemVector::const_reference &a, const SyncFileItemVector::const_reference &b) -> bool {
 				return ((a->_instruction == CSYNC_INSTRUCTION_TYPE_CHANGE) && (b->_instruction != CSYNC_INSTRUCTION_TYPE_CHANGE));
             });
         if (syncItems.at(0)->_instruction == CSYNC_INSTRUCTION_TYPE_CHANGE) {
@@ -1174,7 +1169,7 @@ void SyncEngine::slotDiscoveryJobFinished(int discoveryResult)
             std::sort(syncItems.begin(), syncItems.begin() + lastChangeInstruction);
             if (syncItems.count() > lastChangeInstruction) {
                 std::sort(syncItems.begin() + (lastChangeInstruction + 1), syncItems.end(),
-                    [](SyncFileItemVector::const_reference &a, SyncFileItemVector::const_reference &b) -> bool {
+                    [](const SyncFileItemVector::const_reference &a, const SyncFileItemVector::const_reference &b) -> bool {
                         return ((a->_instruction == CSYNC_INSTRUCTION_REMOVE) && (b->_instruction != CSYNC_INSTRUCTION_REMOVE));
                     });
                 if (syncItems.at(lastChangeInstruction + 1)->_instruction == CSYNC_INSTRUCTION_REMOVE) {
@@ -1382,7 +1377,7 @@ QString SyncEngine::adjustRenamedPath(const QString &original)
  */
 void SyncEngine::checkForPermission(SyncFileItemVector &syncItems)
 {
-    bool selectiveListOk = false;
+    bool selectiveListOk;
     auto selectiveSyncBlackList = _journal->getSelectiveSyncList(SyncJournalDb::SelectiveSyncBlackList, &selectiveListOk);
     std::sort(selectiveSyncBlackList.begin(), selectiveSyncBlackList.end());
     SyncFileItemPtr needle;
@@ -1673,7 +1668,7 @@ RemotePermissions SyncEngine::getPermissions(const QString &file) const
     if (it != _csync_ctx->remote.files.end()) {
         return it->second->remotePerm;
     }
-    return {};
+    return RemotePermissions();
 }
 
 void SyncEngine::restoreOldFiles(SyncFileItemVector &syncItems)
@@ -1761,15 +1756,12 @@ int SyncEngine::localTreeSize(){
 void SyncEngine::updateLocalFileTree(const QString &path, csync_instructions_e instruction){
     if(!path.isEmpty()){
         if(!_csync_ctx.isNull()){
-
             _csync_ctx->fuseEnabled = true;
-
             QByteArray localPath(_localPath.toLatin1());
-            if(_localPath.endsWith("/"))
-                localPath = localPath.remove(localPath.size() - 1, 1);
-
-            //if(cysnc_update_file(_csync_ctx.data(), localPath, path.toLatin1(), instruction)){
-            //    qDebug() << "Added file to local file tree!";
+            QString fileKey = QFileInfo(path).fileName();
+            qDebug() << "About to add file to local file tree!" << localPath << path;
+            //if (cysnc_update_file(_csync_ctx.data(), localPath, path.toLatin1(), instruction)) {
+            //    qDebug() << "Added file to local file tree!" << localPath << path;
             //}
         }
     }
