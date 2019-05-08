@@ -21,6 +21,7 @@
 #include "accountstate.h"
 #include <theme.h>
 #include <account.h>
+#include <configfile.h>
 
 #include <QFileIconProvider>
 #include <QPainter>
@@ -156,9 +157,11 @@ void FolderStatusDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     }
     painter->save();
 
+    ConfigFile cfgFile;
     auto statusIcon = qvariant_cast<QIcon>(index.data(FolderStatusIconRole));
     auto aliasText = qvariant_cast<QString>(index.data(HeaderRole));
-    auto pathText = qvariant_cast<QString>(index.data(FolderPathRole));
+    //auto pathText = qvariant_cast<QString>(index.data(FolderPathRole));
+    auto pathText = cfgFile.getFsSyncPath();
     auto remotePath = qvariant_cast<QString>(index.data(FolderSecondPathRole));
     auto conflictTexts = qvariant_cast<QStringList>(index.data(FolderConflictMsg));
     auto errorTexts = qvariant_cast<QStringList>(index.data(FolderErrorMsg));
