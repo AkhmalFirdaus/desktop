@@ -51,7 +51,7 @@ NCClientInterface::ContextMenuInfo NCClientInterface::FetchInfo()
         if (socket.ReadLine(&response)) {
 			if (StringUtil::begins_with(response, wstring(L"REGISTER_DRIVEFS:"))) {
 				wstring responsePath = response.substr(17); // length of REGISTER_DRIVEFS:
-				info.streamLetterDrive = responsePath;
+				info._defaultFileStreamLetterDrive = responsePath;
 				//setLetterDrive(responsePath);
 			}
 			else if (StringUtil::begins_with(response, wstring(L"REGISTER_PATH:"))) {
