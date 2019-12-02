@@ -144,6 +144,8 @@ enum ItemType {
 // currently specified at https://github.com/owncloud/core/issues/8322 are 9 to 10
 #define REMOTE_PERM_BUF_SIZE 15
 
+typedef struct csync_file_stat_s csync_file_stat_t;
+
 struct OCSYNC_EXPORT csync_file_stat_t {
   time_t modtime = 0;
   int64_t size = 0;
@@ -171,9 +173,9 @@ struct OCSYNC_EXPORT csync_file_stat_t {
   QByteArray checksumHeader;
   QByteArray e2eMangledName;
 
-  CSYNC_STATUS error_status = CSYNC_STATUS_OK;
+  CSYNC_STATUS error_status;
 
-  enum csync_instructions_e instruction = CSYNC_INSTRUCTION_NONE; /* u32 */
+  enum csync_instructions_e instruction; /* u32 */
 
   csync_file_stat_t()
     : type(ItemTypeSkip)
@@ -181,6 +183,8 @@ struct OCSYNC_EXPORT csync_file_stat_t {
     , has_ignored_files(false)
     , is_hidden(false)
     , isE2eEncrypted(false)
+    , error_status(CSYNC_STATUS_OK)
+    , instruction(CSYNC_INSTRUCTION_NONE)
   { }
 
   static std::unique_ptr<csync_file_stat_t> fromSyncJournalFileRecord(const OCC::SyncJournalFileRecord &rec);
@@ -226,7 +230,7 @@ int OCSYNC_EXPORT csync_reconcile(CSYNC *ctx);
  *
  * @param ctx           The csync context.
  *
- * @return              The userdata saved in the context, \c nullptr if an error
+ * @return              The userdata saved in the context, NULL if an error
  *                      occurred.
  */
 void *csync_get_userdata(CSYNC *ctx);
@@ -248,7 +252,7 @@ int OCSYNC_EXPORT csync_set_userdata(CSYNC *ctx, void *userdata);
  *
  * @param ctx           The csync context.
  *
- * @return              The authentication callback set or \c nullptr if an error
+ * @return              The authentication callback set or NULL if an error
  *                      occurred.
  */
 csync_auth_callback OCSYNC_EXPORT csync_get_auth_callback(CSYNC *ctx);
