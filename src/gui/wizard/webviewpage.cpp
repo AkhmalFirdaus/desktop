@@ -55,7 +55,7 @@ void WebViewPage::initializePage() {
 }
 
 int WebViewPage::nextId() const {
-    return WizardCommon::Page_Result;
+    return WizardCommon::Page_AdvancedSetup;
 }
 
 bool WebViewPage::isComplete() const {
