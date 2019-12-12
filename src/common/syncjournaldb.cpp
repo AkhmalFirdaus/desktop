@@ -53,7 +53,7 @@ Q_LOGGING_CATEGORY(lcDb, "nextcloud.sync.database", QtInfoMsg)
 
 static void fillFileRecordFromGetQuery(SyncJournalFileRecord &rec, SqlQuery &query)
 {
-    rec._path = query.baValue(0);
+	rec._path = query.baValue(0);
     rec._inode = query.int64Value(1);
     rec._modtime = query.int64Value(2);
     rec._type = static_cast<ItemType>(query.intValue(3));
@@ -798,9 +798,9 @@ bool SyncJournalDb::updateMetadataTableStructure()
 
     if (!columns.contains("virtualfile")) {
         SqlQuery query(_db);
-        query.prepare("ALTER TABLE metadata ADD COLUMN virtualfile INTEGER;");
+        query.prepare("ALTER TABLE metadata ADD COLUMN virtualfile STATUS INTEGER DEFAULT 1;");
         if (!query.exec()) {
-            sqlFail("updateDatabaseStructure: add column virtualfile", query);
+            sqlFail("updateDatabaseStructure: add column virtualfile STATUS INTEGER DEFAULT 1", query);
             re = false;
         }
         commitInternal("update database structure: add virtualfile col");
@@ -980,7 +980,7 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
         _setFileRecordQuery.bindValue(18, record._isE2eEncrypted);
         //1 is 0 byte file or new fine, do not sync, 0 is touched by the user,
         //it should sync on open
-        _setFileRecordQuery.bindValue(19, 1);
+        _setFileRecordQuery.bindValue(19, record._virtualfile);
 
         if (!_setFileRecordQuery.exec()) {
             return false;
@@ -1370,6 +1370,7 @@ bool SyncJournalDb::setFileRecordMetadata(const SyncJournalFileRecord &record)
     existing._serverHasIgnoredFiles = record._serverHasIgnoredFiles;
     existing._e2eMangledName = record._e2eMangledName;
     existing._isE2eEncrypted = record._isE2eEncrypted;
+    existing._virtualfile = record._virtualfile;
     return setFileRecord(existing);
 }
 
@@ -1385,6 +1386,15 @@ bool SyncJournalDb::setFileRecordVirtualFile(const SyncJournalFileRecord &record
     }
 
     // Update the virtualfile flag on the existing record.
+    existing._inode = record._inode;
+    existing._modtime = record._modtime;
+    existing._type = record._type;
+    existing._etag = record._etag;
+    existing._fileId = record._fileId;
+    existing._remotePerm = record._remotePerm;
+    existing._fileSize = record._fileSize;
+    existing._serverHasIgnoredFiles = record._serverHasIgnoredFiles;
+    existing._e2eMangledName = record._e2eMangledName;
     existing._virtualfile = record._virtualfile;
     return setFileRecord(existing);
 }

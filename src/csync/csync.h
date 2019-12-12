@@ -177,7 +177,7 @@ struct OCSYNC_EXPORT csync_file_stat_t {
 
   enum csync_instructions_e instruction; /* u32 */
 
-  bool virtualdrive BITFIELD(1);
+  bool virtualfile BITFIELD(1);
 
   csync_file_stat_t()
     : type(ItemTypeSkip)
@@ -187,7 +187,7 @@ struct OCSYNC_EXPORT csync_file_stat_t {
     , isE2eEncrypted(false)
     , error_status(CSYNC_STATUS_OK)
     , instruction(CSYNC_INSTRUCTION_NONE)
-    , virtualdrive(true)
+    , virtualfile(true)
   { }
 
   static std::unique_ptr<csync_file_stat_t> fromSyncJournalFileRecord(const OCC::SyncJournalFileRecord &rec);
