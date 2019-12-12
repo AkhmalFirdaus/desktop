@@ -65,7 +65,7 @@ static void fillFileRecordFromGetQuery(SyncJournalFileRecord &rec, SqlQuery &que
     rec._checksumHeader = query.baValue(9);
     rec._e2eMangledName = query.baValue(10);
     rec._isE2eEncrypted = query.intValue(11) > 0;
-    rec._virtualfile = query.int64Value(12);
+    rec._virtualfile = query.intValue(12);
 }
 
 static QByteArray defaultJournalMode(const QString &dbPath)
@@ -952,6 +952,14 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
         QByteArray checksumType, checksum;
         parseChecksumHeader(record._checksumHeader, &checksumType, &checksum);
         int contentChecksumTypeId = mapChecksumType(checksumType);
+
+		//FIXME I shouldn't change the virtualdrive value here, keep the same if the record already exists
+		SyncJournalFileRecord existing;
+		if (!getFileRecord(record._path, &existing)) {
+			record._virtualfile = 1;
+		} else {
+			record._virtualfile = record._virtualfile < 0 ? 1 : record._virtualfile;
+		}
 
         if (!_setFileRecordQuery.initOrReset(QByteArrayLiteral(
             "INSERT OR REPLACE INTO metadata "
