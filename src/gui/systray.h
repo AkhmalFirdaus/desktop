@@ -22,6 +22,7 @@
 
 class QScreen;
 class QQmlApplicationEngine;
+class QQuickWindow;
 
 namespace OCC {
 
@@ -46,9 +47,6 @@ public:
     static Systray *instance();
     virtual ~Systray() {};
 
-    enum class TaskBarPosition { Bottom, Left, Top, Right };
-    Q_ENUM(TaskBarPosition);
-
     void setTrayEngine(QQmlApplicationEngine *trayEngine);
     void create();
     void showMessage(const QString &title, const QString &message, MessageIcon icon = Information);
@@ -59,11 +57,7 @@ public:
     Q_INVOKABLE bool syncIsPaused();
     Q_INVOKABLE void setOpened();
     Q_INVOKABLE void setClosed();
-    Q_INVOKABLE int currentScreenIndex() const;
-    Q_INVOKABLE QPoint calcTrayIconCenter() const;
-    Q_INVOKABLE TaskBarPosition taskbarOrientation() const;
-    Q_INVOKABLE QRect taskbarGeometry() const;
-    Q_INVOKABLE QPoint computeWindowPosition(int width, int height) const;
+    Q_INVOKABLE void setPosition(QQuickWindow *window) const;
 
 signals:
     void currentUserChanged();
@@ -84,13 +78,32 @@ private:
     static Systray *_instance;
     Systray();
 
-    QScreen *currentScreen() const;
-    QRect currentScreenRect() const;
-    QPoint computeWindowReferencePoint() const;
+    QPoint calcTrayIconCenter() const;
+    struct Geometry;
 
     bool _isOpen = false;
     bool _syncIsPaused = false;
     QPointer<QQmlApplicationEngine> _trayEngine;
+};
+
+struct Systray::Geometry
+{
+    Geometry(QQuickWindow *window, QPoint iconCenter);
+    void operator()();
+
+protected:
+    static QScreen *currentScreen();
+    QPoint computeWindowPosition() const;
+
+    enum class TaskBarPosition { Bottom, Left, Top, Right };
+
+    TaskBarPosition taskbarOrientation() const;
+    QRect taskbarGeometry() const;
+    static QRect currentScreenRect();
+    QPoint computeWindowReferencePoint() const;
+
+    QQuickWindow *_window;
+    const QPoint _iconCenter;
 };
 
 } // namespace OCC
