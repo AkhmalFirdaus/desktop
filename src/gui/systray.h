@@ -86,6 +86,8 @@ private:
     QPointer<QQmlApplicationEngine> _trayEngine;
 };
 
+struct TaskBarPosition;
+
 struct Systray::Geometry
 {
     Geometry(QQuickWindow *window, QPoint iconCenter);
@@ -95,13 +97,12 @@ protected:
     static QScreen *currentScreen();
     QPoint computeWindowPosition() const;
 
-    enum class TaskBarPosition { Bottom, Left, Top, Right };
-
-    TaskBarPosition taskbarOrientation() const;
+    TaskBarPosition *initTaskbarPosition() const;
     QRect taskbarGeometry() const;
     static QRect currentScreenRect();
     QPoint computeWindowReferencePoint() const;
 
+    std::unique_ptr<TaskBarPosition> _taskbarPosition;
     QQuickWindow *_window;
     const QPoint _iconCenter;
 };

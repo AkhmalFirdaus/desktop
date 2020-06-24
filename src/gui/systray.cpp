@@ -171,6 +171,77 @@ void Systray::pauseResumeSync()
 /* Helper functions for cross-platform tray icon position and taskbar orientation detection */
 /********************************************************************************************/
 
+struct TaskBarPosition
+{
+    TaskBarPosition() = default;
+    virtual ~TaskBarPosition() = default;
+    static constexpr int spacing = 4;
+    virtual QString name() const = 0;
+    virtual QRect defaultDimensions(QRect screenRect, int pixels) const = 0;
+    virtual QPoint windowReferencePoint(QPoint iconCenter, QRect screenRect, QRect panelRect) const = 0;
+    virtual QPoint topLeft(QPoint reference, int width, int height) const = 0;
+};
+
+struct TaskBarPositionBottom : public TaskBarPosition
+{
+    QString name() const override { return "bottom"; }
+    QRect defaultDimensions(QRect screenRect, int pixels) const override { return QRect(0, 0, screenRect.width(), pixels); }
+    QPoint topLeft(QPoint reference, int width, int height) const override { return reference - QPoint(width / 2, height); }
+
+    QPoint windowReferencePoint(QPoint iconCenter, QRect screenRect, QRect panelRect) const override
+    {
+        return {
+            iconCenter.x(),
+            screenRect.bottom() - panelRect.height() - spacing
+        };
+    }
+};
+
+struct TaskBarPositionTop : public TaskBarPosition
+{
+    QString name() const override { return "top"; }
+    QRect defaultDimensions(QRect screenRect, int pixels) const override { return QRect(0, 0, screenRect.width(), pixels); }
+    QPoint topLeft(QPoint reference, int width, int) const override { return reference - QPoint(width / 2, 0); }
+
+    QPoint windowReferencePoint(QPoint iconCenter, QRect screenRect, QRect panelRect) const override
+    {
+        return {
+            iconCenter.x(),
+            screenRect.top() + panelRect.height() + spacing
+        };
+    }
+};
+
+struct TaskBarPositionLeft : public TaskBarPosition
+{
+    QString name() const override { return "left"; }
+    QRect defaultDimensions(QRect screenRect, int pixels) const override { return QRect(0, 0, pixels, screenRect.height()); }
+    QPoint topLeft(QPoint reference, int, int) const override { return reference; }
+
+    QPoint windowReferencePoint(QPoint iconCenter, QRect screenRect, QRect panelRect) const override
+    {
+        return {
+            screenRect.left() + panelRect.width() + spacing,
+            iconCenter.y()
+        };
+    }
+};
+
+struct TaskBarPositionRight : public TaskBarPosition
+{
+    QString name() const override { return "right"; }
+    QRect defaultDimensions(QRect screenRect, int pixels) const override { return QRect(0, 0, pixels, screenRect.height()); }
+    QPoint topLeft(QPoint reference, int width, int) const override { return reference - QPoint(width, 0); }
+
+    QPoint windowReferencePoint(QPoint iconCenter, QRect screenRect, QRect panelRect) const override
+    {
+        return {
+            screenRect.right() - panelRect.width() - spacing,
+            iconCenter.y()
+        };
+    }
+};
+
 void Systray::setPosition(QQuickWindow *window) const
 {
     Geometry setWindowPosition(window, calcTrayIconCenter());
@@ -180,6 +251,7 @@ void Systray::setPosition(QQuickWindow *window) const
 Systray::Geometry::Geometry(QQuickWindow *window, QPoint iconCenter)
     : _window(window)
     , _iconCenter(iconCenter)
+    , _taskbarPosition(initTaskbarPosition())
 {
 }
 
@@ -206,11 +278,11 @@ QScreen *Systray::Geometry::currentScreen()
     return nullptr;
 }
 
-Systray::Geometry::TaskBarPosition Systray::Geometry::taskbarOrientation() const
+TaskBarPosition *Systray::Geometry::initTaskbarPosition() const
 {
 // macOS: Always on top
 #if defined(Q_OS_MACOS)
-    return TaskBarPosition::Top;
+    return new TaskBarPositionTop;
 // Windows: Check registry for actual taskbar orientation
 #elif defined(Q_OS_WIN)
     auto taskbarPosition = Utility::registryGetKeyValue(HKEY_CURRENT_USER,
@@ -219,15 +291,15 @@ Systray::Geometry::TaskBarPosition Systray::Geometry::taskbarOrientation() const
     switch (taskbarPosition.toInt()) {
     // Mapping windows binary value (0 = left, 1 = top, 2 = right, 3 = bottom) to qml logic (0 = bottom, 1 = left...)
     case 0:
-        return TaskBarPosition::Left;
+        return new TaskBarPositionLeft;
     case 1:
-        return TaskBarPosition::Top;
+        return new TaskBarPositionTop;
     case 2:
-        return TaskBarPosition::Right;
+        return new TaskBarPositionRight;
     case 3:
-        return TaskBarPosition::Bottom;
+        return new TaskBarPositionBottom;
     default:
-        return TaskBarPosition::Bottom;
+        return new TaskBarPositionBottom;
     }
 // Probably Linux
 #else
@@ -241,18 +313,17 @@ Systray::Geometry::TaskBarPosition Systray::Geometry::taskbarOrientation() const
     const auto minDist = std::min({distRight, distTop, distBottom});
 
     if (minDist == distBottom) {
-        return TaskBarPosition::Bottom;
+        return new TaskBarPositionBottom;
     } else if (minDist == distLeft) {
-        return TaskBarPosition::Left;
+        return new TaskBarPositionLeft;
     } else if (minDist == distTop) {
-        return TaskBarPosition::Top;
+        return new TaskBarPositionTop;
     } else {
-        return TaskBarPosition::Right;
+        return new TaskBarPositionRight;
     }
 #endif
 }
 
-// TODO: Get real taskbar dimensions Linux as well
 QRect Systray::Geometry::taskbarGeometry() const
 {
 #if defined(Q_OS_WIN)
@@ -266,16 +337,10 @@ QRect Systray::Geometry::taskbarGeometry() const
     return tbRect;
 #elif defined(Q_OS_MACOS)
     // Finder bar is always 22px height on macOS (when treating as effective pixels)
-    auto screenWidth = currentScreenRect().width();
-    return QRect(0, 0, screenWidth, 22);
+    return _taskbarPosition->defaultDimensions(currentScreenRect(), 22)
 #else
-    if (taskbarOrientation() == TaskBarPosition::Bottom || taskbarOrientation() == TaskBarPosition::Top) {
-        auto screenWidth = currentScreenRect().width();
-        return QRect(0, 0, screenWidth, 32);
-    } else {
-        auto screenHeight = currentScreenRect().height();
-        return QRect(0, 0, 32, screenHeight);
-    }
+    // TODO: Get real taskbar dimensions Linux as well; 32px is just a guess
+    return _taskbarPosition->defaultDimensions(currentScreenRect(), 32);
 #endif
 }
 
@@ -288,64 +353,26 @@ QRect Systray::Geometry::currentScreenRect()
 
 QPoint Systray::Geometry::computeWindowReferencePoint() const
 {
-    constexpr auto spacing = 4;
     const auto taskbarRect = taskbarGeometry();
-    const auto taskbarScreenEdge = taskbarOrientation();
     const auto screenRect = currentScreenRect();
 
     qCDebug(lcSystray) << "screenRect:" << screenRect;
     qCDebug(lcSystray) << "taskbarRect:" << taskbarRect;
-    qCDebug(lcSystray) << "taskbarScreenEdge:" << static_cast<int>(taskbarScreenEdge);
+    qCDebug(lcSystray) << "taskbarPosition:" << _taskbarPosition->name();
     qCDebug(lcSystray) << "trayIconCenter:" << _iconCenter;
 
-    switch(taskbarScreenEdge) {
-    case TaskBarPosition::Bottom:
-        return {
-            _iconCenter.x(),
-            screenRect.bottom() - taskbarRect.height() - spacing
-        };
-    case TaskBarPosition::Left:
-        return {
-            screenRect.left() + taskbarRect.width() + spacing,
-            _iconCenter.y()
-        };
-    case TaskBarPosition::Top:
-        return {
-            _iconCenter.x(),
-            screenRect.top() + taskbarRect.height() + spacing
-        };
-    case TaskBarPosition::Right:
-        return {
-            screenRect.right() - taskbarRect.width() - spacing,
-            _iconCenter.y()
-        };
-    }
-    Q_UNREACHABLE();
+    return _taskbarPosition->windowReferencePoint(_iconCenter, screenRect, taskbarRect);
 }
 
 QPoint Systray::Geometry::computeWindowPosition() const
 {
     const auto referencePoint = computeWindowReferencePoint();
-
-    const auto taskbarScreenEdge = taskbarOrientation();
     const auto screenRect = currentScreenRect();
 
     const auto width = _window->width();
     const auto height = _window->height();
 
-    const auto topLeft = [=]() {
-        switch(taskbarScreenEdge) {
-        case TaskBarPosition::Bottom:
-            return referencePoint - QPoint(width / 2, height);
-        case TaskBarPosition::Left:
-            return referencePoint;
-        case TaskBarPosition::Top:
-            return referencePoint - QPoint(width / 2, 0);
-        case TaskBarPosition::Right:
-            return referencePoint - QPoint(width, 0);
-        }
-        Q_UNREACHABLE();
-    }();
+    const auto topLeft = _taskbarPosition->topLeft(referencePoint, width, height);
     const auto bottomRight = topLeft + QPoint(width, height);
     const auto windowRect = [=]() {
         const auto rect = QRect(topLeft, bottomRight);
@@ -366,7 +393,7 @@ QPoint Systray::Geometry::computeWindowPosition() const
         return rect.translated(offset);
     }();
 
-    qCDebug(lcSystray) << "taskbarScreenEdge:" << static_cast<int>(taskbarScreenEdge);
+    qCDebug(lcSystray) << "taskbarPosition:" << _taskbarPosition->name();
     qCDebug(lcSystray) << "screenRect:" << screenRect;
     qCDebug(lcSystray) << "windowRect (reference)" << QRect(topLeft, bottomRight);
     qCDebug(lcSystray) << "windowRect (adjusted )" << windowRect;
