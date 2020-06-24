@@ -360,15 +360,16 @@ QPoint Systray::computeWindowPosition(int width, int height) const
 
 QPoint Systray::calcTrayIconCenter() const
 {
-    // QSystemTrayIcon::geometry() is broken for ages on most Linux DEs (invalid geometry returned)
-    // thus we can use this only for Windows and macOS
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-    auto trayIconCenter = geometry().center();
-    return trayIconCenter;
-#else
-    // On Linux, fall back to mouse position (assuming tray icon is activated by mouse click)
-    return QCursor::pos();
-#endif
+    QRect iconRect = geometry();
+
+    if (iconRect == QRect()) {
+        // QSystemTrayIcon::geometry() is broken for ages on most Linux DEs (default
+        // QRect returned), thus fall back to mouse position (assuming tray icon is
+        // activated by mouse click)
+        return QCursor::pos();
+    }
+
+    return iconRect.center();
 }
 
 } // namespace OCC
