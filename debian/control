@@ -176,9 +176,9 @@ Depends: nautilus,
          nextcloud-desktop (<< ${source:Version}.1~),
          nextcloud-desktop (>= ${source:Version}),
          nextcloud-desktop-common,
-         python3-nautilus,
+         python-nautilus,
          ${misc:Depends},
-         ${python3:Depends}
+         ${python:Depends}
 Suggests: nautilus-script-manager
 Enhances: nautilus
 Description: Nextcloud integration for Nautilus
@@ -199,7 +199,7 @@ Depends: nemo,
          nextcloud-desktop (>= ${source:Version}),
          nextcloud-desktop-common,
          ${misc:Depends},
-         ${python3:Depends}
+         ${python:Depends}
 Enhances: nemo
 Description: Nextcloud integration for Nemo
  The Nextcloud desktop app lets you always have your latest files wherever
@@ -217,10 +217,9 @@ Depends: caja,
          nextcloud-desktop (<< ${source:Version}.1~),
          nextcloud-desktop (>= ${source:Version}),
          nextcloud-desktop-common,
-         python3-caja,
-         python3-gi,
+         python-caja,
          ${misc:Depends},
-         ${python3:Depends}
+         ${python:Depends}
 Enhances: caja
 Description: Nextcloud integration for Caja
  The Nextcloud desktop app lets you always have your latest files wherever
