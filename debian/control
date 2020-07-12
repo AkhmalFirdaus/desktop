@@ -160,6 +160,7 @@ Depends: dolphin (>= 4:15.12.1),
          nextcloud-desktop,
          ${misc:Depends},
          ${shlibs:Depends}
+Replaces: nextcloud-client-dolphin (<< ${binary:Version})
 Enhances: dolphin
 Description: Nextcloud integration for Dolphin
  The Nextcloud desktop app lets you always have your latest files wherever
@@ -182,6 +183,7 @@ Depends: nautilus,
          ${misc:Depends},
          ${python:Depends}
 Suggests: nautilus-script-manager
+Replaces: nextcloud-client-nautilus (<< ${binary:Version})
 Enhances: nautilus
 Description: Nextcloud integration for Nautilus
  The Nextcloud desktop app lets you always have your latest files wherever
@@ -202,6 +204,7 @@ Depends: nemo,
          nextcloud-desktop-common,
          ${misc:Depends},
          ${python:Depends}
+Replaces: nextcloud-client-nemo (<< ${binary:Version})
 Enhances: nemo
 Description: Nextcloud integration for Nemo
  The Nextcloud desktop app lets you always have your latest files wherever
@@ -222,6 +225,7 @@ Depends: caja,
          python-caja,
          ${misc:Depends},
          ${python:Depends}
+Replaces: nextcloud-client-caja (<< ${binary:Version})
 Enhances: caja
 Description: Nextcloud integration for Caja
  The Nextcloud desktop app lets you always have your latest files wherever
