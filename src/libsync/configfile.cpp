@@ -53,10 +53,10 @@ namespace chrono = std::chrono;
 
 Q_LOGGING_CATEGORY(lcConfigFile, "nextcloud.sync.configfile", QtInfoMsg)
 
-static const char enableVirtualFileSysC[]				= "enableVirtualFileSystem";
-static const char defaultFileStreamSyncPathC[]			= "fileStreamSyncPathDefault";
-static const char defaultFileStreamMirrorPathC[]		= "fileStreamMirrorPathDefault";
-static const char defaultFileStreamLetterDriveC[]		= "fileStreamPathDefaultLetterDrive";
+static const char enableVirtualFileSysC[] = "enableVirtualFileSystem";
+static const char defaultFileStreamSyncPathC[] = "fileStreamSyncPathDefault";
+static const char defaultFileStreamMirrorPathC[] = "fileStreamMirrorPathDefault";
+static const char defaultFileStreamLetterDriveC[] = "fileStreamPathDefaultLetterDrive";
 
 //static const char caCertsKeyC[] = "CaCertificates"; only used from account.cpp
 static const char remotePollIntervalC[] = "remotePollInterval";
@@ -959,8 +959,7 @@ void ConfigFile::createAuxiliarDirectories()
 {
     /*
     QDir pathDir3(defaultFileStreamSyncPath());
-    while (!pathDir3.exists())
-    {
+    while (!pathDir3.exists()) {
         qDebug() << "\n dbg_sync " << Q_FUNC_INFO << " !pathDir3.exists() 2-2 " << defaultFileStreamSyncPath();
         pathDir3.mkdir(defaultFileStreamSyncPath());
         Sleep(100);
@@ -969,8 +968,7 @@ void ConfigFile::createAuxiliarDirectories()
     QString PathforScreenShots = defaultFileStreamLetterDrive();
     PathforScreenShots.append(":/Mi unidad/ScreenShots");
     QDir pathDir4(PathforScreenShots);
-    while (!pathDir4.exists())
-    {
+    while (!pathDir4.exists()) {
         qDebug() << "\n dbg_dokan " << Q_FUNC_INFO << " !pathDir4.exists() 4-0 " << PathforScreenShots;
         pathDir4.mkdir(PathforScreenShots);
         Sleep(100);

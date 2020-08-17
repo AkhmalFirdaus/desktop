@@ -790,7 +790,6 @@ void DiscoveryFolderFileList::singleDirectoryJobFinishedWithErrorSlot(int csyncE
 {
     if (!_DiscoveryFolderFileListResult) {
         return; // possibly aborted
-        
     }
     qDebug() << Q_FUNC_INFO << csyncErrnoCode << msg;
 

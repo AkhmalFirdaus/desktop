@@ -33,9 +33,9 @@ namespace OCC {
 
 class CleanIgnoredTask : public QObject, public QRunnable
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	void run();
+    void run();
 };
 
 class VfsWindows : public QObject
@@ -50,37 +50,37 @@ public:
     bool removeRecursively(const QString &dirName);
     bool removeDir();
 
-	void setNumberOfBytes(unsigned long long numberOfBytes);
+    void setNumberOfBytes(unsigned long long numberOfBytes);
     unsigned long long getNumberOfBytes();
 
     void setNumberOfFreeBytes(unsigned long long numberOfFreeBytes);
     unsigned long long getNumberOfFreeBytes();
 
-	QStringList* contentsOfDirectoryAtPath(QString path, QVariantMap &error);
-	QList<QString> ignoredList;
+    QStringList* contentsOfDirectoryAtPath(QString path, QVariantMap &error);
+    QList<QString> ignoredList;
 
-	void createFileAtPath(QString path, QVariantMap &error);
-	void moveFileAtPath(QString path, QString npath,QVariantMap &error);
-	void createDirectoryAtPath(QString path, QVariantMap &error);
-	void moveDirectoryAtPath(QString path, QString npath, QVariantMap &error);
+    void createFileAtPath(QString path, QVariantMap &error);
+    void moveFileAtPath(QString path, QString npath,QVariantMap &error);
+    void createDirectoryAtPath(QString path, QVariantMap &error);
+    void moveDirectoryAtPath(QString path, QString npath, QVariantMap &error);
 
-	void openFileAtPath(QString path, QVariantMap &error);
-	void writeFileAtPath(QString path, QVariantMap &error);
-	void deleteFileAtPath(QString path, QVariantMap &error);
-	void startDeleteDirectoryAtPath(QString path, QVariantMap &error);
-	void endDeleteDirectoryAtPath(QString path, QVariantMap &error);
+    void openFileAtPath(QString path, QVariantMap &error);
+    void writeFileAtPath(QString path, QVariantMap &error);
+    void deleteFileAtPath(QString path, QVariantMap &error);
+    void startDeleteDirectoryAtPath(QString path, QVariantMap &error);
+    void endDeleteDirectoryAtPath(QString path, QVariantMap &error);
 
-	QString getAvailableLogicalDrive();
+    QString getAvailableLogicalDrive();
 
 private:
-	VfsWindows();
+    VfsWindows();
     static VfsWindows *_instance;
     QMap<QString, OCC::DiscoveryDirectoryResult *> _fileListMap;
     QPointer<OCC::DiscoveryFolderFileList> _remotefileListJob;
     QString rootPath;
     WCHAR mountLetter;
 
-	// @Capacity
+    // @Capacity
     //*TotalNumberOfBytes = (ULONGLONG)1024L * 1024 * 1024 * 50;
     unsigned long long numberOfBytes = 0;
     // @Used space
@@ -90,15 +90,15 @@ private:
     //*FreeBytesAvailable = (ULONGLONG)(*TotalNumberOfBytes - *TotalNumberOfFreeBytes); / *1024 * 1024 * 10;
     unsigned long long freeBytesAvailable = 0;
 
-	// To sync
+    // To sync
     QMutex _mutex;
     QWaitCondition _dirCondition;
 
 signals:
-	void startRemoteFileListJob(QString path);
+    void startRemoteFileListJob(QString path);
 
 public slots:
-	void folderFileListFinish(OCC::DiscoveryDirectoryResult *dr);
+    void folderFileListFinish(OCC::DiscoveryDirectoryResult *dr);
 };
 
 } // namespace OCC

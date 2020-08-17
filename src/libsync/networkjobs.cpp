@@ -631,6 +631,7 @@ bool PropfindJob::finished()
     return true;
 }
 
+
 /*********************************************************************************************/
 
 SearchJob::SearchJob(AccountPtr account, const QString &path, QObject *parent)
@@ -650,7 +651,7 @@ void SearchJob::start()
     // and really want this to be done first (no matter what internal scheduling QNAM uses).
     // Also possibly useful for avoiding false timeouts.
     req.setPriority(QNetworkRequest::HighPriority);
-	req.setRawHeader("Content-Type", "text/xml");
+    req.setRawHeader("Content-Type", "text/xml");
     req.setRawHeader("Depth", "infinity");
     QByteArray propStr;
     //foreach (const QByteArray &prop, properties) {
@@ -662,35 +663,37 @@ void SearchJob::start()
     //    }
     //}
 
-	propStr += "        <oc:fileid />\n";
-	propStr += "        <oc:size />\n";
-	propStr += "        <d:getetag />\n";
-	QByteArray hrefStr(_account->davUser().toLatin1());
+    propStr += "        <oc:fileid />\n";
+    propStr += "        <oc:size />\n";
+    propStr += "        <d:getetag />\n";
+    QByteArray hrefStr(_account->davUser().toLatin1());
     QByteArray xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                      "<d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\">\n"
                      "  <d:basicsearch>\n"
-					 "    <d:select>\n"
-					 "      <d:prop>\n"
-		 + propStr + "      </d:prop>\n"
-					 "    </d:select>\n"
-					 "    <d:from>\n"
-					 "      <d:scope>\n"
-					 "        <d:href>/files/" + hrefStr + "</d:href>\n"
-					 "      </d:scope>\n"
-					 "    </d:from>\n"
-					 "    <d:where>\n"
-					 "      <d:eq>\n"
-					 "        <d:prop>\n"
-					 "          <oc:fileid />\n"
-					 "        </d:prop>\n"
-					 "        <d:literal>"+ _fileId + "</d:literal>\n"
-					 "      </d:eq>\n"
-					 "    </d:where>\n"
-					 "    <d:orderby/>\n"
-					 "  </d:basicsearch>\n"
-                     "</d:searchrequest>\n";
+                     "    <d:select>\n"
+                     "      <d:prop>\n"
+        + propStr + "      </d:prop>\n"
+                    "    </d:select>\n"
+                    "    <d:from>\n"
+                    "      <d:scope>\n"
+                    "        <d:href>/files/"
+        + hrefStr + "</d:href>\n"
+                    "      </d:scope>\n"
+                    "    </d:from>\n"
+                    "    <d:where>\n"
+                    "      <d:eq>\n"
+                    "        <d:prop>\n"
+                    "          <oc:fileid />\n"
+                    "        </d:prop>\n"
+                    "        <d:literal>"
+        + _fileId + "</d:literal>\n"
+                    "      </d:eq>\n"
+                    "    </d:where>\n"
+                    "    <d:orderby/>\n"
+                    "  </d:basicsearch>\n"
+                    "</d:searchrequest>\n";
 
-	qCWarning(lcSearchJob) << "xml: " << xml;
+    qCWarning(lcSearchJob) << "xml: " << xml;
     QBuffer *buf = new QBuffer(this);
     buf->setData(xml);
     buf->open(QIODevice::ReadOnly);
@@ -706,7 +709,7 @@ void SearchJob::setProperties(QList<QByteArray> properties)
 
 void SearchJob::setFileId(const QByteArray id)
 {
-	_fileId = id;
+    _fileId = id;
 }
 
 QList<QByteArray> SearchJob::properties() const
@@ -753,7 +756,7 @@ bool SearchJob::finished()
         }
     } else {
         qCWarning(lcSearchJob) << "*not* successful, http result code is" << http_result_code
-                                 << (http_result_code == 302 ? reply()->header(QNetworkRequest::LocationHeader).toString() : QLatin1String(""));
+                               << (http_result_code == 302 ? reply()->header(QNetworkRequest::LocationHeader).toString() : QLatin1String(""));
         emit finishedWithError(reply());
     }
     return true;

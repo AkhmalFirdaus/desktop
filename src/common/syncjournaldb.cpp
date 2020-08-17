@@ -603,7 +603,7 @@ bool SyncJournalDb::checkConnect()
         return sqlFail("prepare _getErrorBlacklistQuery", _getErrorBlacklistQuery);
     }
 
-   /* _setErrorBlacklistQuery.reset(new SqlQuery(_db));
+    /* _setErrorBlacklistQuery.reset(new SqlQuery(_db));
     if (_setErrorBlacklistQuery->prepare("INSERT OR REPLACE INTO blacklist "
                                          "(path, lastTryEtag, lastTryModtime, retrycount, errorstring, lastTryTime, ignoreDuration, renameTarget, errorCategory) "
                                          "VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)")) {
@@ -1406,7 +1406,6 @@ bool SyncJournalDb::setFileRecordVirtualFile(const SyncJournalFileRecord &record
     existing._virtualfile = record._virtualfile;
     return setFileRecord(existing);
 }
-
 
 static void toDownloadInfo(SqlQuery &query, SyncJournalDb::DownloadInfo *res)
 {
@@ -2235,8 +2234,8 @@ SyncJournalDb::SyncModeDownload SyncJournalDb::getSyncModeDownload(QString const
     _getSyncModeDownloadQuery.bindValue(1, path);
     if (!_getSyncModeDownloadQuery.exec()) {
         qWarning() << "Error SQL statement getSyncModeDownload: "
-            << _getSyncModeDownloadQuery.lastQuery() << " :"
-            << _getSyncModeDownloadQuery.error();
+                   << _getSyncModeDownloadQuery.lastQuery() << " :"
+                   << _getSyncModeDownloadQuery.error();
         return SYNCMODE_DOWNLOADED_NONE;
     }
     if (!_getSyncModeDownloadQuery.next())
@@ -2258,8 +2257,8 @@ int SyncJournalDb::setSyncModeDownload(QString const & path, SyncModeDownload mo
     _setSyncModeDownloadQuery.bindValue(2, modeStr);
     if (!_setSyncModeDownloadQuery.exec()) {
         qWarning() << "Error SQL statement setSyncModeDownload: "
-            << _setSyncModeDownloadQuery.lastQuery() << " :"
-            << _setSyncModeDownloadQuery.error();
+                   << _setSyncModeDownloadQuery.lastQuery() << " :"
+                   << _setSyncModeDownloadQuery.error();
         return -1;
     }
     return _setSyncModeDownloadQuery.numRowsAffected();
@@ -2275,8 +2274,8 @@ SyncJournalDb::SyncMode SyncJournalDb::getSyncMode(QString const & path)
     _getSyncModeQuery.bindValue(1, path);
     if (!_getSyncModeQuery.exec()) {
         qWarning() << "Error SQL statement getSyncMode: "
-            << _getSyncModeQuery.lastQuery() << " :"
-            << _getSyncModeQuery.error();
+                   << _getSyncModeQuery.lastQuery() << " :"
+                   << _getSyncModeQuery.error();
         return SYNCMODE_NONE;
     }
     if (!_getSyncModeQuery.next())
@@ -2298,8 +2297,8 @@ int SyncJournalDb::setSyncMode(QString const & path, SyncMode mode)
     _setSyncModeQuery.bindValue(2, modeStr);
     if (!_setSyncModeQuery.exec()) {
         qWarning() << "Error SQL statement setSyncMode: "
-            << _setSyncModeQuery.lastQuery() << " :"
-            << _setSyncModeQuery.error();
+                   << _setSyncModeQuery.lastQuery() << " :"
+                   << _setSyncModeQuery.error();
         return -1;
     }
     return _setSyncModeQuery.numRowsAffected();
@@ -2314,8 +2313,8 @@ int SyncJournalDb::deleteSyncMode(QString const & path)
     _deleteSyncModeQuery.bindValue(1, path);
     if (!_deleteSyncModeQuery.exec()) {
         qWarning() << "Error SQL statement setSyncMode: "
-            << _deleteSyncModeQuery.lastQuery() << " :"
-            << _deleteSyncModeQuery.error();
+                   << _deleteSyncModeQuery.lastQuery() << " :"
+                   << _deleteSyncModeQuery.error();
         return -1;
     }
     return _deleteSyncModeQuery.numRowsAffected();
@@ -2330,8 +2329,8 @@ QDateTime SyncJournalDb::getLastAccess(QString const & path)
     _getLastAccessQuery.bindValue(1, path);
     if (!_getLastAccessQuery.exec()) {
         qWarning() << "Error SQL statement getSyncMode: "
-            << _getLastAccessQuery.lastQuery() << " :"
-            << _getLastAccessQuery.error();
+                   << _getLastAccessQuery.lastQuery() << " :"
+                   << _getLastAccessQuery.error();
         return QDateTime{};
     }
     if (!_getLastAccessQuery.next())
@@ -2343,7 +2342,7 @@ QDateTime SyncJournalDb::getLastAccess(QString const & path)
 
     if (lastAccessDateTime.isNull())
         qWarning() << "getLastAccess: "
-        "Invalid date returned from journal DB";
+                      "Invalid date returned from journal DB";
 
     return lastAccessDateTime;
 }
@@ -2362,8 +2361,8 @@ int SyncJournalDb::updateLastAccess(QString const & path)
     _setLastAccessQuery.bindValue(2, path);
     if (!_setLastAccessQuery.exec()) {
         qWarning() << "Error SQL statement setSyncMode: "
-            << _setLastAccessQuery.lastQuery() << " :"
-            << _setLastAccessQuery.error();
+                   << _setLastAccessQuery.lastQuery() << " :"
+                   << _setLastAccessQuery.error();
         return -1;
     }
     return _setLastAccessQuery.numRowsAffected();
@@ -2390,8 +2389,8 @@ QList<QString> SyncJournalDb::getSyncModePaths()
     _getSyncModePathsQuery.reset_and_clear_bindings();
     if (!_getSyncModePathsQuery.exec()) {
         qWarning() << "Error SQL statement getSyncModePaths: "
-            << _getSyncModePathsQuery.lastQuery() << " :"
-            << _getSyncModePathsQuery.error();
+                   << _getSyncModePathsQuery.lastQuery() << " :"
+                   << _getSyncModePathsQuery.error();
         return QList<QString>{};
     }
 
@@ -2402,7 +2401,8 @@ QList<QString> SyncJournalDb::getSyncModePaths()
     return list;
 }
 
-void SyncJournalDb::emitSyncStatusChanged(QString path, bool status){
+void SyncJournalDb::emitSyncStatusChanged(QString path, bool status)
+{
     qWarning() << Q_FUNC_INFO << "Syncing status changed for: " << path;
     emit syncStatusChanged(path, status);
 }

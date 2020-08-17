@@ -1,8 +1,8 @@
 #ifndef LBCONTROLLER
 #define LBCONTROLLER
 #define FUSE_USE_VERSION 26
-#include<QObject>
-#include<QStringList>
+#include <QObject>
+#include <QStringList>
 #include "accountstate.h"
 
 #include <fuse.h>
@@ -12,27 +12,27 @@
 #include <QWaitCondition>
 #include "syncwrapper.h"
 
-const QString  kGMUserFileSystemContextUserIDKey = "kGMUserFileSystemContextUserIDKey";
-const QString  kGMUserFileSystemContextGroupIDKey = "kGMUserFileSystemContextGroupIDKey";
-const QString  kGMUserFileSystemContextProcessIDKey = "kGMUserFileSystemContextProcessIDKey";
+const QString kGMUserFileSystemContextUserIDKey = "kGMUserFileSystemContextUserIDKey";
+const QString kGMUserFileSystemContextGroupIDKey = "kGMUserFileSystemContextGroupIDKey";
+const QString kGMUserFileSystemContextProcessIDKey = "kGMUserFileSystemContextProcessIDKey";
 
-const QString  kGMUserFileSystemMountPathKey = "mountPath";
+const QString kGMUserFileSystemMountPathKey = "mountPath";
 
 // Attribute keys
-const QString  kGMUserFileSystemFileFlagsKey = "kGMUserFileSystemFileFlagsKey";
-const QString  kGMUserFileSystemFileAccessDateKey = "kGMUserFileSystemFileAccessDateKey";
-const QString  kGMUserFileSystemFileChangeDateKey = "kGMUserFileSystemFileChangeDateKey";
-const QString  kGMUserFileSystemFileBackupDateKey = "kGMUserFileSystemFileBackupDateKey";
-const QString  kGMUserFileSystemFileSizeInBlocksKey = "kGMUserFileSystemFileSizeInBlocksKey";
-const QString  kGMUserFileSystemFileOptimalIOSizeKey = "kGMUserFileSystemFileOptimalIOSizeKey";
-const QString  kGMUserFileSystemVolumeSupportsAllocateKey = "kGMUserFileSystemVolumeSupportsAllocateKey";
-const QString  kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey = "kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey";
-const QString  kGMUserFileSystemVolumeSupportsExchangeDataKey = "kGMUserFileSystemVolumeSupportsExchangeDataKey";
-const QString  kGMUserFileSystemVolumeSupportsExtendedDatesKey = "kGMUserFileSystemVolumeSupportsExtendedDatesKey";
-const QString  kGMUserFileSystemVolumeMaxFilenameLengthKey = "kGMUserFileSystemVolumeMaxFilenameLengthKey";
-const QString  kGMUserFileSystemVolumeFileSystemBlockSizeKey = "kGMUserFileSystemVolumeFileSystemBlockSizeKey";
-const QString  kGMUserFileSystemVolumeSupportsSetVolumeNameKey = "kGMUserFileSystemVolumeSupportsSetVolumeNameKey";
-const QString  kGMUserFileSystemVolumeNameKey = "kGMUserFileSystemVolumeNameKey";
+const QString kGMUserFileSystemFileFlagsKey = "kGMUserFileSystemFileFlagsKey";
+const QString kGMUserFileSystemFileAccessDateKey = "kGMUserFileSystemFileAccessDateKey";
+const QString kGMUserFileSystemFileChangeDateKey = "kGMUserFileSystemFileChangeDateKey";
+const QString kGMUserFileSystemFileBackupDateKey = "kGMUserFileSystemFileBackupDateKey";
+const QString kGMUserFileSystemFileSizeInBlocksKey = "kGMUserFileSystemFileSizeInBlocksKey";
+const QString kGMUserFileSystemFileOptimalIOSizeKey = "kGMUserFileSystemFileOptimalIOSizeKey";
+const QString kGMUserFileSystemVolumeSupportsAllocateKey = "kGMUserFileSystemVolumeSupportsAllocateKey";
+const QString kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey = "kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey";
+const QString kGMUserFileSystemVolumeSupportsExchangeDataKey = "kGMUserFileSystemVolumeSupportsExchangeDataKey";
+const QString kGMUserFileSystemVolumeSupportsExtendedDatesKey = "kGMUserFileSystemVolumeSupportsExtendedDatesKey";
+const QString kGMUserFileSystemVolumeMaxFilenameLengthKey = "kGMUserFileSystemVolumeMaxFilenameLengthKey";
+const QString kGMUserFileSystemVolumeFileSystemBlockSizeKey = "kGMUserFileSystemVolumeFileSystemBlockSizeKey";
+const QString kGMUserFileSystemVolumeSupportsSetVolumeNameKey = "kGMUserFileSystemVolumeSupportsSetVolumeNameKey";
+const QString kGMUserFileSystemVolumeNameKey = "kGMUserFileSystemVolumeNameKey";
 
 // FinderInfo and ResourceFork keys
 const QString kGMUserFileSystemFinderFlagsKey = "kGMUserFileSystemFinderFlagsKey";
@@ -42,10 +42,9 @@ const QString kGMUserFileSystemWeblocURLKey = "kGMUserFileSystemWeblocURLKey";
 
 static const double kNanoSecondsPerSecond = 1000000000.0;
 
-namespace OCC
-{
-    struct DiscoveryDirectoryResult;
-    class DiscoveryFolderFileList;
+namespace OCC {
+struct DiscoveryDirectoryResult;
+class DiscoveryFolderFileList;
 }
 
 class InternalVfsMac;
@@ -65,19 +64,19 @@ class InternalVfsMac;
  * LoopbackController* and the userInfo will always contain at least the
  * mountPath.<br>
  *
- */                   
+ */
 class VfsMac : public QObject
 {
     Q_OBJECT
-    
+
 private:
     QSharedPointer<InternalVfsMac> internal_;
     QString rootPath_;
     qint64 usedQuota_;
     qint64 totalQuota_;
-    QMap<QString, OCC::DiscoveryDirectoryResult*> _fileListMap;
+    QMap<QString, OCC::DiscoveryDirectoryResult *> _fileListMap;
     QPointer<OCC::DiscoveryFolderFileList> _remotefileListJob;
-    
+
     QPointer<OCC::AccountState> accountState_;
     int _counter = 0;
 
@@ -89,8 +88,8 @@ private:
 
 #pragma mark Fuse operations.
     void mount(QVariantMap args);
-    void waitUntilMounted (int fileDescriptor);
-    
+    void waitUntilMounted(int fileDescriptor);
+
     /*    QVariantMap finderAttributesAtPath(QString path);
      QVariantMap resourceAttributesAtPath(QString path);
      
@@ -98,35 +97,34 @@ private:
      bool isDirectoryIconAtPath(QString path, QString *dirPath);*/
     //QByteArray finderDataForAttributes(QVariantMap attributes);
     //QByteArray resourceDataForAttributes(QVariantMap attributes);
-    
+
     QVariantMap defaultAttributesOfItemAtPath(QString path, QVariant userData, QVariantMap &error);
-    
+
 public:
-    
     typedef enum {
-        GMUserFileSystem_NOT_MOUNTED,     // Not mounted.
-        GMUserFileSystem_MOUNTING,        // In the process of mounting.
-        GMUserFileSystem_INITIALIZING,    // Almost done mounting.
-        GMUserFileSystem_MOUNTED,         // Confirmed to be mounted.
-        GMUserFileSystem_UNMOUNTING,      // In the process of unmounting.
-        GMUserFileSystem_FAILURE,         // Failed state; probably a mount failure.
+        GMUserFileSystem_NOT_MOUNTED, // Not mounted.
+        GMUserFileSystem_MOUNTING, // In the process of mounting.
+        GMUserFileSystem_INITIALIZING, // Almost done mounting.
+        GMUserFileSystem_MOUNTED, // Confirmed to be mounted.
+        GMUserFileSystem_UNMOUNTING, // In the process of unmounting.
+        GMUserFileSystem_FAILURE, // Failed state; probably a mount failure.
     } GMUserFileSystemStatus;
-    
+
     typedef enum {
         // Unable to unmount a dead FUSE files system located at mount point.
         GMUserFileSystem_ERROR_UNMOUNT_DEADFS = 1000,
-        
+
         // Gave up waiting for system removal of existing dir in /Volumes/x after
         // unmounting a dead FUSE file system.
         GMUserFileSystem_ERROR_UNMOUNT_DEADFS_RMDIR = 1001,
-        
+
         // The mount point did not exist, and we were unable to mkdir it.
         GMUserFileSystem_ERROR_MOUNT_MKDIR = 1002,
-        
+
         // fuse_main returned while trying to mount and don't know why.
         GMUserFileSystem_ERROR_MOUNT_FUSE_MAIN_INTERNAL = 1003,
     } GMUserFileSystemErrorCode;
-    
+
     /*!
      * abstract Initialize the user space file system.
      * discussion You should only specify YES
@@ -137,22 +135,23 @@ public:
      * param isThreadSafe Is the file system thread safe?
      * result A LoopbackController instance.
      */
-    explicit VfsMac(QString rootPath, bool isThreadSafe, OCC::AccountState *accountState, QObject *parent=0);
-    
+    explicit VfsMac(QString rootPath, bool isThreadSafe, OCC::AccountState *accountState, QObject *parent = 0);
+
     // The file system for the current thread. Valid only during a FUSE callback.
-    static VfsMac* currentFS() {
-        struct fuse_context* context = fuse_get_context();
+    static VfsMac *currentFS()
+    {
+        struct fuse_context *context = fuse_get_context();
         Q_ASSERT(context);
         return (VfsMac *)context->private_data;
     }
-    
+
     // Convenience method to creates an autoreleased NSError in the
     // NSPOSIXErrorDomain. Filesystem errors returned by the delegate must be
     // standard posix errno values.
     static QVariantMap errorWithCode(int code);
-    
+
     QVariantMap errorWithPosixCode(int code);
-    
+
     /*!
      * abstract Returns the context of the current file system operation.
      * discussion The context of the current file system operation is only valid
@@ -164,7 +163,7 @@ public:
      * result The current file system operation context or nil.
      */
     QVariantMap currentContext();
-    
+
     /*!
      * abstract Mount the file system at the given path.
      * discussion Mounts the file system at mountPath with the given set of options.
@@ -177,7 +176,7 @@ public:
      * param options The set of mount time options to use.
      */
     void mountAtPath(QString mountPath, QStringList options);
-    
+
     /*!
      * abstract Mount the file system at the given path with advanced options.
      * discussion Mounts the file system at mountPath with the given set of options.
@@ -196,14 +195,14 @@ public:
      *        the current one? (Recommend: YES)
      */
     void mountAtPath(QString mountPath, QStringList options, bool shouldForeground, bool detachNewThread);
-    
+
     /*!
      * abstract Unmount the file system.
      * discussion Unmounts the file system. The FuseFileSystemDidUnmount
      * notification will be posted.
      */
     void unmount();
-    
+
     /*!
      * abstract Invalidate caches and post file system event.
      * discussion Invalidate caches for the specified path and post a file system
@@ -213,9 +212,9 @@ public:
      * result YES if the caches were successfully invalidated.
      */
     bool invalidateItemAtPath(QString path, QVariantMap &error);
-    
+
 #pragma mark Directory Contents
-    
+
     /*!
      * abstract Returns directory contents at the specified path.
      * discussion Returns an array of NSString containing the names of files and
@@ -225,10 +224,10 @@ public:
      * param error Should be filled with a POSIX error in case of failure.
      * result A QStringList or nil on error.
      */
-    QStringList* contentsOfDirectoryAtPath(QString path, QVariantMap &error);
-    
+    QStringList *contentsOfDirectoryAtPath(QString path, QVariantMap &error);
+
 #pragma mark Getting and Setting Attributes
-    
+
     /*!
      * abstract Returns file system attributes.
      * discussion
@@ -249,7 +248,7 @@ public:
      * result A dictionary of attributes for the file system.
      */
     QVariantMap attributesOfFileSystemForPath(QString path, QVariantMap &error);
-    
+
     /*!
      * abstract Set attributes at the specified path.
      * discussion
@@ -278,7 +277,7 @@ public:
      * result YES if the attributes are successfully set.
      */
     bool setAttributes(QVariantMap attributes, QString path, QVariant userInfo, QVariantMap &error);
-    
+
 #pragma mark File Contents
 
     /*
@@ -287,8 +286,8 @@ public:
     * param pid
     *
     */
-   char *getProcessName(pid_t pid);
-    
+    char *getProcessName(pid_t pid);
+
     /*!
      * abstract Opens the file at the given path for read/write.
      * discussion This will only be called for existing files. If the file needs
@@ -303,7 +302,7 @@ public:
      * result YES if the file was opened successfully.
      */
     bool openFileAtPath(QString path, int mode, QVariant &userData, QVariantMap &error);
-    
+
     /*!
      * abstract Called when an opened file is closed.
      * discussion If userData was provided in the corresponding openFileAtPath: call
@@ -313,7 +312,7 @@ public:
      * param userData The userData corresponding to this open file or nil.
      */
     void releaseFileAtPath(QString path, QVariant userData);
-    
+
     /*!
      * abstract Reads data from the open file at the specified path.
      * discussion Reads data from the file starting at offset into the provided
@@ -330,7 +329,7 @@ public:
      * result The number of bytes read or -1 on error.
      */
     int readFileAtPath(QString path, QVariant userData, char *buffer, size_t size, off_t offset, QVariantMap &error);
-    
+
     /*!
      * abstract Writes data to the open file at the specified path.
      * discussion Writes data to the file starting at offset from the provided
@@ -347,7 +346,7 @@ public:
      * result The number of bytes written or -1 on error.
      */
     int writeFileAtPath(QString path, QVariant userData, const char *buffer, size_t size, off_t offset, QVariantMap &error);
-    
+
     /*!
      * abstract Preallocates space for the open file at the specified path.
      * discussion Preallocates file storage space. Upon success, the space that is
@@ -368,7 +367,7 @@ public:
      * result YES if the space was preallocated successfully.
      */
     bool preallocateFileAtPath(QString path, QVariant userData, int options, off_t offset, off_t length, QVariantMap &error);
-    
+
     /*!
      * abstract Atomically exchanges data between files.
      * discussion  Called to atomically exchange file data between path1 and path2.
@@ -379,9 +378,9 @@ public:
      * result YES if data was exchanged successfully.
      */
     bool exchangeDataOfItemAtPath(QString path1, QString path2, QVariantMap &error);
-    
+
 #pragma mark Creating an Item
-    
+
     /*!
      * abstract Creates a directory at the specified path.
      * discussion  The attributes may contain keys similar to setAttributes:.
@@ -392,7 +391,7 @@ public:
      * result YES if the directory was successfully created.
      */
     bool createDirectoryAtPath(QString path, QVariantMap attributes, QVariantMap &error);
-    
+
     /*!
      * abstract Creates and opens a file at the specified path.
      * discussion  This should create and open the file at the same time. The
@@ -408,9 +407,9 @@ public:
      * result YES if the directory was successfully created.
      */
     bool createFileAtPath(QString path, QVariantMap attributes, int flags, QVariant &userData, QVariantMap &error);
-    
+
 #pragma mark Moving an Item
-    
+
     /*!
      * abstract Moves or renames an item.
      * discussion Move, also known as rename, is one of the more difficult file
@@ -423,9 +422,9 @@ public:
      * result YES if the move was successful.
      */
     bool moveItemAtPath(QString source, QString destination, QVariantMap &error);
-    
+
 #pragma mark Removing an Item
-    
+
     /*!
      * abstract Remove the directory at the given path.
      * discussion Unlike NSFileManager, this should not recursively remove
@@ -437,7 +436,7 @@ public:
      * result YES if the directory was successfully removed.
      */
     bool removeDirectoryAtPath(QString path, QVariantMap &error);
-    
+
     /*!
      * abstract Removes the item at the given path.
      * discussion This should not recursively remove subdirectories. If
@@ -449,9 +448,9 @@ public:
      * result YES if the item was successfully removed.
      */
     bool removeItemAtPath(QString path, QVariantMap &error);
-    
+
 #pragma mark Linking an Item
-    
+
     /*!
      * @abstract Creates a hard link.
      * @seealso man link(2)
@@ -461,9 +460,9 @@ public:
      * @result YES if the hard link was successfully created.
      */
     bool linkItemAtPath(QString path, QString otherPath, QVariantMap &error);
-    
+
 #pragma mark Symbolic Links
-    
+
     /*!
      * @abstract Creates a symbolic link.
      * @seealso man symlink(2)
@@ -473,7 +472,7 @@ public:
      * @result YES if the symbolic link was successfully created.
      */
     bool createSymbolicLinkAtPath(QString path, QString otherPath, QVariantMap &error);
-    
+
     /*!
      * @abstract Reads the destination of a symbolic link.
      * @seealso man readlink(2)
@@ -482,9 +481,9 @@ public:
      * @result The destination path of the symbolic link or nil on error.
      */
     QString destinationOfSymbolicLinkAtPath(QString path, QVariantMap &error);
-    
+
 #pragma mark Extended Attributes
-    
+
     /*!
      * abstract Returns the names of the extended attributes at the specified path.
      * discussion If there are no extended attributes at this path, then return an
@@ -494,8 +493,8 @@ public:
      * param error Should be filled with a POSIX error in case of failure.
      * result A List of extended attribute names or nil on error.
      */
-    QStringList* extendedAttributesOfItemAtPath(QString path, QVariantMap &error);
-    
+    QStringList *extendedAttributesOfItemAtPath(QString path, QVariantMap &error);
+
     /*!
      * abstract Returns the contents of the extended attribute at the specified path.
      * seealso man getxattr(2)
@@ -505,8 +504,8 @@ public:
      * param error Should be filled with a POSIX error in case of failure.
      * result The data corresponding to the attribute or nil on error.
      */
-    QByteArray* valueOfExtendedAttribute(QString name, QString path, off_t position, QVariantMap &error);
-    
+    QByteArray *valueOfExtendedAttribute(QString name, QString path, off_t position, QVariantMap &error);
+
     /*!
      * abstract Writes the contents of the extended attribute at the specified path.
      * seealso man setxattr(2)
@@ -519,7 +518,7 @@ public:
      * result YES if the attribute was successfully written.
      */
     bool setExtendedAttribute(QString name, QString path, QByteArray value, off_t position, int options, QVariantMap &error);
-    
+
     /*!
      * abstract Removes the extended attribute at the specified path.
      * seealso man removexattr(2)
@@ -531,7 +530,7 @@ public:
     bool removeExtendedAttribute(QString name, QString path, QVariantMap &error);
 
     //~VfsMac();
-    
+
     bool enableAllocate();
     bool enableCaseSensitiveNames();
     bool enableExchangeData();
@@ -539,17 +538,17 @@ public:
     bool enableSetVolumeName();
     void fuseInit();
     void fuseDestroy();
-    
+
     bool fillStatfsBuffer(struct statfs *stbuf, QString path, QVariantMap &error);
     bool fillStatBuffer(struct stat *stbuf, QString path, QVariant userData, QVariantMap &error);
     QVariantMap *extendedTimesOfItemAtPath(QString path, QVariant userData, QVariantMap &error);
-    
+
     void setTotalQuota(qint64 totalQuota) { totalQuota_ = totalQuota; }
     void setUsedQuota(qint64 usedQuota) { usedQuota_ = usedQuota; }
-    
+
     qint64 totalQuota() { return totalQuota_; }
     qint64 usedQuota() { return usedQuota_; }
-    
+
 public slots:
     void folderFileListFinish(OCC::DiscoveryDirectoryResult *dr);
 

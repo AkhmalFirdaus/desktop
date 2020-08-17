@@ -15,12 +15,12 @@
 // ================================================================
 //
 //  VfsMacController.h
-//  
+//
 //
 //  Created by ted on 12/27/07.
 //
 
- 
+
 #ifndef LOOPBACKCONTROLLER_H
 #define LOOPBACKCONTROLLER_H
 
@@ -31,20 +31,20 @@
 
 class VfsMac;
 
-class VfsMacController: public QObject
+class VfsMacController : public QObject
 {
     Q_OBJECT
 public:
     explicit VfsMacController(QString rootPath, QString mountPath, OCC::AccountState *accountState, QObject *parent);
     ~VfsMacController();
-    
+
 public slots:
     void slotquotaUpdated(qint64 total, qint64 used);
     void unmount();
     void mountFailed (QVariantMap userInfo);
     void didMount(QVariantMap userInfo);
     void didUnmount (QVariantMap userInfo);
-    
+
 private:
     QScopedPointer<VfsMac> fs_;
     OCC::QuotaInfo *qi_;
