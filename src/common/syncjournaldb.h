@@ -262,7 +262,7 @@ public:
 	* @path File path
 	* @return integer representing if file has been donwloaded.
 	*/
-    SyncModeDownload getSyncModeDownload(QString const &path);
+    SyncModeDownload getSyncModeDownload(const QString &path);
 
     /**
 	* Sets or registers the sync downloaded boolean
@@ -271,7 +271,7 @@ public:
 	* @N, Y : download option
 	* @return Number of modified records on success. -1 on failure.
 	*/
-    int setSyncModeDownload(QString const &path, SyncModeDownload down);
+    int setSyncModeDownload(const QString &path, SyncModeDownload down);
 
     /**
 	* Retrieves the sync mode of the provided path
@@ -279,7 +279,7 @@ public:
 	* @path File path
 	* @return integer representing the download mode in case of success, -1 on failure. If multiple paths match the @path parameter, the first result will be returned
 	*/
-    SyncMode getSyncMode(QString const &path);
+    SyncMode getSyncMode(const QString &path);
 
     /**
 	* Retrieves the sync mode of the provided path
@@ -295,7 +295,7 @@ public:
 	* @mode New download mode
 	* @return Number of modified records on success. -1 on failure.
 	*/
-    int setSyncMode(QString const &path, SyncMode mode);
+    int setSyncMode(const QString &path, SyncMode mode);
 
     /**
 	* Deletes syncmode register matching the provided path
@@ -303,28 +303,28 @@ public:
 	* @path File path
 	* @return Number of affected records on success. -1 on failure.
 	*/
-    int deleteSyncMode(QString const &path);
+    int deleteSyncMode(const QString &path);
 
     /**
 	* @brief  Retrieves the last access local datetime of the given path
 	* @path File path
 	* @return On success, QDateTime representing the last access time. On failure, an invalid QDateTime object with null date and time.
 	*/
-    QDateTime getLastAccess(QString const &path);
+    QDateTime getLastAccess(const QString &path);
 
     /**
 	* @brief  Sets the last access time to the current local time in format yyyy-MM-dd HH:mm:ss
 	* @path File path
 	* @return Number of modified records on success. -1 on failure.
 	*/
-    int updateLastAccess(QString const &path);
+    int updateLastAccess(const QString &path);
 
     /**
 	* @brief  Returns the difference in seconds between the current datetime and the record lastAccessDateTime
 	* @path File path
 	* @return Seconds since last accesson success. -1 on failure.
 	*/
-    qint64 secondsSinceLastAccess(QString const &path);
+    qint64 secondsSinceLastAccess(const QString &path);
 
     void emitSyncStatusChanged(QString path, bool status);
 
