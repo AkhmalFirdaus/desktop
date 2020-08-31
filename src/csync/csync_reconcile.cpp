@@ -92,7 +92,8 @@ static csync_file_stat_t *_csync_check_ignored(csync_s::FileMap *tree, const Byt
  * (timestamp is newer), it is not overwritten. If both files, on the
  * source and the destination, have been changed, the newer file wins.
  */
-static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC * ctx) {
+static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
+{
     csync_s::FileMap *our_tree = nullptr;
     csync_s::FileMap *other_tree = nullptr;
 
@@ -133,7 +134,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC * ctx) 
 
     /* file only found on current replica */
     if (!other) {
-        switch(cur->instruction) {
+        switch (cur->instruction) {
         /* file has been modified */
         case CSYNC_INSTRUCTION_EVAL:
             cur->instruction = CSYNC_INSTRUCTION_NEW;
@@ -183,7 +184,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC * ctx) 
                         basePath.constData(), other ? "found" : "not found");
                 }
 
-                const auto curParentPath = [=]{
+                const auto curParentPath = [=] {
                     const auto slashPosition = cur->path.lastIndexOf('/');
                     if (slashPosition >= 0) {
                         return cur->path.left(slashPosition);
@@ -192,7 +193,6 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC * ctx) 
                     }
                 }();
                 auto curParent = our_tree->findFile(curParentPath);
-
                 if (!other
                  || !other->e2eMangledName.isEmpty()
                  || (curParent && curParent->isE2eEncrypted)) {
@@ -220,7 +220,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC * ctx) 
                         other->path.constData(), cur->path.constData());
                     other->instruction = CSYNC_INSTRUCTION_RENAME;
                     other->rename_path = cur->path;
-                    if( !cur->file_id.isEmpty() ) {
+                    if (!cur->file_id.isEmpty()) {
                         other->file_id = cur->file_id;
                     }
                     if (ctx->current == LOCAL_REPLICA) {
@@ -464,63 +464,55 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC * ctx) 
     //hide instruction NONE messages when log level is set to debug,
     //only show these messages on log level trace
     const char *repo = ctx->current == REMOTE_REPLICA ? "server" : "client";
-    if(cur->instruction ==CSYNC_INSTRUCTION_NONE)
-    {
-        if(cur->type == ItemTypeDirectory)
-        {
+    if (cur->instruction == CSYNC_INSTRUCTION_NONE) {
+        if (cur->type == ItemTypeDirectory) {
             qCDebug(lcReconcile,
-                      "%-30s %s dir:  %s",
-                      csync_instruction_str(cur->instruction),
-                      repo,
-                      cur->path.constData());
-        }
-        else
-        {
+                "%-30s %s dir:  %s",
+                csync_instruction_str(cur->instruction),
+                repo,
+                cur->path.constData());
+        } else {
             qCDebug(lcReconcile,
-                      "%-30s %s file: %s",
-                      csync_instruction_str(cur->instruction),
-                      repo,
-                      cur->path.constData());
+                "%-30s %s file: %s",
+                csync_instruction_str(cur->instruction),
+                repo,
+                cur->path.constData());
         }
-    }
-    else
-    {
-        if(cur->type == ItemTypeDirectory)
-        {
+    } else {
+        if (cur->type == ItemTypeDirectory) {
             qCInfo(lcReconcile,
-                      "%-30s %s dir:  %s",
-                      csync_instruction_str(cur->instruction),
-                      repo,
-                      cur->path.constData());
-        }
-        else
-        {
+                "%-30s %s dir:  %s",
+                csync_instruction_str(cur->instruction),
+                repo,
+                cur->path.constData());
+        } else {
             qCInfo(lcReconcile,
-                      "%-30s %s file: %s",
-                      csync_instruction_str(cur->instruction),
-                      repo,
-                      cur->path.constData());
+                "%-30s %s file: %s",
+                csync_instruction_str(cur->instruction),
+                repo,
+                cur->path.constData());
         }
     }
 }
 
-void csync_reconcile_updates(CSYNC *ctx) {
-  csync_s::FileMap *tree = nullptr;
+void csync_reconcile_updates(CSYNC *ctx)
+{
+    csync_s::FileMap *tree = nullptr;
 
-  switch (ctx->current) {
+    switch (ctx->current) {
     case LOCAL_REPLICA:
-      tree = &ctx->local.files;
-      break;
+        tree = &ctx->local.files;
+        break;
     case REMOTE_REPLICA:
-      tree = &ctx->remote.files;
-      break;
+        tree = &ctx->remote.files;
+        break;
     default:
-      break;
-  }
+        break;
+    }
 
-  for (auto &pair : *tree) {
-    _csync_merge_algorithm_visitor(pair.second.get(), ctx);
-  }
+    for (auto &pair : *tree) {
+        _csync_merge_algorithm_visitor(pair.second.get(), ctx);
+    }
 }
 
 /* vim: set ts=8 sw=2 et cindent: */
