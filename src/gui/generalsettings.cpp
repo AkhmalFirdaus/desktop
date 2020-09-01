@@ -154,7 +154,8 @@ GeneralSettings::GeneralSettings(QWidget *parent)
     connect(_ui->showInExplorerNavigationPaneCheckBox, &QAbstractButton::toggled, this, &GeneralSettings::slotShowInExplorerNavigationPane);
 
     // TODO: show checkbox once the virtual drive is NOT a experimental feature
-#ifndef defined(Q_OS_UNIX)
+    // #ifndef defined(Q_OS_UNIX)
+#if 0
     _ui->virtualFileSystemCheckbox->hide();
     connect(_ui->virtualFileSystemCheckbox, &QAbstractButton::toggled,
         this, &GeneralSettings::slotToggleOptionalVirtualFileSystem);
@@ -420,7 +421,7 @@ void GeneralSettings::slotToggleOptionalVirtualFileSystem(bool enable)
             cfgFile.setDefaultFileStreamMirrorPath(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/.cachedFiles");
 
         //FIXME this doesnt work for multiple accounts...
-        foreach (auto ai, AccountManager::instance()->accounts()) {
+        for (const auto &ai : AccountManager::instance()->accounts()) {
             emit mountVirtualDrive(ai.data());
         }
     } else {
@@ -447,7 +448,7 @@ void GeneralSettings::slotToggleOptionalVirtualFileSystem(bool enable)
             cfgFile.setDefaultFileStreamLetterDrive(availableLogicalDrive);
 
         //FIXME this doesnt work for multiple accounts...
-        foreach (auto ai, AccountManager::instance()->accounts()) {
+        for (const auto &ai : AccountManager::instance()->accounts()) {
             emit mountVirtualDrive(ai.data());
         }
     } else {
