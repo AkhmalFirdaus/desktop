@@ -21,8 +21,8 @@
 //
 
 
-#ifndef LOOPBACKCONTROLLER_H
-#define LOOPBACKCONTROLLER_H
+#ifndef VFSMACCONTROLLER_H
+#define VFSMACCONTROLLER_H
 
 #include <QtCore>
 
@@ -50,6 +50,5 @@ private:
     OCC::QuotaInfo *qi_;
     bool closedExternally = true;
 };
-
 
 #endif
