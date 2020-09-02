@@ -1342,31 +1342,6 @@ bool SyncJournalDb::setFileRecordMetadata(const SyncJournalFileRecord &record)
     return setFileRecord(existing);
 }
 
-bool SyncJournalDb::setFileRecordVirtualFile(const SyncJournalFileRecord &record)
-{
-    SyncJournalFileRecord existing;
-    if (!getFileRecord(record._path, &existing))
-        return false;
-
-    // If there's no existing record, just insert the new one.
-    if (!existing.isValid()) {
-        return setFileRecord(record);
-    }
-
-    // Update the virtualfile flag on the existing record.
-    existing._inode = record._inode;
-    existing._modtime = record._modtime;
-    existing._type = record._type;
-    existing._etag = record._etag;
-    existing._fileId = record._fileId;
-    existing._remotePerm = record._remotePerm;
-    existing._fileSize = record._fileSize;
-    existing._serverHasIgnoredFiles = record._serverHasIgnoredFiles;
-    existing._e2eMangledName = record._e2eMangledName;
-    existing._virtualfile = record._virtualfile;
-    return setFileRecord(existing);
-}
-
 static void toDownloadInfo(SqlQuery &query, SyncJournalDb::DownloadInfo *res)
 {
     bool ok = true;
