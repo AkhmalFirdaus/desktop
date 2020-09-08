@@ -621,9 +621,12 @@ QStringList *VfsMac::contentsOfDirectoryAtPath(QString path, QVariantMap &error)
                     close(fd.toInt());
                 }
 
+                const auto relativePath = _fileListMap.value(path)->list.at(i)->path;
+                const auto folder = FolderMan::instance()->folderForPath(completePath);
+                const auto journal = folder->journalDb();
+
                 // set all by default as online
-                SyncJournalDb::instance()->setSyncMode(_fileListMap.value(path)->list.at(i)->path,
-                    SyncJournalDb::SYNCMODE_ONLINE);
+                journal->setSyncMode(relativePath, SyncJournalDb::SYNCMODE_ONLINE);
             }
         }
     }
