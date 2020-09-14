@@ -26,8 +26,8 @@
 
 #include <QtCore>
 
-#include "quotainfo.h"
 #include "accountstate.h"
+#include "configfile.h"
 
 class VfsMac;
 
@@ -35,20 +35,27 @@ class VfsMacController : public QObject
 {
     Q_OBJECT
 public:
-    explicit VfsMacController(QString rootPath, QString mountPath, OCC::AccountState *accountState, QObject *parent);
     ~VfsMacController();
+    static VfsMacController* instance();
+    void mount();
+    void unmount();
+    void cleanCacheFolder();
+    void initialize(const QString rootPath, const QString mountPath, OCC::AccountState *accountState);
 
 public slots:
     void slotquotaUpdated(qint64 total, qint64 used);
-    void unmount();
     void mountFailed (QVariantMap userInfo);
     void didMount(QVariantMap userInfo);
     void didUnmount (QVariantMap userInfo);
 
 private:
-    QScopedPointer<VfsMac> fs_;
-    OCC::QuotaInfo *qi_;
-    bool closedExternally = true;
+    VfsMac *fuse;
+    static VfsMacController *_instance;
+    QStringList options;
+    QString rootPath;
+    QString mountPath;
+    explicit VfsMacController();
+    OCC::ConfigFile cfgFile;
 };
 
 #endif
