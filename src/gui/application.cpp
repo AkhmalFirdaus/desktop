@@ -244,18 +244,8 @@ Application::Application(int &argc, char **argv)
     connect(AccountManager::instance(), &AccountManager::accountRemoved,
         this, &Application::slotAccountStateRemoved);
 
-    ConfigFile configFile;
-    if (configFile.enableVirtualFileSystem()) {
-        connect(AccountManager::instance(), &AccountManager::mountVirtualDriveForAccount,
-                this, &Application::slotMountVirtualDrive);
-    }
-
     for (const auto &ai : AccountManager::instance()->accounts()) {
         slotAccountStateAdded(ai.data());
-
-        if(configFile.enableVirtualFileSystem()) {
-            slotMountVirtualDrive(ai.data());
-        }
     }
 
     connect(FolderMan::instance()->socketApi(), &SocketApi::shareCommandReceived,
@@ -346,6 +336,11 @@ void Application::slotAccountStateAdded(AccountState *accountState)
         _folderManager.data(), &FolderMan::slotAccountStateChanged);
     connect(accountState->account().data(), &Account::serverVersionChanged,
         _folderManager.data(), &FolderMan::slotServerVersionChanged);
+
+    ConfigFile configFile;
+    if (configFile.enableVirtualFileSystem()) {
+        slotMountVirtualDrive(accountState);
+    }
 
     _gui->slotTrayMessageIfServerUnsupported(accountState->account().data());
 }
