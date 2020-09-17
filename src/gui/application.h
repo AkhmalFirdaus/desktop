@@ -32,10 +32,6 @@
 #include "clientproxy.h"
 #include "folderman.h"
 
-#if defined(Q_OS_MAC)
-#include "vfs_maccontroller.h"
-#endif
-
 class QMessageBox;
 class QSystemTrayIcon;
 class QSocket;
@@ -77,7 +73,6 @@ public slots:
     // TODO: this should not be public
     void slotownCloudWizardDone(int);
     void slotCrash();
-    void slotMountVirtualDrive(AccountState *accountState);
 
 protected:
     void parseOptions(const QStringList &);

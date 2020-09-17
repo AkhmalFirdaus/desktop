@@ -31,6 +31,7 @@
 #ifdef WITH_LIBCLOUDPROVIDERS
 #include "cloudproviders/cloudprovidermanager.h"
 #endif
+#include "virtualdriveinterface.h"
 
 #include <QQmlApplicationEngine>
 #include <QDesktopServices>
@@ -491,6 +492,10 @@ void ownCloudGui::slotLogout()
     }
 
     foreach (const auto &ai, list) {
+        const auto drive = ai->drive();
+        if (drive) {
+            drive->unmount();
+        }
         ai->signOutByUi();
     }
 }

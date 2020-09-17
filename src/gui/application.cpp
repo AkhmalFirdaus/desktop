@@ -34,6 +34,7 @@
 #include "sharedialog.h"
 #include "accountmanager.h"
 #include "creds/abstractcredentials.h"
+#include "virtualdriveinterface.h"
 
 #if defined(BUILD_UPDATER)
 #include "updater/ocupdater.h"
@@ -42,10 +43,7 @@
 #include "owncloudsetupwizard.h"
 #include "version.h"
 
-#if defined(Q_OS_WIN)
-#include <windows.h>
-#include "vfs_windows.h"
-#endif
+#include "config.h"
 
 #if defined(WITH_CRASHREPORTER)
 #include <libcrashreporter-handler/Handler.h>
@@ -292,18 +290,15 @@ Application::~Application()
     disconnect(AccountManager::instance(), &AccountManager::accountRemoved,
         this, &Application::slotAccountStateRemoved);
     AccountManager::instance()->shutdown();
-
-#if defined(Q_OS_WIN)
-    VfsWindows::instance()->unmount();
-#endif
-
-#if defined(Q_OS_MAC)
-    VfsMacController::instance()->unmount();
-#endif
 }
 
 void Application::slotAccountStateRemoved(AccountState *accountState)
 {
+    const auto drive = accountState->drive();
+    if (drive) {
+        drive->unmount();
+    }
+
     if (_gui) {
         disconnect(accountState, &AccountState::stateChanged,
             _gui.data(), &ownCloudGui::slotAccountStateChanged);
@@ -337,8 +332,12 @@ void Application::slotAccountStateAdded(AccountState *accountState)
     connect(accountState->account().data(), &Account::serverVersionChanged,
         _folderManager.data(), &FolderMan::slotServerVersionChanged);
 
-    slotMountVirtualDrive(accountState);
     _gui->slotTrayMessageIfServerUnsupported(accountState->account().data());
+
+    const auto drive = accountState->drive();
+    if (drive) {
+        drive->mount();
+    }
 }
 
 void Application::slotCleanup()
@@ -685,33 +684,6 @@ void Application::showMainDialog()
 void Application::slotGuiIsShowingSettings()
 {
     emit isShowingSettingsDialog();
-}
-
-void Application::slotMountVirtualDrive(AccountState *accountState) {
-    // Mount the virtual FileSystem.
-#if defined(Q_OS_MAC)
-    ConfigFile configFile;
-    if (configFile.enableVirtualFileSystem()) {
-        VfsMacController::instance()->initialize(accountState);
-        VfsMacController::instance()->mount();
-    }
-#endif
-
-#if defined(Q_OS_WIN)
-    ConfigFile configFile;
-    if (configFile.enableVirtualFileSystem()) {
-        VfsWindows::instance()->initialize(accountState);
-        VfsWindows::instance()->mount();
-    }
-#endif
-
-    //< For cron delete dir/files online. Execute each 60000 msec
-
-	//< Uncomment for test "Clean local folder" case.
- 	/*_cronDeleteOnlineFiles = new QTimer(this);
-	connect(_cronDeleteOnlineFiles, SIGNAL(timeout()), this, SLOT(slotDeleteOnlineFiles()));
-	_cronDeleteOnlineFiles->start(60000);
-	*/
 }
 
 bool Application::removeDirs(const QString & dirName)
