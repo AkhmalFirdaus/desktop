@@ -33,11 +33,17 @@
 
 namespace OCC {
 
+class VfsWindows;
+
 class CleanIgnoredTask : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
+    explicit CleanIgnoredTask(VfsWindows *vfs);
     void run();
+
+private:
+    VfsWindows *_vfs;
 };
 
 class VfsWindows : public OCC::VirtualDriveInterface
@@ -46,7 +52,6 @@ class VfsWindows : public OCC::VirtualDriveInterface
 public:
     explicit VfsWindows(QObject *parent = nullptr);
     ~VfsWindows();
-    static VfsWindows *instance();
     void initialize(AccountState *accountState);
     void mount() override;
     void unmount() override;
@@ -76,7 +81,6 @@ public:
     QString getAvailableLogicalDrive();
 
 private:
-    static VfsWindows *_instance;
     QMap<QString, OCC::DiscoveryDirectoryResult *> _fileListMap;
     QPointer<OCC::DiscoveryFolderFileList> _remotefileListJob;
     QString rootPath;
