@@ -55,10 +55,10 @@ NCContextMenu::~NCContextMenu(void)
 }
 
 
-void OCContextMenu::OnVerbDisplayFileName(HWND hWnd)
+void NCContextMenu::OnVerbDisplayFileName(HWND hWnd)
 {
-    OCClientInterface::ContextMenuInfo info = OCClientInterface::FetchInfo();
-    OCClientInterface::ShareObject(std::wstring(m_szSelectedFile));
+    NCClientInterface::ContextMenuInfo info = NCClientInterface::FetchInfo();
+    NCClientInterface::ShareObject(std::wstring(m_szSelectedFile));
 }
 
 
@@ -180,7 +180,7 @@ IFACEMETHODIMP NCContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT
     indexMenu++;
 
 	// Query the download mode 
-	std::wstring downloadMode = OCClientInterface::GetDownloadMode(m_szSelectedFile);
+        std::wstring downloadMode = NCClientInterface::GetDownloadMode(m_szSelectedFile);
 	bool checkOnlineItem = downloadMode == L"ONLINE";
 	bool checkOfflineItem = downloadMode == L"OFFLINE";
 

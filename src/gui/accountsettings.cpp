@@ -230,23 +230,6 @@ void AccountSettings::slotNewMnemonicGenerated()
     _ui->encryptionMessage->show();
 }
 
-void AccountSettings::slotMenuBeforeShow() {
-    if (_menuShown) {
-        return;
-    }
-
-    auto menu = ui->_accountToolbox->menu();
-
-    // We can't check this during the initial creation as there is no account yet then
-    if (_accountState->account()->capabilities().clientSideEncryptionAvaliable()) {
-        QAction *mnemonic = new QAction(tr("Show E2E mnemonic"), this);
-        connect(mnemonic, &QAction::triggered, this, &AccountSettings::requesetMnemonic);
-        menu->addAction(mnemonic);
-    }
-
-    _menuShown = true;
-}
-
 void AccountSettings::slotEncryptFolderFinished(int status)
 {
     qCInfo(lcAccountSettings) << "Current folder encryption status code:" << status;

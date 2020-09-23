@@ -632,41 +632,6 @@ void SocketApi::command_SHARE_MENU_TITLE(const QString &, SocketListener *listen
     listener->sendMessage(QLatin1String("STREAM_ONLINE_ITEM_TITLE:") + tr("Online only"));
 }
 
-void SocketApi::command_EDIT(const QString &localFile, SocketListener *listener)
-{
-    Q_UNUSED(listener)
-    auto fileData = FileData::get(localFile);
-    if (!fileData.folder) {
-        qCWarning(lcSocketApi) << "Unknown path" << localFile;
-        return;
-    }
-
-    auto record = fileData.journalRecord();
-    if (!record.isValid())
-        return;
-
-    DirectEditor* editor = getDirectEditorForLocalFile(fileData.localPath);
-    if (!editor)
-        return;
-
-    auto *job = new JsonApiJob(fileData.folder->accountState()->account(), QLatin1String("ocs/v2.php/apps/files/api/v1/directEditing/open"), this);
-
-    QUrlQuery params;
-    params.addQueryItem("path", fileData.accountRelativePath);
-    params.addQueryItem("editorId", editor->id());
-    job->addQueryParams(params);
-    job->usePOST();
-
-    QObject::connect(job, &JsonApiJob::jsonReceived, [](const QJsonDocument &json){
-        auto data = json.object().value("ocs").toObject().value("data").toObject();
-        auto url = QUrl(data.value("url").toString());
-
-        if(!url.isEmpty())
-            Utility::openBrowser(url, nullptr);
-    });
-    job->start();
-}
-
 // don't pull the share manager into socketapi unittests
 #ifndef OWNCLOUD_TEST
 

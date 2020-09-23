@@ -30,6 +30,7 @@
 using namespace std;
 
 #define PIPE_TIMEOUT  5*1000 //ms
+#define SOCK_BUFFER 4096
 
 NCClientInterface::ContextMenuInfo NCClientInterface::FetchInfo()
 {

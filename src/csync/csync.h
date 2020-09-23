@@ -144,8 +144,6 @@ enum ItemType {
 // currently specified at https://github.com/owncloud/core/issues/8322 are 9 to 10
 #define REMOTE_PERM_BUF_SIZE 15
 
-typedef struct csync_file_stat_s csync_file_stat_t;
-
 struct OCSYNC_EXPORT csync_file_stat_t {
   time_t modtime = 0;
   int64_t size = 0;
