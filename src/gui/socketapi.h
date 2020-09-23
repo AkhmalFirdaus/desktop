@@ -37,6 +37,7 @@ namespace OCC {
 class SyncFileStatus;
 class Folder;
 class SocketListener;
+class GetOrCreatePublicLinkShare;
 
 /**
  * @brief The SocketApi class
@@ -137,9 +138,13 @@ private:
     Q_INVOKABLE void command_SET_DOWNLOAD_MODE(const QString& argument, SocketListener* listener);
     Q_INVOKABLE void command_GET_DOWNLOAD_MODE(const QString& localFile, SocketListener* listener);
 
+    static QString mapToCacheFilename(const QString &vfsFilename);
+
     QSet<QString> _registeredAliases;
     QList<SocketListener> _listeners;
     SocketApiServer _localServer;
+
+    friend class GetOrCreatePublicLinkShare;
 };
 }
 #endif // SOCKETAPI_H
