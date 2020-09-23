@@ -67,7 +67,7 @@ csync_s::csync_s(const char *localUri, OCC::SyncJournalDb *statedb)
 int csync_update(CSYNC *ctx) {
   int rc = -1;
 
-  if (ctx == NULL) {
+  if (ctx == nullptr) {
     errno = EBADF;
     return -1;
   }
@@ -188,7 +188,7 @@ static int _csync_treewalk_visitor(csync_file_stat_t *cur, CSYNC * ctx, const cs
             other_file_it = other_tree->find(renamed_path);
     }
 
-    csync_file_stat_t *other = (other_file_it != other_tree->cend()) ? other_file_it->second.get() : NULL;
+    csync_file_stat_t *other = (other_file_it != other_tree->cend()) ? other_file_it->second.get() : nullptr;
 
     ctx->status_code = CSYNC_STATUS_OK;
 
@@ -234,7 +234,7 @@ int csync_s::reinitialize() {
 
   status_code = CSYNC_STATUS_OK;
 
-  remote.read_from_db = 0;
+  remote.read_from_db = false;
   read_remote_from_db = true;
 
   local.files.clear();
@@ -257,14 +257,14 @@ csync_s::~csync_s() {
 }
 
 void *csync_get_userdata(CSYNC *ctx) {
-  if (ctx == NULL) {
-    return NULL;
+  if (ctx == nullptr) {
+    return nullptr;
   }
   return ctx->callbacks.userdata;
 }
 
 int csync_set_userdata(CSYNC *ctx, void *userdata) {
-  if (ctx == NULL) {
+  if (ctx == nullptr) {
     return -1;
   }
 
@@ -274,15 +274,15 @@ int csync_set_userdata(CSYNC *ctx, void *userdata) {
 }
 
 csync_auth_callback csync_get_auth_callback(CSYNC *ctx) {
-  if (ctx == NULL) {
-    return NULL;
+  if (ctx == nullptr) {
+    return nullptr;
   }
 
   return ctx->callbacks.auth_function;
 }
 
 int csync_set_status(CSYNC *ctx, int status) {
-  if (ctx == NULL || status < 0) {
+  if (ctx == nullptr || status < 0) {
     return -1;
   }
 
@@ -292,7 +292,7 @@ int csync_set_status(CSYNC *ctx, int status) {
 }
 
 CSYNC_STATUS csync_get_status(CSYNC *ctx) {
-  if (ctx == NULL) {
+  if (ctx == nullptr) {
     return CSYNC_STATUS_ERROR;
   }
 
@@ -306,21 +306,21 @@ const char *csync_get_status_string(CSYNC *ctx)
 
 void csync_request_abort(CSYNC *ctx)
 {
-  if (ctx != NULL) {
+  if (ctx != nullptr) {
     ctx->abort = true;
   }
 }
 
 void csync_resume(CSYNC *ctx)
 {
-  if (ctx != NULL) {
+  if (ctx != nullptr) {
     ctx->abort = false;
   }
 }
 
 int  csync_abort_requested(CSYNC *ctx)
 {
-  if (ctx != NULL) {
+  if (ctx != nullptr) {
     return ctx->abort;
   } else {
     return (1 == 0);

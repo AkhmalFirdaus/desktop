@@ -306,9 +306,9 @@ private:
     QSet<Folder *> _disabledFolders;
     Folder::Map _folderMap;
     QString _folderConfigPath;
-    Folder *_currentSyncFolder;
+    Folder *_currentSyncFolder = nullptr;
     QPointer<Folder> _lastSyncFolder;
-    bool _syncEnabled;
+    bool _syncEnabled = true;
 
     /// Starts regular etag query jobs
     QTimer _etagPollTimer;
@@ -330,7 +330,7 @@ private:
     QScopedPointer<SocketApi> _socketApi;
     NavigationPaneHelper _navigationPaneHelper;
 
-    bool _appRestartRequired;
+    bool _appRestartRequired = false;
 
     static FolderMan *_instance;
     explicit FolderMan(QObject *parent = nullptr);

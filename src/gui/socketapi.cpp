@@ -130,7 +130,7 @@ class SocketListener
 public:
     QIODevice *socket;
 
-    SocketListener(QIODevice *socket = 0)
+    SocketListener(QIODevice *socket = nullptr)
         : socket(socket)
     {
     }
@@ -281,13 +281,13 @@ void SocketApi::onLostConnection()
 
 void SocketApi::slotSocketDestroyed(QObject *obj)
 {
-    QIODevice *socket = static_cast<QIODevice *>(obj);
+    auto *socket = static_cast<QIODevice *>(obj);
     _listeners.erase(std::remove_if(_listeners.begin(), _listeners.end(), ListenerHasSocketPred(socket)), _listeners.end());
 }
 
 void SocketApi::slotReadSocket()
 {
-    QIODevice *socket = qobject_cast<QIODevice *>(sender());
+    auto *socket = qobject_cast<QIODevice *>(sender());
     ASSERT(socket);
     SocketListener *listener = &*std::find_if(_listeners.begin(), _listeners.end(), ListenerHasSocketPred(socket));
 
@@ -687,7 +687,7 @@ private slots:
 
         qCWarning(lcPublicLink) << "Share fetch/create error" << code << message;
         QMessageBox::warning(
-            0,
+            nullptr,
             tr("Sharing error"),
             tr("Could not retrieve or create the public link share. Error:\n\n%1").arg(message),
             QMessageBox::Ok,
@@ -947,7 +947,7 @@ void SocketApi::emailPrivateLink(const QString &linkC)
     Utility::openEmailComposer(
         tr("I shared something with you"),
         link,
-        0);
+        nullptr);
 }
 
 void OCC::SocketApi::openPrivateLink(const QString &linkC)
@@ -1202,6 +1202,8 @@ QString SocketApi::buildRegisterFsMessage()
 //< Mac callback for ContextMenu Online option
 void SocketApi::command_ONLINE_DOWNLOAD_MODE(const QString &path, SocketListener *listener)
 {
+    Q_UNUSED(listener)
+
     ConfigFile cfg;
     QString relative_prefix = cfg.defaultFileStreamMirrorPath();
     QString relative_path = path;
@@ -1218,6 +1220,8 @@ void SocketApi::command_ONLINE_DOWNLOAD_MODE(const QString &path, SocketListener
 //< Mac callback for ContextMenu Offline option
 void SocketApi::command_OFFLINE_DOWNLOAD_MODE(const QString &path, SocketListener *listener)
 {
+    Q_UNUSED(listener)
+
     ConfigFile cfg;
     QString relative_prefix = cfg.defaultFileStreamMirrorPath();
     QString relative_path = path;
@@ -1234,6 +1238,8 @@ void SocketApi::command_OFFLINE_DOWNLOAD_MODE(const QString &path, SocketListene
 //< Windows callback for ContextMenu option
 void SocketApi::command_SET_DOWNLOAD_MODE(const QString &argument, SocketListener *listener)
 {
+    Q_UNUSED(listener)
+
     qDebug() << Q_FUNC_INFO << " argument: " << argument;
 
 #if defined(Q_OS_WIN)

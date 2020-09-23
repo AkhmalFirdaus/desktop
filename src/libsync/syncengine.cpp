@@ -768,7 +768,7 @@ void SyncEngine::startSync()
         QVector<SyncJournalDb::PollInfo> pollInfos = _journal->getPollInfos();
         if (!pollInfos.isEmpty()) {
             qCInfo(lcEngine) << "Finish Poll jobs before starting a sync";
-            CleanupPollsJob *job = new CleanupPollsJob(pollInfos, _account,
+            auto *job = new CleanupPollsJob(pollInfos, _account,
                 _journal, _localPath, this);
             connect(job, &CleanupPollsJob::finished, this, &SyncEngine::startSync);
             connect(job, &CleanupPollsJob::aborted, this, &SyncEngine::slotCleanPollsJobAborted);
@@ -965,7 +965,7 @@ void SyncEngine::slotStartDiscovery()
         connect(_discoveryMainThread.data(), &DiscoveryMainThread::etagConcatenation, this, &SyncEngine::slotRootEtagReceived);
     }
 
-    DiscoveryJob *discoveryJob = new DiscoveryJob(_csync_ctx.data());
+    auto *discoveryJob = new DiscoveryJob(_csync_ctx.data());
     discoveryJob->_selectiveSyncBlackList = selectiveSyncBlackList;
     discoveryJob->_selectiveSyncWhiteList =
         _journal->getSelectiveSyncList(SyncJournalDb::SelectiveSyncWhiteList, &ok);
@@ -1377,7 +1377,7 @@ QString SyncEngine::adjustRenamedPath(const QString &original)
  */
 void SyncEngine::checkForPermission(SyncFileItemVector &syncItems)
 {
-    bool selectiveListOk;
+    bool selectiveListOk = false;
     auto selectiveSyncBlackList = _journal->getSelectiveSyncList(SyncJournalDb::SelectiveSyncBlackList, &selectiveListOk);
     std::sort(selectiveSyncBlackList.begin(), selectiveSyncBlackList.end());
     SyncFileItemPtr needle;
@@ -1668,7 +1668,7 @@ RemotePermissions SyncEngine::getPermissions(const QString &file) const
     if (it != _csync_ctx->remote.files.end()) {
         return it->second->remotePerm;
     }
-    return RemotePermissions();
+    return {};
 }
 
 void SyncEngine::restoreOldFiles(SyncFileItemVector &syncItems)

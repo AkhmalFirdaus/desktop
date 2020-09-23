@@ -171,9 +171,9 @@ struct OCSYNC_EXPORT csync_file_stat_t {
   QByteArray checksumHeader;
   QByteArray e2eMangledName;
 
-  CSYNC_STATUS error_status;
+  CSYNC_STATUS error_status = CSYNC_STATUS_OK;
 
-  enum csync_instructions_e instruction; /* u32 */
+  enum csync_instructions_e instruction = CSYNC_INSTRUCTION_NONE; /* u32 */
 
   bool virtualfile BITFIELD(1);
   bool is_priority BITFIELD(1);
@@ -184,8 +184,6 @@ struct OCSYNC_EXPORT csync_file_stat_t {
     , has_ignored_files(false)
     , is_hidden(false)
     , isE2eEncrypted(false)
-    , error_status(CSYNC_STATUS_OK)
-    , instruction(CSYNC_INSTRUCTION_NONE)
     , virtualfile(true)
     , is_priority(false)
   { }
