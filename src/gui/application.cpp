@@ -337,11 +337,7 @@ void Application::slotAccountStateAdded(AccountState *accountState)
     connect(accountState->account().data(), &Account::serverVersionChanged,
         _folderManager.data(), &FolderMan::slotServerVersionChanged);
 
-    ConfigFile configFile;
-    if (configFile.enableVirtualFileSystem()) {
-        slotMountVirtualDrive(accountState);
-    }
-
+    slotMountVirtualDrive(accountState);
     _gui->slotTrayMessageIfServerUnsupported(accountState->account().data());
 }
 
@@ -694,36 +690,19 @@ void Application::slotGuiIsShowingSettings()
 void Application::slotMountVirtualDrive(AccountState *accountState) {
     // Mount the virtual FileSystem.
 #if defined(Q_OS_MAC)
-    QString rootPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/.cachedFiles";
-    QString mountPath = "/Volumes/" + _theme->appName() + "fs";
-    VfsMacController::instance()->initialize(rootPath, mountPath, accountState);
-    VfsMacController::instance()->mount();
+    ConfigFile configFile;
+    if (configFile.enableVirtualFileSystem()) {
+        VfsMacController::instance()->initialize(accountState);
+        VfsMacController::instance()->mount();
+    }
 #endif
 
 #if defined(Q_OS_WIN)
-	//FIXME
-	ConfigFile cfgFile;
-	QString m_defaultFileStreamSyncPath = cfgFile.defaultFileStreamSyncPath();
-	QString m_defaultFileStreamMirrorPath = cfgFile.defaultFileStreamMirrorPath();
-	QString m_defaultFileStreamLetterDrive = cfgFile.defaultFileStreamLetterDrive();
-	QString availableLogicalDrive = VfsWindows::instance()->getAvailableLogicalDrive();
-
-	if (m_defaultFileStreamSyncPath.isEmpty() || m_defaultFileStreamSyncPath.compare(QString("")) == 0)
-		cfgFile.setDefaultFileStreamSyncPath(availableLogicalDrive + QString(":/") 
-			+ Theme::instance()->appName());
-
-	if (m_defaultFileStreamMirrorPath.isEmpty() || m_defaultFileStreamMirrorPath.compare(QString("")) == 0)
-		cfgFile.setDefaultFileStreamMirrorPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles");
-
-	if (m_defaultFileStreamLetterDrive.isEmpty() || m_defaultFileStreamLetterDrive.compare(QString("")) == 0)
-		cfgFile.setDefaultFileStreamLetterDrive(availableLogicalDrive);
-
-	//FIXME
-	WCHAR mountLetter[260] = L"X:\\";
-	qDebug() << Q_FUNC_INFO << availableLogicalDrive;
-	wcscpy(mountLetter, availableLogicalDrive.toStdWString().c_str());
-    VfsWindows::instance()->initialize(m_defaultFileStreamMirrorPath, *mountLetter, accountState);
-    VfsWindows::instance()->mount();
+    ConfigFile configFile;
+    if (configFile.enableVirtualFileSystem()) {
+        VfsWindows::instance()->initialize(accountState);
+        VfsWindows::instance()->mount();
+    }
 #endif
 
     //< For cron delete dir/files online. Execute each 60000 msec

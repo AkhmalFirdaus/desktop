@@ -68,6 +68,7 @@ THE SOFTWARE.
 #include <shlobj_core.h>
 
 #include "folderman.h"
+#include "theme.h"
 
 namespace OCC {
 
@@ -2557,12 +2558,28 @@ QString VfsWindows::getAvailableLogicalDrive()
     return availableLetters.first().mid(0, 1);
 }
 
-void VfsWindows::initialize(QString rootPath, WCHAR mountLetter, AccountState *accountState_)
+void VfsWindows::initialize(AccountState *accountState)
 {
-    this->rootPath = rootPath;
-    this->mountLetter = mountLetter;
-
     ConfigFile cfg;
+
+    QString m_defaultFileStreamSyncPath = cfg.defaultFileStreamSyncPath();
+    QString m_defaultFileStreamMirrorPath = cfg.defaultFileStreamMirrorPath();
+    QString m_defaultFileStreamLetterDrive = cfg.defaultFileStreamLetterDrive();
+    QString availableLogicalDrive = VfsWindows::instance()->getAvailableLogicalDrive();
+
+    if (m_defaultFileStreamSyncPath.isEmpty() || m_defaultFileStreamSyncPath.compare(QString("")) == 0)
+        cfg.setDefaultFileStreamSyncPath(availableLogicalDrive + QString(":/")
+            + OCC::Theme::instance()->appName());
+
+    if (m_defaultFileStreamMirrorPath.isEmpty() || m_defaultFileStreamMirrorPath.compare(QString("")) == 0)
+        cfg.setDefaultFileStreamMirrorPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles");
+
+    if (m_defaultFileStreamLetterDrive.isEmpty() || m_defaultFileStreamLetterDrive.compare(QString("")) == 0)
+        cfg.setDefaultFileStreamLetterDrive(availableLogicalDrive);
+
+    rootPath = m_defaultFileStreamMirrorPath;
+    mountLetter = availableLogicalDrive.toStdWString().front();
+
     QDir path_mirror(cfg.defaultFileStreamMirrorPath());
     while (!path_mirror.exists()) {
         qDebug() << "\n Dokan: " << Q_FUNC_INFO << " !path_mirror.exists()" << cfg.defaultFileStreamMirrorPath();
@@ -2571,7 +2588,7 @@ void VfsWindows::initialize(QString rootPath, WCHAR mountLetter, AccountState *a
         Sleep(100);
     }
 
-    _remotefileListJob = new OCC::DiscoveryFolderFileList(accountState_->account());
+    _remotefileListJob = new OCC::DiscoveryFolderFileList(accountState->account());
     _remotefileListJob->setParent(this);
     connect(this, &VfsWindows::startRemoteFileListJob, _remotefileListJob, &OCC::DiscoveryFolderFileList::doGetFolderContent);
     connect(_remotefileListJob, &OCC::DiscoveryFolderFileList::gotDataSignal, this, &VfsWindows::folderFileListFinish);
