@@ -301,23 +301,18 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
           fs->has_ignored_files = base._serverHasIgnoredFiles;
       }
 
-	  // second run or when the user opens a file
-      if (metadata_differ) {
-          /* file id or permissions has changed. Which means we need to update them in the DB. */
-          qCInfo(lcUpdate, "Need to update metadata for: %s", fs->path.constData());
-		  if (ctx->priority.files.contains(fs->path) ||
-			  ctx->statedb->getSyncMode(fs->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
-			 fs->instruction = CSYNC_INSTRUCTION_UPDATE_METADATA;
-		  } else {
-		    fs->instruction = CSYNC_INSTRUCTION_NONE;
-		  }
+      // Always evaluate offline drive files
+      if (ctx->priority.files.contains(fs->path) ||
+          ctx->statedb->getSyncMode(fs->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
+          fs->instruction = CSYNC_INSTRUCTION_EVAL;
       } else {
-		  if (ctx->priority.files.contains(fs->path) ||
-			  ctx->statedb->getSyncMode(fs->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
-			  fs->instruction = CSYNC_INSTRUCTION_EVAL;
-		  } else {
-			  fs->instruction = CSYNC_INSTRUCTION_NONE;
-		  }
+          // second run or when the user opens a file
+          if (metadata_differ) {
+              /* file id or permissions has changed. Which means we need to update them in the DB. */
+              fs->instruction = CSYNC_INSTRUCTION_UPDATE_METADATA;
+          } else {
+              fs->instruction = CSYNC_INSTRUCTION_NONE;
+          }
       }
 
   } else {
