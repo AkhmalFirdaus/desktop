@@ -60,17 +60,9 @@ AccountState::AccountState(AccountPtr account)
     ConfigFile configFile;
     if (configFile.enableVirtualFileSystem()) {
 #if defined(Q_OS_MAC)
-        _drive = [this] {
-            auto drive = new VfsMacController(this);
-            drive->initialize(this);
-            return drive;
-        }();
+        _drive = new VfsMacController(this, this);
 #elif defined(Q_OS_WIN)
-        _drive = [this] {
-            auto drive = new VfsWindows(this);
-            drive->initialize(this);
-            return drive;
-        }();
+        _drive = new VfsWindows(this, this);
 #else
         // FIXME we need a non-Mac/Windows implementation
         _drive = nullptr;

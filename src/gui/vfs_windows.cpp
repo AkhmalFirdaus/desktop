@@ -2571,7 +2571,8 @@ QString VfsWindows::getAvailableLogicalDrive()
     return availableLetters.first().mid(0, 1);
 }
 
-void VfsWindows::initialize(AccountState *accountState)
+VfsWindows::VfsWindows(AccountState *accountState, QObject *parent)
+    : OCC::VirtualDriveInterface(parent)
 {
     rootPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles";
     mountPath = R"(C:\Volumes\)" + OCC::Theme::instance()->appName() + "fs";
@@ -2599,11 +2600,6 @@ void VfsWindows::initialize(AccountState *accountState)
     _remotefileListJob->setParent(this);
     connect(this, &VfsWindows::startRemoteFileListJob, _remotefileListJob, &OCC::DiscoveryFolderFileList::doGetFolderContent);
     connect(_remotefileListJob, &OCC::DiscoveryFolderFileList::gotDataSignal, this, &VfsWindows::folderFileListFinish);
-}
-
-VfsWindows::VfsWindows(QObject *parent)
-    : OCC::VirtualDriveInterface(parent)
-{
 }
 
 VfsWindows::~VfsWindows()

@@ -83,7 +83,8 @@ void VfsMacController::slotquotaUpdated(qint64 total, qint64 used)
     fuse->setUsedQuota(used);
 }
 
-void VfsMacController::initialize(OCC::AccountState *accountState)
+VfsMacController::VfsMacController(AccountState *accountState, QObject *parent)
+    : OCC::VirtualDriveInterface(parent)
 {
     rootPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/.cachedFiles";
     mountPath = "/Volumes/" + OCC::Theme::instance()->appName() + "fs";
@@ -119,11 +120,6 @@ void VfsMacController::initialize(OCC::AccountState *accountState)
 
     options.append("volname=" + QApplication::applicationName() + "FS");
     fuse->mountAtPath(mountPath, options);
-}
-
-VfsMacController::VfsMacController(QObject *parent)
-    : OCC::VirtualDriveInterface(parent)
-{
 }
 
 VfsMacController::~VfsMacController()

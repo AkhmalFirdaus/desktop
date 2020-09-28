@@ -34,12 +34,11 @@ class VfsMacController : public OCC::VirtualDriveInterface
 {
     Q_OBJECT
 public:
-    explicit VfsMacController(QObject *parent = nullptr);
+    explicit VfsMacController(AccountState *accountState, QObject *parent = nullptr);
     ~VfsMacController();
     void mount() override;
     void unmount() override;
     void cleanCacheFolder();
-    void initialize(OCC::AccountState *accountState);
 
 public slots:
     void slotquotaUpdated(qint64 total, qint64 used);

@@ -50,7 +50,7 @@ class VfsWindows : public OCC::VirtualDriveInterface
 {
     Q_OBJECT
 public:
-    explicit VfsWindows(QObject *parent = nullptr);
+    explicit VfsWindows(AccountState *accountState, QObject *parent = nullptr);
     ~VfsWindows();
     void initialize(AccountState *accountState);
     void mount() override;
