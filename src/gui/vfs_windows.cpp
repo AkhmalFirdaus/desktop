@@ -67,6 +67,7 @@ THE SOFTWARE.
 
 #include <shlobj_core.h>
 
+#include "filesystem.h"
 #include "folderman.h"
 #include "theme.h"
 
@@ -2599,6 +2600,26 @@ void VfsWindows::initialize(AccountState *accountState)
         path_mirror.mkdir(cfg.defaultFileStreamMirrorPath());
         SetFileAttributes((const wchar_t *)cfg.defaultFileStreamMirrorPath().utf16(), FILE_ATTRIBUTE_HIDDEN);
         Sleep(100);
+    }
+
+    const auto cachePath = QString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles/");
+    const auto folder = FolderMan::instance()->folderForPath(cachePath);
+    if (!folder) {
+        const auto folderDefinition = [=] {
+            FolderDefinition d;
+            d.localPath = FolderDefinition::prepareLocalPath(cachePath);
+            d.targetPath = FolderDefinition::prepareTargetPath(QString());
+            d.ignoreHiddenFiles = FolderMan::instance()->ignoreHiddenFiles();
+            return d;
+        }();
+
+        QDir cacheDir(folderDefinition.localPath);
+        if (!cacheDir.exists() && !cacheDir.mkpath(".")) {
+            qCritical() << "Couldn't create cache dir for VFS:" << folderDefinition.localPath;
+        }
+        FileSystem::setFolderMinimumPermissions(folderDefinition.localPath);
+
+        FolderMan::instance()->addFolder(accountState, folderDefinition);
     }
 
     _remotefileListJob = new OCC::DiscoveryFolderFileList(accountState->account());
