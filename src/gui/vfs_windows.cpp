@@ -43,7 +43,6 @@ THE SOFTWARE.
 
 #include <QDir>
 #include <QDebug>
-#include "configfile.h"
 #include <thread>
 
 #include <errno.h>
@@ -2574,13 +2573,8 @@ QString VfsWindows::getAvailableLogicalDrive()
 
 void VfsWindows::initialize(AccountState *accountState)
 {
-    ConfigFile cfgFile;
-
     rootPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles";
     mountPath = R"(C:\Volumes\)" + OCC::Theme::instance()->appName() + "fs";
-
-    cfgFile.setDefaultFileStreamMirrorPath(rootPath);
-    cfgFile.setDefaultFileStreamSyncPath(mountPath);
 
     const auto folder = FolderMan::instance()->folderForPath(rootPath);
     if (!folder) {

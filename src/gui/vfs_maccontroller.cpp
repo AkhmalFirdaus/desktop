@@ -90,9 +90,6 @@ void VfsMacController::initialize(OCC::AccountState *accountState)
 
     fuse = new VfsMac(rootPath, false, accountState, this);
 
-    cfgFile.setDefaultFileStreamMirrorPath(rootPath);
-    cfgFile.setDefaultFileStreamSyncPath(mountPath);
-
     QFileInfo root(rootPath);
     if (root.exists() && !root.isDir()) {
         QFile().remove(rootPath);

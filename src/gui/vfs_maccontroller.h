@@ -27,7 +27,6 @@
 #include "virtualdriveinterface.h"
 
 #include "accountstate.h"
-#include "configfile.h"
 
 class VfsMac;
 
@@ -53,7 +52,6 @@ private:
     QStringList options;
     QString rootPath;
     QString mountPath;
-    OCC::ConfigFile cfgFile;
 };
 
 #endif
