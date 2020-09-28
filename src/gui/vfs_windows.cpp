@@ -2574,40 +2574,19 @@ QString VfsWindows::getAvailableLogicalDrive()
 
 void VfsWindows::initialize(AccountState *accountState)
 {
-    ConfigFile cfg;
+    ConfigFile cfgFile;
 
-    QString m_defaultFileStreamSyncPath = cfg.defaultFileStreamSyncPath();
-    QString m_defaultFileStreamMirrorPath = cfg.defaultFileStreamMirrorPath();
-    QString m_defaultFileStreamLetterDrive = cfg.defaultFileStreamLetterDrive();
-    QString availableLogicalDrive = getAvailableLogicalDrive();
+    rootPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles";
+    mountPath = R"(C:\Volumes\)" + OCC::Theme::instance()->appName() + "fs";
 
-    if (m_defaultFileStreamSyncPath.isEmpty() || m_defaultFileStreamSyncPath.compare(QString("")) == 0)
-        cfg.setDefaultFileStreamSyncPath(availableLogicalDrive + QString(":/")
-            + OCC::Theme::instance()->appName());
+    cfgFile.setDefaultFileStreamMirrorPath(rootPath);
+    cfgFile.setDefaultFileStreamSyncPath(mountPath);
 
-    if (m_defaultFileStreamMirrorPath.isEmpty() || m_defaultFileStreamMirrorPath.compare(QString("")) == 0)
-        cfg.setDefaultFileStreamMirrorPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles");
-
-    if (m_defaultFileStreamLetterDrive.isEmpty() || m_defaultFileStreamLetterDrive.compare(QString("")) == 0)
-        cfg.setDefaultFileStreamLetterDrive(availableLogicalDrive);
-
-    rootPath = m_defaultFileStreamMirrorPath;
-    mountLetter = availableLogicalDrive.toStdWString().front();
-
-    QDir path_mirror(cfg.defaultFileStreamMirrorPath());
-    while (!path_mirror.exists()) {
-        qDebug() << "\n Dokan: " << Q_FUNC_INFO << " !path_mirror.exists()" << cfg.defaultFileStreamMirrorPath();
-        path_mirror.mkdir(cfg.defaultFileStreamMirrorPath());
-        SetFileAttributes((const wchar_t *)cfg.defaultFileStreamMirrorPath().utf16(), FILE_ATTRIBUTE_HIDDEN);
-        Sleep(100);
-    }
-
-    const auto cachePath = QString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles/");
-    const auto folder = FolderMan::instance()->folderForPath(cachePath);
+    const auto folder = FolderMan::instance()->folderForPath(rootPath);
     if (!folder) {
         const auto folderDefinition = [=] {
             FolderDefinition d;
-            d.localPath = FolderDefinition::prepareLocalPath(cachePath);
+            d.localPath = FolderDefinition::prepareLocalPath(rootPath);
             d.targetPath = FolderDefinition::prepareTargetPath(QString());
             d.ignoreHiddenFiles = FolderMan::instance()->ignoreHiddenFiles();
             return d;
@@ -2730,23 +2709,21 @@ bool VfsWindows::removeRecursively(const QString &dirName)
 bool VfsWindows::removeDir()
 {
     ConfigFile cfg;
-    QDir mirror_path(cfg.defaultFileStreamMirrorPath());
+    QDir mirror_path(rootPath);
     return mirror_path.removeRecursively();
 }
 
-// TODO hardkode letter drive
 void VfsWindows::unmount()
 {
-    bool unmount_result = DokanUnmount(mountLetter);
+    bool unmount_result = DokanRemoveMountPoint(mountPath.toStdWString().c_str());
     qDebug() << Q_FUNC_INFO << "Unmount Result: " << unmount_result;
 }
 
 void VfsWindows::mount()
 {
-    QString letter = QString(mountLetter);
-    qDebug() << Q_FUNC_INFO << " INIT ::rootPath: " << rootPath << " letter: " << letter;
+    qDebug() << Q_FUNC_INFO << " INIT ::rootPath: " << rootPath << " mountPath:" << mountPath;
     wcscpy((WCHAR *)(RootDirectory), rootPath.toStdWString().c_str());
-    wcscpy((WCHAR *)(MountPoint), letter.toStdWString().c_str());
+    wcscpy((WCHAR *)(MountPoint), mountPath.toStdWString().c_str());
 
     int status;
     ULONG command;
