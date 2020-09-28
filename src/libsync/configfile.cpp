@@ -955,27 +955,6 @@ bool ConfigFile::enableVirtualFileSystem()
     return settings.value(QLatin1String(enableVirtualFileSysC), false).toBool();
 }
 
-void ConfigFile::createAuxiliarDirectories()
-{
-    /*
-    QDir pathDir3(defaultFileStreamSyncPath());
-    while (!pathDir3.exists()) {
-        qDebug() << "\n dbg_sync " << Q_FUNC_INFO << " !pathDir3.exists() 2-2 " << defaultFileStreamSyncPath();
-        pathDir3.mkdir(defaultFileStreamSyncPath());
-        Sleep(100);
-    }
-
-    QString PathforScreenShots = defaultFileStreamLetterDrive();
-    PathforScreenShots.append(":/Mi unidad/ScreenShots");
-    QDir pathDir4(PathforScreenShots);
-    while (!pathDir4.exists()) {
-        qDebug() << "\n dbg_dokan " << Q_FUNC_INFO << " !pathDir4.exists() 4-0 " << PathforScreenShots;
-        pathDir4.mkdir(PathforScreenShots);
-        Sleep(100);
-    }
-    */
-}
-
 QString ConfigFile::logDir() const
 {
     const auto defaultLogDir = QString(configPath() + QStringLiteral("/logs"));

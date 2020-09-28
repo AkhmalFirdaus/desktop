@@ -2904,8 +2904,6 @@ void VfsWindows::mount()
     t.detach();
 
     Sleep(1000);
-    ConfigFile cfg;
-    cfg.createAuxiliarDirectories();
     qDebug() << Q_FUNC_INFO << " END::mount";
 }
 

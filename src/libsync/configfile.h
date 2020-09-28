@@ -92,8 +92,6 @@ public:
     QString defaultFileStreamMirrorPath();
     void setDefaultFileStreamLetterDrive(QString);
     QString defaultFileStreamLetterDrive();
-    // Configuration paths on virtual FileSystem.
-    void createAuxiliarDirectories();
 
     bool promptDeleteFiles() const;
     void setPromptDeleteFiles(bool promptDeleteFiles);
