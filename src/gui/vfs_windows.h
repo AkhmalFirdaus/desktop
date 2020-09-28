@@ -52,17 +52,9 @@ class VfsWindows : public OCC::VirtualDriveInterface
 public:
     explicit VfsWindows(AccountState *accountState, QObject *parent = nullptr);
     ~VfsWindows();
-    void initialize(AccountState *accountState);
     void mount() override;
     void unmount() override;
     bool removeRecursively(const QString &dirName);
-    bool removeDir();
-
-    void setNumberOfBytes(unsigned long long numberOfBytes);
-    unsigned long long getNumberOfBytes();
-
-    void setNumberOfFreeBytes(unsigned long long numberOfFreeBytes);
-    unsigned long long getNumberOfFreeBytes();
 
     QStringList* contentsOfDirectoryAtPath(QString path, QVariantMap &error);
     QList<QString> ignoredList;
@@ -78,21 +70,9 @@ public:
     void startDeleteDirectoryAtPath(QString path, QVariantMap &error);
     void endDeleteDirectoryAtPath(QString path, QVariantMap &error);
 
-    QString getAvailableLogicalDrive();
-
 private:
     QMap<QString, OCC::DiscoveryDirectoryResult *> _fileListMap;
     QPointer<OCC::DiscoveryFolderFileList> _remotefileListJob;
-
-    // @Capacity
-    //*TotalNumberOfBytes = (ULONGLONG)1024L * 1024 * 1024 * 50;
-    unsigned long long numberOfBytes = 0;
-    // @Used space
-    //*TotalNumberOfFreeBytes = (ULONGLONG)1024L * 1024 * 10;
-    unsigned long long numberOfFreeBytes = 0;
-    // @Free space
-    //*FreeBytesAvailable = (ULONGLONG)(*TotalNumberOfBytes - *TotalNumberOfFreeBytes); / *1024 * 1024 * 10;
-    unsigned long long freeBytesAvailable = 0;
 
     // To sync
     QMutex _mutex;

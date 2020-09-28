@@ -2206,26 +2206,6 @@ static NTSTATUS DOKAN_CALLBACK MirrorGetVolumeInformation(
     return STATUS_SUCCESS;
 }
 
-void VfsWindows::setNumberOfBytes(unsigned long long numberOfBytes)
-{
-    this->numberOfBytes = numberOfBytes;
-}
-
-unsigned long long VfsWindows::getNumberOfBytes()
-{
-    return numberOfBytes;
-}
-
-void VfsWindows::setNumberOfFreeBytes(unsigned long long numberOfFreeBytes)
-{
-    this->numberOfFreeBytes = numberOfFreeBytes;
-}
-
-unsigned long long VfsWindows::getNumberOfFreeBytes()
-{
-    return numberOfFreeBytes;
-}
-
 //Uncomment for personalize disk space
 static NTSTATUS DOKAN_CALLBACK MirrorDokanGetDiskFreeSpace(PULONGLONG FreeBytesAvailable, PULONGLONG TotalNumberOfBytes, PULONGLONG TotalNumberOfFreeBytes, PDOKAN_FILE_INFO DokanFileInfo)
 {
@@ -2398,34 +2378,6 @@ BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
     }
 }
 
-void ShowUsage()
-{
-    // clang-format off
-	fprintf(stderr, "mirror.exe\n"
-		"  /r RootDirectory (ex. /r c:\\test)\t\t Directory source to mirror.\n"
-		"  /l MountPoint (ex. /l m)\t\t\t Mount point. Can be M:\\ (drive letter) or empty NTFS folder C:\\mount\\dokan .\n"
-		"  /t ThreadCount (ex. /t 5)\t\t\t Number of threads to be used internally by Dokan library.\n\t\t\t\t\t\t More threads will handle more event at the same time.\n"
-		"  /d (enable debug output)\t\t\t Enable debug output to an attached debugger.\n"
-		"  /s (use stderr for output)\t\t\t Enable debug output to stderr.\n"
-		"  /n (use network drive)\t\t\t Show device as network device.\n"
-		"  /m (use removable drive)\t\t\t Show device as removable media.\n"
-		"  /w (write-protect drive)\t\t\t Read only filesystem.\n"
-		"  /o (use mount manager)\t\t\t Register device to Windows mount manager.\n\t\t\t\t\t\t This enables advanced Windows features like recycle bin and more...\n"
-		"  /c (mount for current session only)\t\t Device only visible for current user session.\n"
-		"  /u (UNC provider name ex. \\localhost\\myfs)\t UNC name used for network volume.\n"
-		"  /p (Impersonate Caller User)\t\t\t Impersonate Caller User when getting the handle in CreateFile for operations.\n\t\t\t\t\t\t This option requires administrator right to work properly.\n"
-		"  /a Allocation unit size (ex. /a 512)\t\t Allocation Unit Size of the volume. This will behave on the disk file size.\n"
-		"  /k Sector size (ex. /k 512)\t\t\t Sector Size of the volume. This will behave on the disk file size.\n"
-		"  /f User mode Lock\t\t\t\t Enable Lockfile/Unlockfile operations. Otherwise Dokan will take care of it.\n"
-		"  /i (Timeout in Milliseconds ex. /i 30000)\t Timeout until a running operation is aborted and the device is unmounted.\n\n"
-		"Examples:\n"
-		"\tmirror.exe /r C:\\Users /l M:\t\t\t# Mirror C:\\Users as RootDirectory into a drive of letter M:\\.\n"
-		"\tmirror.exe /r C:\\Users /l C:\\mount\\dokan\t# Mirror C:\\Users as RootDirectory into NTFS folder C:\\mount\\dokan.\n"
-		"\tmirror.exe /r C:\\Users /l M: /n /u \\myfs\\myfs1\t# Mirror C:\\Users as RootDirectory into a network drive M:\\. with UNC \\\\myfs\\myfs1\n\n"
-		"Unmount the drive with CTRL + C in the console or alternatively via \"dokanctl /u MountPoint\".\n");
-    // clang-format on
-}
-
 CleanIgnoredTask::CleanIgnoredTask(VfsWindows *vfs)
     : _vfs(vfs)
 {
@@ -2549,28 +2501,6 @@ void VfsWindows::folderFileListFinish(OCC::DiscoveryDirectoryResult *dr)
     }
 }
 
-QString VfsWindows::getAvailableLogicalDrive()
-{
-    QList<QString> availableLetters = {
-        "C:/", "D:/", "E:/", "F:/", "G:/", "H:/", "I:/", "J:/", "K:/", "L:/", "M:/", "N:/",
-        "O:/", "P:/", "Q:/", "R:/", "S:/", "T:/", "U:/", "V:/", "W:/", "X:/", "Y:/", "Z:/"
-    };
-
-    foreach (const QStorageInfo &storage, QStorageInfo::mountedVolumes()) {
-        availableLetters.removeOne(storage.rootPath());
-    }
-
-    if (availableLetters.isEmpty()) {
-        availableLetters.append(QString(""));
-
-        //FIXME throw an error?
-        qDebug() << "\n Dokan: " << Q_FUNC_INFO << "There is no logical drive available.";
-    }
-
-    // only need the letter
-    return availableLetters.first().mid(0, 1);
-}
-
 VfsWindows::VfsWindows(AccountState *accountState, QObject *parent)
     : OCC::VirtualDriveInterface(accountState, parent)
 {
@@ -2672,13 +2602,6 @@ bool VfsWindows::removeRecursively(const QString &dirName)
         //result = true;
     }
     return result;
-}
-
-bool VfsWindows::removeDir()
-{
-    ConfigFile cfg;
-    QDir mirror_path(cachePath());
-    return mirror_path.removeRecursively();
 }
 
 void VfsWindows::unmount()
