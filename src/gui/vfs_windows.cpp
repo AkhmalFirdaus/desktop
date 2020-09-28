@@ -2483,7 +2483,7 @@ void VfsWindows::endDeleteDirectoryAtPath(QString path, QVariantMap &error)
 
 QStringList *VfsWindows::contentsOfDirectoryAtPath(QString path, QVariantMap &error)
 {
-    qDebug() << Q_FUNC_INFO << " rootPath: " << rootPath;
+    qDebug() << Q_FUNC_INFO << " cachePath: " << cachePath();
 
     _mutex.lock();
     emit startRemoteFileListJob(path);
@@ -2501,7 +2501,7 @@ QStringList *VfsWindows::contentsOfDirectoryAtPath(QString path, QVariantMap &er
     }
 
     for (unsigned long i = 0; i < _fileListMap.value(path)->list.size(); i++) {
-        QString root = rootPath;
+        QString root = cachePath();
         root.endsWith("/") ? root.truncate(root.length() - 1) : root;
         QString completePath = root + (path.endsWith("/") ? path : (path + "/")) + QString::fromLatin1(_fileListMap.value(path)->list.at(i)->path);
 
@@ -2572,30 +2572,8 @@ QString VfsWindows::getAvailableLogicalDrive()
 }
 
 VfsWindows::VfsWindows(AccountState *accountState, QObject *parent)
-    : OCC::VirtualDriveInterface(parent)
+    : OCC::VirtualDriveInterface(accountState, parent)
 {
-    rootPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles";
-    mountPath = R"(C:\Volumes\)" + OCC::Theme::instance()->appName() + "fs";
-
-    const auto folder = FolderMan::instance()->folderForPath(rootPath);
-    if (!folder) {
-        const auto folderDefinition = [=] {
-            FolderDefinition d;
-            d.localPath = FolderDefinition::prepareLocalPath(rootPath);
-            d.targetPath = FolderDefinition::prepareTargetPath(QString());
-            d.ignoreHiddenFiles = FolderMan::instance()->ignoreHiddenFiles();
-            return d;
-        }();
-
-        QDir cacheDir(folderDefinition.localPath);
-        if (!cacheDir.exists() && !cacheDir.mkpath(".")) {
-            qCritical() << "Couldn't create cache dir for VFS:" << folderDefinition.localPath;
-        }
-        FileSystem::setFolderMinimumPermissions(folderDefinition.localPath);
-
-        FolderMan::instance()->addFolder(accountState, folderDefinition);
-    }
-
     _remotefileListJob = new OCC::DiscoveryFolderFileList(accountState->account());
     _remotefileListJob->setParent(this);
     connect(this, &VfsWindows::startRemoteFileListJob, _remotefileListJob, &OCC::DiscoveryFolderFileList::doGetFolderContent);
@@ -2699,21 +2677,21 @@ bool VfsWindows::removeRecursively(const QString &dirName)
 bool VfsWindows::removeDir()
 {
     ConfigFile cfg;
-    QDir mirror_path(rootPath);
+    QDir mirror_path(cachePath());
     return mirror_path.removeRecursively();
 }
 
 void VfsWindows::unmount()
 {
-    bool unmount_result = DokanRemoveMountPoint(mountPath.toStdWString().c_str());
+    bool unmount_result = DokanRemoveMountPoint(mountPath().toStdWString().c_str());
     qDebug() << Q_FUNC_INFO << "Unmount Result: " << unmount_result;
 }
 
 void VfsWindows::mount()
 {
-    qDebug() << Q_FUNC_INFO << " INIT ::rootPath: " << rootPath << " mountPath:" << mountPath;
-    wcscpy((WCHAR *)(RootDirectory), rootPath.toStdWString().c_str());
-    wcscpy((WCHAR *)(MountPoint), mountPath.toStdWString().c_str());
+    qDebug() << Q_FUNC_INFO << " INIT ::cachePath: " << cachePath() << " mountPath:" << mountPath();
+    wcscpy((WCHAR *)(RootDirectory), cachePath().toStdWString().c_str());
+    wcscpy((WCHAR *)(MountPoint), mountPath().toStdWString().c_str());
 
     int status;
     ULONG command;

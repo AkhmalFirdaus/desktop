@@ -20,15 +20,24 @@
 
 namespace OCC {
 
+class AccountState;
+
 class VirtualDriveInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit VirtualDriveInterface(QObject *parent = nullptr);
+    explicit VirtualDriveInterface(AccountState *accountState, QObject *parent = nullptr);
     ~VirtualDriveInterface();
+
+    QString cachePath() const;
+    QString mountPath() const;
 
 public slots:
     virtual void mount() = 0;
     virtual void unmount() = 0;
+
+private:
+    QString _cachePath;
+    QString _mountPath;
 };
 }

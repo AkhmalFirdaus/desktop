@@ -83,8 +83,6 @@ public:
 private:
     QMap<QString, OCC::DiscoveryDirectoryResult *> _fileListMap;
     QPointer<OCC::DiscoveryFolderFileList> _remotefileListJob;
-    QString rootPath;
-    QString mountPath;
 
     // @Capacity
     //*TotalNumberOfBytes = (ULONGLONG)1024L * 1024 * 1024 * 50;

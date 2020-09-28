@@ -49,8 +49,6 @@ public slots:
 private:
     VfsMac *fuse;
     QStringList options;
-    QString rootPath;
-    QString mountPath;
 };
 
 #endif

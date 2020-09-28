@@ -57,7 +57,7 @@ void VfsMacController::didUnmount(QVariantMap userInfo)
 void VfsMacController::mount()
 {
     if (fuse) {
-        fuse->mountAtPath(mountPath, options);
+        fuse->mountAtPath(mountPath(), options);
     }
 }
 
@@ -71,7 +71,7 @@ void VfsMacController::unmount()
 
 void VfsMacController::cleanCacheFolder()
 {
-    QDir mirror_path(rootPath);
+    QDir mirror_path(cachePath());
 
     sleep(1000);
     mirror_path.removeRecursively();
@@ -84,19 +84,16 @@ void VfsMacController::slotquotaUpdated(qint64 total, qint64 used)
 }
 
 VfsMacController::VfsMacController(AccountState *accountState, QObject *parent)
-    : OCC::VirtualDriveInterface(parent)
+    : OCC::VirtualDriveInterface(accountState, parent)
 {
-    rootPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/.cachedFiles";
-    mountPath = "/Volumes/" + OCC::Theme::instance()->appName() + "fs";
+    fuse = new VfsMac(cachePath(), false, accountState, this);
 
-    fuse = new VfsMac(rootPath, false, accountState, this);
-
-    QFileInfo root(rootPath);
+    QFileInfo root(cachePath());
     if (root.exists() && !root.isDir()) {
-        QFile().remove(rootPath);
+        QFile().remove(cachePath());
     }
     if (!root.exists()) {
-        QDir().mkdir(rootPath);
+        QDir().mkdir(cachePath());
     }
 
     connect(fuse, &VfsMac::FuseFileSystemDidMount, this, &VfsMacController::didMount);
@@ -119,7 +116,7 @@ VfsMacController::VfsMacController(AccountState *accountState, QObject *parent)
     options.append("local");
 
     options.append("volname=" + QApplication::applicationName() + "FS");
-    fuse->mountAtPath(mountPath, options);
+    fuse->mountAtPath(mountPath(), options);
 }
 
 VfsMacController::~VfsMacController()

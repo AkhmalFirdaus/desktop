@@ -27,4 +27,5 @@ void OCC::FolderMan::slotScheduleETagJob(QString const&, OCC::RequestEtagJob*){ 
 OCC::Folder *OCC::FolderMan::folderForPath(QString const&) { return nullptr; }
 OCC::Folder* OCC::FolderMan::folder(QString const&) { return nullptr; }
 void OCC::FolderMan::folderSyncStateChange(OCC::Folder*) { }
+bool OCC::FolderMan::ignoreHiddenFiles() const { return false; }
 const QMetaObject OCC::FolderMan::staticMetaObject = QObject::staticMetaObject;
