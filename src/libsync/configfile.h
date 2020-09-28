@@ -86,12 +86,6 @@ public:
     // Configuration for virtual FileSystem.
     void setEnableVirtualFileSystem(bool);
     bool enableVirtualFileSystem();
-    void setDefaultFileStreamSyncPath(QString);
-    QString defaultFileStreamSyncPath();
-    void setDefaultFileStreamMirrorPath(QString);
-    QString defaultFileStreamMirrorPath();
-    void setDefaultFileStreamLetterDrive(QString);
-    QString defaultFileStreamLetterDrive();
 
     bool promptDeleteFiles() const;
     void setPromptDeleteFiles(bool promptDeleteFiles);

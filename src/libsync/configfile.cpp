@@ -54,9 +54,6 @@ namespace chrono = std::chrono;
 Q_LOGGING_CATEGORY(lcConfigFile, "nextcloud.sync.configfile", QtInfoMsg)
 
 static const char enableVirtualFileSysC[] = "enableVirtualFileSystem";
-static const char defaultFileStreamSyncPathC[] = "fileStreamSyncPathDefault";
-static const char defaultFileStreamMirrorPathC[] = "fileStreamMirrorPathDefault";
-static const char defaultFileStreamLetterDriveC[] = "fileStreamPathDefaultLetterDrive";
 
 //static const char caCertsKeyC[] = "CaCertificates"; only used from account.cpp
 static const char remotePollIntervalC[] = "remotePollInterval";
@@ -902,45 +899,6 @@ void ConfigFile::setAutomaticLogDir(bool enabled)
 {
     QSettings settings(configFile(), QSettings::IniFormat);
     settings.setValue(QLatin1String(automaticLogDirC), enabled);
-}
-
-void ConfigFile::setDefaultFileStreamMirrorPath(QString path)
-{
-    QSettings settings(configFile(), QSettings::IniFormat);
-    settings.setValue(QLatin1String(defaultFileStreamMirrorPathC), path);
-}
-
-QString ConfigFile::defaultFileStreamMirrorPath()
-{
-    QSettings settings(configFile(), QSettings::IniFormat);
-    QString defaultString;
-    return settings.value(QLatin1String(defaultFileStreamMirrorPathC), defaultString).toString();
-}
-
-void ConfigFile::setDefaultFileStreamSyncPath(QString path)
-{
-    QSettings settings(configFile(), QSettings::IniFormat);
-    settings.setValue(QLatin1String(defaultFileStreamSyncPathC), path);
-}
-
-QString ConfigFile::defaultFileStreamSyncPath()
-{
-    QSettings settings(configFile(), QSettings::IniFormat);
-    QString defaultString;
-    return settings.value(QLatin1String(defaultFileStreamSyncPathC), defaultString).toString();
-}
-
-void ConfigFile::setDefaultFileStreamLetterDrive(QString path)
-{
-    QSettings settings(configFile(), QSettings::IniFormat);
-    settings.setValue(QLatin1String(defaultFileStreamLetterDriveC), path);
-}
-
-QString ConfigFile::defaultFileStreamLetterDrive()
-{
-    QSettings settings(configFile(), QSettings::IniFormat);
-    QString defaultString;
-    return settings.value(QLatin1String(defaultFileStreamLetterDriveC), defaultString).toString();
 }
 
 void ConfigFile::setEnableVirtualFileSystem(bool enabled)
