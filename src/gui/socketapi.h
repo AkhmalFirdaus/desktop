@@ -134,11 +134,11 @@ private:
     Q_INVOKABLE void command_GET_MENU_ITEMS(const QString &argument, SocketListener *listener);
 
     QString buildRegisterPathMessage(const QString &path);
-    QString buildRegisterFsMessage();
     Q_INVOKABLE void command_SET_DOWNLOAD_MODE(const QString& argument, SocketListener* listener);
     Q_INVOKABLE void command_GET_DOWNLOAD_MODE(const QString& localFile, SocketListener* listener);
 
     static QString mapToCacheFilename(const QString &vfsFilename);
+    static QString mapToMountFilename(const QString &cacheFilename);
 
     QSet<QString> _registeredAliases;
     QList<SocketListener> _listeners;
