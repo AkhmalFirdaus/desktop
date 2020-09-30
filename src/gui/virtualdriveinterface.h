@@ -32,6 +32,9 @@ public:
     QString cachePath() const;
     QString mountPath() const;
 
+    QString mapToCacheFilename(const QString &filename) const;
+    QString mapToMountFilename(const QString &filename) const;
+
 public slots:
     virtual void mount() = 0;
     virtual void unmount() = 0;

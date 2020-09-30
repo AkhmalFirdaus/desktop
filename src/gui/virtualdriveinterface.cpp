@@ -76,3 +76,23 @@ QString OCC::VirtualDriveInterface::mountPath() const
 {
     return _mountPath;
 }
+
+QString OCC::VirtualDriveInterface::mapToCacheFilename(const QString &filename) const
+{
+    Q_ASSERT(filename.startsWith(mountPath()));
+    if (filename.startsWith(mountPath())) {
+        return cachePath() + filename.mid(mountPath().length());
+    } else {
+        return filename;
+    }
+}
+
+QString OCC::VirtualDriveInterface::mapToMountFilename(const QString &filename) const
+{
+    Q_ASSERT(filename.startsWith(cachePath()));
+    if (filename.startsWith(cachePath())) {
+        return mountPath() + filename.mid(cachePath().length());
+    } else {
+        return filename;
+    }
+}

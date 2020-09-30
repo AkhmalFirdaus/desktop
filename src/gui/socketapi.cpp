@@ -34,6 +34,7 @@
 #include "capabilities.h"
 #include "common/asserts.h"
 #include "guiutility.h"
+#include "virtualdriveinterface.h"
 #ifndef OWNCLOUD_TEST
 #include "sharemanager.h"
 #endif
@@ -1068,14 +1069,40 @@ void SocketApi::command_GET_DOWNLOAD_MODE(const QString &localFileC, SocketListe
 
 QString OCC::SocketApi::mapToCacheFilename(const QString &vfsFilename)
 {
-    // FIXME: Handle the mapping somehow
-    return vfsFilename;
+    const auto accounts = AccountManager::instance()->accounts();
+    const auto it = std::find_if(std::cbegin(accounts), std::cend(accounts), [=](const AccountStatePtr &account) {
+        const auto drive = account->drive();
+        if (!drive) {
+            return false;
+        }
+        return QDir::fromNativeSeparators(vfsFilename).startsWith(drive->mountPath());
+    });
+
+    if (it == std::cend(accounts)) {
+        return vfsFilename;
+    } else {
+        const auto drive = (*it)->drive();
+        return drive->mapToCacheFilename(QDir::fromNativeSeparators(vfsFilename));
+    }
 }
 
 QString SocketApi::mapToMountFilename(const QString &cacheFilename)
 {
-    // FIXME: Handle the mapping somehow
-    return cacheFilename;
+    const auto accounts = AccountManager::instance()->accounts();
+    const auto it = std::find_if(std::cbegin(accounts), std::cend(accounts), [=](const AccountStatePtr &account) {
+        const auto drive = account->drive();
+        if (!drive) {
+            return false;
+        }
+        return QDir::fromNativeSeparators(cacheFilename).startsWith(drive->cachePath());
+    });
+
+    if (it == std::cend(accounts)) {
+        return cacheFilename;
+    } else {
+        const auto drive = (*it)->drive();
+        return drive->mapToMountFilename(QDir::fromNativeSeparators(cacheFilename));
+    }
 }
 
 } // namespace OCC
