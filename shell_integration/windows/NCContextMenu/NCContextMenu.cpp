@@ -20,20 +20,11 @@
 #include <shellapi.h>
 #include <StringUtil.h>
 #include <strsafe.h>
-#include <assert.h>
 
-extern HINSTANCE g_hInst;
 extern long g_cDllRef;
 
 NCContextMenu::NCContextMenu(void) 
     : m_cRef(1)
-    , m_pszMenuText(L"&Share")
-    , m_pszVerb("ocshare")
-    , m_pwszVerb(L"ocshare")
-    , m_pszVerbCanonicalName("OCShareViaOC")
-    , m_pwszVerbCanonicalName(L"OCShareViaOC")
-    , m_pszVerbHelpText("Share via ownCloud")
-    , m_pwszVerbHelpText(L"Share via ownCloud")
 {
     InterlockedIncrement(&g_cDllRef);
 }
@@ -42,14 +33,6 @@ NCContextMenu::~NCContextMenu(void)
 {
     InterlockedDecrement(&g_cDllRef);
 }
-
-
-void NCContextMenu::OnVerbDisplayFileName(HWND hWnd)
-{
-    NCClientInterface::ContextMenuInfo info = NCClientInterface::FetchInfo();
-    NCClientInterface::ShareObject(std::wstring(m_szSelectedFile));
-}
-
 
 #pragma region IUnknown
 
@@ -91,26 +74,32 @@ IFACEMETHODIMP_(ULONG) NCContextMenu::Release()
 IFACEMETHODIMP NCContextMenu::Initialize(
     LPCITEMIDLIST pidlFolder, LPDATAOBJECT pDataObj, HKEY hKeyProgID)
 {
+    m_selectedFiles.clear();
+
     if (!pDataObj) {
         return E_INVALIDARG;
     }
 
-    HRESULT hr = E_FAIL;
-
-    FORMATETC fe = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    FORMATETC fe = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     STGMEDIUM stm;
 
     if (SUCCEEDED(pDataObj->GetData(&fe, &stm))) {
         // Get an HDROP handle.
         HDROP hDrop = static_cast<HDROP>(GlobalLock(stm.hGlobal));
         if (hDrop) {
-            // Ignore multi-selections
-            UINT nFiles = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
-            if (nFiles == 1) {
+            UINT nFiles = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
+            for (UINT i = 0; i < nFiles; ++i) {
                 // Get the path of the file.
-                if (0 != DragQueryFile(hDrop, 0, m_szSelectedFile, ARRAYSIZE(m_szSelectedFile))) {
-                    hr = S_OK;
+                wchar_t buffer[MAX_PATH];
+
+                if (!DragQueryFile(hDrop, i, buffer, ARRAYSIZE(buffer))) {
+                    m_selectedFiles.clear();
+                    break;
                 }
+
+                if (i)
+                    m_selectedFiles += L'\x1e';
+                m_selectedFiles += buffer;
             }
 
             GlobalUnlock(stm.hGlobal);
@@ -121,7 +110,7 @@ IFACEMETHODIMP NCContextMenu::Initialize(
 
     // If any value other than S_OK is returned from the method, the context
     // menu item is not displayed.
-    return hr;
+    return m_selectedFiles.empty() ? E_FAIL : S_OK;
 }
 
 #pragma endregion
@@ -140,223 +129,105 @@ void InsertSeperator(HMENU hMenu, UINT indexMenu)
 
 IFACEMETHODIMP NCContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags)
 {
-    //< Comment for file streaming test.
-    /*
     // If uFlags include CMF_DEFAULTONLY then we should not do anything.
     if (CMF_DEFAULTONLY & uFlags)
     {
         return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(0));
     }
-	*/
 
-    NCClientInterface::ContextMenuInfo info = NCClientInterface::FetchInfo();
-
-    bool skip = true;
-    size_t selectedFileLength = wcslen(m_szSelectedFile);
-    for (const std::wstring &path : info.watchedDirectories) {
-        if (StringUtil::isDescendantOf(m_szSelectedFile, selectedFileLength, path)) {
-            skip = false;
-            break;
-        }
-    }
-
-    if (skip) {
+    m_info = NCClientInterface::FetchInfo(m_selectedFiles);
+    if (m_info.menuItems.empty()) {
         return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(0));
     }
 
     InsertSeperator(hMenu, indexMenu);
     indexMenu++;
 
-    // Query the download mode
-    std::wstring downloadMode = NCClientInterface::GetDownloadMode(m_szSelectedFile);
-    bool checkOnlineItem = downloadMode == L"ONLINE";
-    bool checkOfflineItem = downloadMode == L"OFFLINE";
-
-    // Insert the drive Online|Offline submenu
+    HMENU hSubmenu = CreateMenu();
     {
-        // Create the submenu
-        HMENU hDriveSubMenu = CreateMenu();
-        if (!hDriveSubMenu)
-            return HRESULT_FROM_WIN32(GetLastError());
-        // Setup the "Online" item
-        MENUITEMINFO menuInfoDriveOnline { 0 };
-        menuInfoDriveOnline.cbSize = sizeof(MENUITEMINFO);
-        menuInfoDriveOnline.fMask = MIIM_STRING;
-        menuInfoDriveOnline.dwTypeData = &info.streamOnlineItemTitle[0];
-        menuInfoDriveOnline.fMask |= MIIM_ID;
-        menuInfoDriveOnline.wID = idCmdFirst + MenuCommand::DriveOnline;
-        menuInfoDriveOnline.fMask |= MIIM_STATE;
-        menuInfoDriveOnline.fState = MFS_ENABLED;
-        if (checkOnlineItem)
-            menuInfoDriveOnline.fState |= MFS_CHECKED;
+        MENUITEMINFO mii = { sizeof(mii) };
+        mii.fMask = MIIM_SUBMENU | MIIM_FTYPE | MIIM_STRING;
+        mii.hSubMenu = hSubmenu;
+        mii.fType = MFT_STRING;
+        mii.dwTypeData = &m_info.contextMenuTitle[0];
 
-        // Insert it into the submenu
-        const bool driveOnlineMenuItemInserted = InsertMenuItem(hDriveSubMenu,
-            0, // At position zero
-            TRUE, //  indicates the existing item by using its zero-based position. (For example, the first item in the menu has a position of 0.)
-            &menuInfoDriveOnline);
-
-        if (!driveOnlineMenuItemInserted) {
-            return HRESULT_FROM_WIN32(GetLastError());
-        }
-
-        // Setup the "Online" item
-        MENUITEMINFO menuInfoDriveOffline { 0 };
-        menuInfoDriveOffline.cbSize = sizeof(MENUITEMINFO);
-        menuInfoDriveOffline.fMask = MIIM_STRING;
-        menuInfoDriveOffline.dwTypeData = &info.streamOfflineItemTitle[0];
-        menuInfoDriveOffline.fMask |= MIIM_ID;
-        menuInfoDriveOffline.wID = idCmdFirst + MenuCommand::DriveOffline;
-        menuInfoDriveOffline.fMask |= MIIM_STATE;
-        menuInfoDriveOffline.fState = MFS_ENABLED;
-        if (checkOfflineItem)
-            menuInfoDriveOffline.fState |= MFS_CHECKED;
-
-        // Insert it into the submenu
-        const bool driveOfflineMenuItemInserted = InsertMenuItem(hDriveSubMenu,
-            1, // At position one
-            TRUE, //  indicates the existing item by using its zero-based position. (For example, the first item in the menu has a position of 0.)
-            &menuInfoDriveOffline);
-
-        if (!driveOfflineMenuItemInserted) {
-            return HRESULT_FROM_WIN32(GetLastError());
-        }
-
-        // Setup the "Share" item
-        MENUITEMINFO menuInfoDriveShare { 0 };
-        menuInfoDriveShare.cbSize = sizeof(MENUITEMINFO);
-        menuInfoDriveShare.fMask = MIIM_STRING;
-        menuInfoDriveShare.dwTypeData = &info.shareMenuTitle[0];
-        menuInfoDriveShare.fMask |= MIIM_ID;
-        menuInfoDriveShare.wID = idCmdFirst + MenuCommand::Share;
-        menuInfoDriveShare.fMask |= MIIM_STATE;
-        menuInfoDriveShare.fState = MFS_ENABLED;
-
-        //if (checkOfflineItem)
-        //menuInfoDriveShare.fState |= MFS_CHECKED;
-
-        // Insert it into the submenu
-        const bool driveShareMenuItemInserted = InsertMenuItem(hDriveSubMenu,
-            2, // At position one
-            TRUE, //  indicates the existing item by using its zero-based position. (For example, the first item in the menu has a position of 0.)
-            &menuInfoDriveShare);
-
-        if (!driveShareMenuItemInserted) {
-            return HRESULT_FROM_WIN32(GetLastError());
-        }
-
-        // Insert the submenu below the "share" item
-        MENUITEMINFO hDriveSubMenuInfo;
-        hDriveSubMenuInfo.cbSize = sizeof(MENUITEMINFO);
-        hDriveSubMenuInfo.fMask = MIIM_SUBMENU | MIIM_STATE | MIIM_STRING;
-        hDriveSubMenuInfo.fState = MFS_ENABLED;
-        // TODO: get text from cliente/gui
-        hDriveSubMenuInfo.dwTypeData = &info.streamSubMenuTitle[0];
-        hDriveSubMenuInfo.hSubMenu = hDriveSubMenu;
-
-        // Insert the subitem into the
-        const bool driveSubMenuItemInserted = InsertMenuItem(hMenu,
-            indexMenu++,
-            TRUE,
-            &hDriveSubMenuInfo);
-        if (!driveSubMenuItemInserted)
+        if (!InsertMenuItem(hMenu, indexMenu++, TRUE, &mii))
             return HRESULT_FROM_WIN32(GetLastError());
     }
+    InsertSeperator(hMenu, indexMenu++);
 
-    indexMenu++;
-    InsertSeperator(hMenu, indexMenu);
+    UINT indexSubMenu = 0;
+    for (auto &item : m_info.menuItems) {
+        bool disabled = item.flags.find(L'd') != std::string::npos;
+
+        MENUITEMINFO mii = { sizeof(mii) };
+        mii.fMask = MIIM_ID | MIIM_FTYPE | MIIM_STRING | MIIM_STATE;
+        mii.wID = idCmdFirst + indexSubMenu;
+        mii.fType = MFT_STRING;
+        mii.dwTypeData = &item.title[0];
+        mii.fState = disabled ? MFS_DISABLED : MFS_ENABLED;
+
+        if (!InsertMenuItem(hSubmenu, indexSubMenu, true, &mii))
+            return HRESULT_FROM_WIN32(GetLastError());
+        indexSubMenu++;
+    }
 
     // Return an HRESULT value with the severity set to SEVERITY_SUCCESS.
     // Set the code value to the offset of the largest command identifier
     // that was assigned, plus one (1).
-
-    //< Comment for file streaming test.
-    //return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(share + 1));
-
-    //< Append for file streaming test.
-    return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(MenuCommand::Last));
+    return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(indexSubMenu));
 }
 
 IFACEMETHODIMP NCContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 {
+    std::wstring command;
+
+    CMINVOKECOMMANDINFOEX *piciEx = nullptr;
+    if (pici->cbSize == sizeof(CMINVOKECOMMANDINFOEX))
+        piciEx = (CMINVOKECOMMANDINFOEX*)pici;
+
     // For the Unicode case, if the high-order word is not zero, the
     // command's verb string is in lpcmi->lpVerbW.
-    if (HIWORD(((CMINVOKECOMMANDINFOEX *)pici)->lpVerbW)) {
-        // Is the verb supported by this context menu extension?
-        if (StrCmpIW(((CMINVOKECOMMANDINFOEX *)pici)->lpVerbW, m_pwszVerb) == 0) {
-            OnVerbDisplayFileName(pici->hwnd);
-        } else {
-            // If the verb is not recognized by the context menu handler, it
-            // must return E_FAIL to allow it to be passed on to the other
-            // context menu handlers that might implement that verb.
-            return E_FAIL;
+    if (piciEx
+        && (piciEx->fMask & CMIC_MASK_UNICODE)
+        && HIWORD(((CMINVOKECOMMANDINFOEX*)pici)->lpVerbW)) {
+
+        command = piciEx->lpVerbW;
+
+        // Verify that we handle the verb
+        bool handled = false;
+        for (auto &item : m_info.menuItems) {
+            if (item.command == command) {
+                handled = true;
+                break;
+            }
         }
+        if (!handled)
+            return E_FAIL;
+    } else if (IS_INTRESOURCE(pici->lpVerb)) {
+        // If the command cannot be identified through the verb string, then
+        // check the identifier offset.
+        auto offset = LOWORD(pici->lpVerb);
+        if (offset >= m_info.menuItems.size())
+            return E_FAIL;
+
+        command = m_info.menuItems[offset].command;
+    } else {
+        return E_FAIL;
     }
 
-    // If the command cannot be identified through the verb string, then
-    // check the identifier offset.
-    else {
-        // Is the command identifier offset supported by this context menu
-        // extension?
-        if (LOWORD(pici->lpVerb) == MenuCommand::Share) {
-            OnVerbDisplayFileName(pici->hwnd);
-        } else if (LOWORD(pici->lpVerb) == MenuCommand::DriveOnline) {
-            OnDriveMenuOnline(pici->hwnd);
-        } else if (LOWORD(pici->lpVerb) == MenuCommand::DriveOffline) {
-            OnDriveMenuOffline(pici->hwnd);
-        } else {
-            // If the verb is not recognized by the context menu handler, it
-            // must return E_FAIL to allow it to be passed on to the other
-            // context menu handlers that might implement that verb.
-            return E_FAIL;
-        }
-    }
-
+    NCClientInterface::SendRequest(command.data(), m_selectedFiles);
     return S_OK;
 }
 
 IFACEMETHODIMP NCContextMenu::GetCommandString(UINT_PTR idCommand,
     UINT uFlags, UINT *pwReserved, LPSTR pszName, UINT cchMax)
 {
-    HRESULT hr = E_INVALIDARG;
-
-    if (idCommand == MenuCommand::Share) {
-        switch (uFlags) {
-        case GCS_HELPTEXTW:
-            // Only useful for pre-Vista versions of Windows that have a
-            // Status bar.
-            hr = StringCchCopy(reinterpret_cast<PWSTR>(pszName), cchMax,
-                m_pwszVerbHelpText);
-            break;
-
-        case GCS_VERBW:
-            // GCS_VERBW is an optional feature that enables a caller to
-            // discover the canonical name for the verb passed in through
-            // idCommand.
-            hr = StringCchCopy(reinterpret_cast<PWSTR>(pszName), cchMax,
-                m_pwszVerbCanonicalName);
-            break;
-
-        default:
-            hr = S_OK;
-        }
+    if (idCommand < m_info.menuItems.size() && uFlags == GCS_VERBW) {
+        return StringCchCopyW(reinterpret_cast<PWSTR>(pszName), cchMax,
+            m_info.menuItems[idCommand].command.data());
     }
-
-    // If the command (idCommand) is not supported by this context menu
-    // extension handler, return E_INVALIDARG.
-
-    return hr;
+    return E_INVALIDARG;
 }
-
-void NCContextMenu::OnDriveMenuOffline(HWND hWnd)
-{
-    NCClientInterface::SetDownloadMode(std::wstring(m_szSelectedFile), false);
-}
-
-void NCContextMenu::OnDriveMenuOnline(HWND hWnd)
-{
-    NCClientInterface::SetDownloadMode(std::wstring(m_szSelectedFile), true);
-}
-
 
 #pragma endregion
