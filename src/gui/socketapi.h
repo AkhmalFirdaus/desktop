@@ -37,6 +37,7 @@ namespace OCC {
 class SyncFileStatus;
 class Folder;
 class SocketListener;
+class DirectEditor;
 class GetOrCreatePublicLinkShare;
 
 /**
@@ -52,14 +53,13 @@ public:
     virtual ~SocketApi();
 
 public slots:
-    void slotUpdateFolderView(Folder * f);
+    void slotUpdateFolderView(Folder *f);
     void slotUnregisterPath(const QString &alias);
     void slotRegisterPath(const QString &alias);
     void broadcastStatusPushMessage(const QString &systemPath, SyncFileStatus fileStatus);
 
 signals:
     void shareCommandReceived(const QString &sharePath, const QString &localPath, ShareDialogStartPage startPage);
-    void shareUserGroupCommandReceived(const QString &sharePath, const QString &localPath, bool resharingAllowed);
 
 private slots:
     void slotNewConnection();
@@ -98,7 +98,6 @@ private:
 
     Q_INVOKABLE void command_VERSION(const QString &argument, SocketListener *listener);
 
-    Q_INVOKABLE void command_SHARE_STATUS(const QString &localFile, SocketListener *listener);
     Q_INVOKABLE void command_SHARE_MENU_TITLE(const QString &argument, SocketListener *listener);
 
     // The context menu actions
@@ -111,9 +110,15 @@ private:
     Q_INVOKABLE void command_RESOLVE_CONFLICT(const QString &localFile, SocketListener *listener);
     Q_INVOKABLE void command_DELETE_ITEM(const QString &localFile, SocketListener *listener);
     Q_INVOKABLE void command_MOVE_ITEM(const QString &localFile, SocketListener *listener);
+    Q_INVOKABLE void command_SYNCMODE_ONLINE(const QString &localFile, SocketListener *listener);
+    Q_INVOKABLE void command_SYNCMODE_OFFLINE(const QString &localFile, SocketListener *listener);
 
-    Q_INVOKABLE void command_ONLINE_DOWNLOAD_MODE(const QString &localFile, SocketListener *listener);
-    Q_INVOKABLE void command_OFFLINE_DOWNLOAD_MODE(const QString &localFile, SocketListener *listener);
+    // Windows Shell / Explorer pinning fallbacks, see issue: https://github.com/nextcloud/desktop/issues/1599
+#ifdef Q_OS_WIN
+    Q_INVOKABLE void command_COPYASPATH(const QString &localFile, SocketListener *listener);
+    Q_INVOKABLE void command_OPENNEWWINDOW(const QString &localFile, SocketListener *listener);
+    Q_INVOKABLE void command_OPEN(const QString &localFile, SocketListener *listener);
+#endif
 
     // Fetch the private link and call targetFun
     void fetchPrivateLinkUrlHelper(const QString &localFile, const std::function<void(const QString &url)> &targetFun);
@@ -124,6 +129,9 @@ private:
     // Sends the context menu options relating to sharing to listener
     void sendSharingContextMenuOptions(const FileData &fileData, SocketListener *listener, bool enabled);
 
+    // Sends the context menu options relating to virtual drive to listener
+    void sendVirtualDriveContextMenuOptions(const FileData &fileData, SocketListener *listener);
+
     /** Send the list of menu item. (added in version 1.1)
      * argument is a list of files for which the menu should be shown, separated by '\x1e'
      * Reply with  GET_MENU_ITEMS:BEGIN
@@ -133,9 +141,11 @@ private:
      */
     Q_INVOKABLE void command_GET_MENU_ITEMS(const QString &argument, SocketListener *listener);
 
+    /// Direct Editing
+    Q_INVOKABLE void command_EDIT(const QString &localFile, SocketListener *listener);
+    DirectEditor* getDirectEditorForLocalFile(const QString &localFile);
+
     QString buildRegisterPathMessage(const QString &path);
-    Q_INVOKABLE void command_SET_DOWNLOAD_MODE(const QString& argument, SocketListener* listener);
-    Q_INVOKABLE void command_GET_DOWNLOAD_MODE(const QString& localFile, SocketListener* listener);
 
     static QString mapToCacheFilename(const QString &vfsFilename);
     static QString mapToMountFilename(const QString &cacheFilename);
