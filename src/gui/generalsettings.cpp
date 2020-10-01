@@ -42,20 +42,12 @@
 #include <QDir>
 #include <QScopedValueRollback>
 
+#include <private/qzipwriter_p.h>
+
 #define QTLEGACY (QT_VERSION < QT_VERSION_CHECK(5,9,0))
 
 #if !(QTLEGACY)
 #include <QOperatingSystemVersion>
-#endif
-
-#include <private/qzipwriter_p.h>
-
-#ifdef Q_OS_WIN
-#include "vfs_windows.h"
-#endif
-
-#ifdef Q_OS_MAC
-#include "vfs_mac.h"
 #endif
 
 namespace {

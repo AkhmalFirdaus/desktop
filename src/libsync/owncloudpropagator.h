@@ -519,9 +519,8 @@ private slots:
     /** Emit the finished signal and make sure it is only emitted once */
     void emitFinished(SyncFileItem::Status status)
     {
-        if (!_finishedEmited){
+        if (!_finishedEmited)
             emit finished(status == SyncFileItem::Success);
-        }
         _finishedEmited = true;
     }
 

@@ -393,7 +393,6 @@ void DiscoverySingleDirectoryJob::directoryListingIteratedSlot(QString file, con
                 << file_stat->etag << file_stat->file_id;
         } else if (file_stat->type == ItemTypeSkip
             || file_stat->size == -1
-            || file_stat->modtime == -1
             || file_stat->remotePerm.isNull()
             || file_stat->etag.isEmpty()
             || file_stat->file_id.isEmpty()) {
@@ -493,6 +492,10 @@ void DiscoveryMainThread::doOpendirSlot(const QString &subPath, DiscoveryDirecto
         fullPath += '/';
     }
     fullPath += subPath;
+    // remove trailing slash
+    while (fullPath.endsWith('/')) {
+        fullPath.chop(1);
+    }
 
     _discoveryJob->update_job_update_callback(/*local=*/false, subPath.toUtf8(), _discoveryJob);
 
@@ -586,7 +589,7 @@ void DiscoveryMainThread::doGetSizeSlot(const QString &path, qint64 *result)
     // Schedule the DiscoverySingleDirectoryJob
     auto propfindJob = new PropfindJob(_account, fullPath, this);
     propfindJob->setProperties(QList<QByteArray>() << "resourcetype"
-                               << "http://owncloud.org/ns:size");
+                                                   << "http://owncloud.org/ns:size");
     QObject::connect(propfindJob, &PropfindJob::finishedWithError,
                      this, &DiscoveryMainThread::slotGetSizeFinishedWithError);
     QObject::connect(propfindJob, &PropfindJob::result,
@@ -659,8 +662,7 @@ csync_vio_handle_t *DiscoveryJob::remote_vio_opendir_hook(const char *url,
         discoveryJob->_vioMutex.lock();
         const QString qurl = QString::fromUtf8(url);
         emit discoveryJob->doOpendirSignal(qurl, directoryResult.data());
-        // TODO - timing out...
-        discoveryJob->_vioWaitCondition.wait(&discoveryJob->_vioMutex, ULONG_MAX);
+        discoveryJob->_vioWaitCondition.wait(&discoveryJob->_vioMutex, ULONG_MAX); // FIXME timeout?
         discoveryJob->_vioMutex.unlock();
 
         qCDebug(lcDiscovery) << discoveryJob << url << "...Returned from main thread";

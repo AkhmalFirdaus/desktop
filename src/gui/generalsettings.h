@@ -17,7 +17,6 @@
 
 #include <QWidget>
 #include <QPointer>
-#include "accountmanager.h"
 
 namespace OCC {
 class IgnoreListEditor;

@@ -57,10 +57,6 @@
 
 #include "account.h"
 
-#if defined(Q_OS_WIN)
-#include "vfs_windows.h"
-#endif
-
 namespace OCC {
 
 Q_LOGGING_CATEGORY(lcAccountSettings, "nextcloud.gui.account.settings", QtInfoMsg)
@@ -195,10 +191,6 @@ AccountSettings::AccountSettings(AccountState *accountState, QWidget *parent)
 
     connect(&_userInfo, &UserInfo::quotaUpdated,
         this, &AccountSettings::slotUpdateQuota);
-#if defined(Q_OS_MAC)
-    connect(&_userInfo, &UserInfo::quotaUpdated,
-        this, &AccountSettings::slotUpdateQuota);
-#endif
 
     // Connect E2E stuff
     connect(this, &AccountSettings::requesetMnemonic, _accountState->account()->e2e(), &ClientSideEncryption::slotRequestMnemonic);
@@ -213,6 +205,7 @@ AccountSettings::AccountSettings(AccountState *accountState, QWidget *parent)
         auto *mnemonic = new QAction(tr("Display mnemonic"), this);
         connect(mnemonic, &QAction::triggered, this, &AccountSettings::requesetMnemonic);
         _ui->encryptionMessage->addAction(mnemonic);
+        _ui->encryptionMessage->hide();
     }
 
     connect(UserModel::instance(), &UserModel::addAccount,
@@ -809,7 +802,7 @@ void AccountSettings::slotAccountStateChanged()
                                        "<a href='%1'>Click here</a> to re-open the browser.")
                                         .arg(url.toString(QUrl::FullyEncoded)));
             } else {
-                showConnectionLabel(tr("Connecting to %1 …").arg(serverWithUser));
+                showConnectionLabel(tr("Connecting to %1 â€¦").arg(serverWithUser));
             }
         } else {
             showConnectionLabel(tr("No connection to %1 at %2.")

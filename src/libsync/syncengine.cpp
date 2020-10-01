@@ -381,7 +381,7 @@ void SyncEngine::conflictRecordMaintenance()
     // Remove stale conflict entries from the database
     // by checking which files still exist and removing the
     // missing ones.
-    auto conflictRecordPaths = _journal->conflictRecordPaths();
+    const auto conflictRecordPaths = _journal->conflictRecordPaths();
     for (const auto &path : conflictRecordPaths) {
         auto fsPath = _propagator->getFilePath(QString::fromUtf8(path));
         if (!QFileInfo(fsPath).exists()) {
@@ -394,7 +394,7 @@ void SyncEngine::conflictRecordMaintenance()
     //
     // This happens when the conflicts table is new or when conflict files
     // are downlaoded but the server doesn't send conflict headers.
-    for (const auto &path : _seenFiles) {
+    for (const auto &path : qAsConst(_seenFiles)) {
         if (!Utility::isConflictFile(path))
             continue;
 
@@ -1201,7 +1201,7 @@ void SyncEngine::slotDiscoveryJobFinished(int discoveryResult)
     // Get CHANGE instructions to the top first
     if (syncItems.count() > 0) {
         std::sort(syncItems.begin(), syncItems.end(),
-            [](const SyncFileItemVector::const_reference &a, const SyncFileItemVector::const_reference &b) -> bool {
+            [](SyncFileItemVector::const_reference &a, SyncFileItemVector::const_reference &b) -> bool {
 				return ((a->_instruction == CSYNC_INSTRUCTION_TYPE_CHANGE) && (b->_instruction != CSYNC_INSTRUCTION_TYPE_CHANGE));
             });
         if (syncItems.at(0)->_instruction == CSYNC_INSTRUCTION_TYPE_CHANGE) {
@@ -1212,7 +1212,7 @@ void SyncEngine::slotDiscoveryJobFinished(int discoveryResult)
             std::sort(syncItems.begin(), syncItems.begin() + lastChangeInstruction);
             if (syncItems.count() > lastChangeInstruction) {
                 std::sort(syncItems.begin() + (lastChangeInstruction + 1), syncItems.end(),
-                    [](const SyncFileItemVector::const_reference &a, const SyncFileItemVector::const_reference &b) -> bool {
+                    [](SyncFileItemVector::const_reference &a, SyncFileItemVector::const_reference &b) -> bool {
                         return ((a->_instruction == CSYNC_INSTRUCTION_REMOVE) && (b->_instruction != CSYNC_INSTRUCTION_REMOVE));
                     });
                 if (syncItems.at(lastChangeInstruction + 1)->_instruction == CSYNC_INSTRUCTION_REMOVE) {

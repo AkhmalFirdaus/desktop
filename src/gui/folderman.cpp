@@ -665,7 +665,7 @@ void FolderMan::slotRunOneEtagJob()
             //qCDebug(lcFolderMan) << "No more remote ETag check jobs to schedule.";
 
             /* now it might be a good time to check for restarting... */
-            if (_currentSyncFolder == nullptr && _appRestartRequired) {
+            if (!_currentSyncFolder && _appRestartRequired) {
                 restartApplication();
             }
         } else {

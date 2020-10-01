@@ -60,6 +60,8 @@ int main(int argc, char **argv)
     // Can be removed once the bug in qqc2-desktop-style is gone.
     QQuickStyle::setStyle("Default");
 
+    // OpenSSL 1.1.0: No explicit initialisation or de-initialisation is necessary.
+
 #ifdef Q_OS_WIN
 // If the font size ratio is set on Windows, we need to
 // enable the auto pixelRatio in Qt since we don't

@@ -52,8 +52,6 @@
 #define __STDC_FORMAT_MACROS
 #include <cinttypes>
 
-#include <unordered_map>
-
 Q_LOGGING_CATEGORY(lcUpdate, "nextcloud.sync.csync.updater", QtInfoMsg)
 
 #ifdef NO_RENAME_EXTENSION
@@ -65,8 +63,8 @@ static bool _csync_sameextension(const char *p1, const char *p2) {
 
     /* If the found extension contains a '/', it is because the . was in the folder name
      *            => no extensions */
-    if (e1 && strchr(e1, '/')) e1 = NULL;
-    if (e2 && strchr(e2, '/')) e2 = NULL;
+    if (e1 && strchr(e1, '/')) e1 = nullptr;
+    if (e2 && strchr(e2, '/')) e2 = nullptr;
 
     /* If none have extension, it is the same extension */
     if (!e1 && !e2)
@@ -358,7 +356,6 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
                   csync_rename_record(ctx, base._path, fs->path);
               }
           }
-
           goto out;
 
       } else {
@@ -661,7 +658,7 @@ int csync_ftw(CSYNC *ctx, const char *uri, csync_walker_fn fn,
   // if the etag of this dir is still the same, its content is restored from the
   // database.
   if( do_read_from_db ) {
-      if( ! fill_tree_from_db(ctx, db_uri) ) {
+      if(!fill_tree_from_db(ctx, db_uri)) {
         errno = ENOENT;
         ctx->status_code = CSYNC_STATUS_OPENDIR_ERROR;
         goto error;
@@ -669,7 +666,7 @@ int csync_ftw(CSYNC *ctx, const char *uri, csync_walker_fn fn,
       return 0;
   }
 
-  if ((dh = csync_vio_opendir(ctx, uri)) == nullptr) {
+  if (!(dh = csync_vio_opendir(ctx, uri))) {
       if (ctx->abort) {
           qCDebug(lcUpdate, "Aborted!");
           ctx->status_code = CSYNC_STATUS_ABORTED;
@@ -827,7 +824,7 @@ int csync_ftw(CSYNC *ctx, const char *uri, csync_walker_fn fn,
 
 error:
   ctx->remote.read_from_db = read_from_db;
-  if (dh != nullptr) {
+  if (dh) {
     csync_vio_closedir(ctx, dh);
   }
   return -1;

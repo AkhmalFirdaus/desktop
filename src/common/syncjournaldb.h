@@ -31,7 +31,6 @@
 
 namespace OCC {
 class SyncJournalFileRecord;
-class SyncJournalErrorBlacklistRecord;
 
 /**
  * @brief Class that handles the sync database
@@ -217,13 +216,13 @@ public:
     /// Store a new or updated record in the database
     void setConflictRecord(const ConflictRecord &record);
 
-    /// Retrieve a conflict record by path of the _conflict- file
+    /// Retrieve a conflict record by path of the file with the conflict tag
     ConflictRecord conflictRecord(const QByteArray &path);
 
-    /// Delete a conflict record by path of the _conflict- file
+    /// Delete a conflict record by path of the file with the conflict tag
     void deleteConflictRecord(const QByteArray &path);
 
-    /// Return all paths of _conflict- files with records in the db
+    /// Return all paths of files with a conflict tag in the name and records in the db
     QByteArrayList conflictRecordPaths();
 
     /** Find the base name for a conflict file name, using journal or name pattern
@@ -352,12 +351,12 @@ private:
     bool _metadataTableIsEmpty;
 
     SqlQuery _getFileRecordQuery;
-    SqlQuery _setFileRecordQuery;
     SqlQuery _getFileRecordQueryByMangledName;
     SqlQuery _getFileRecordQueryByInode;
     SqlQuery _getFileRecordQueryByFileId;
     SqlQuery _getFilesBelowPathQuery;
     SqlQuery _getAllFilesQuery;
+    SqlQuery _setFileRecordQuery;
     SqlQuery _setFileRecordChecksumQuery;
     SqlQuery _setFileRecordLocalMetadataQuery;
     SqlQuery _getDownloadInfoQuery;
@@ -400,9 +399,6 @@ private:
      *
      * The list is cleared on close() (end of sync run) and explicitly with
      * clearEtagStorageFilter() (start of sync run).
-    * This is the list of paths we called avoidReadFromDbOnNextSync on.
-     * It means that they should not be written to the DB in any case since doing
-     * that would write the etag and would void the purpose of avoidReadFromDbOnNextSync
      *
      * The contained paths have a trailing /.
      */

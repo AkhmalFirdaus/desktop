@@ -175,7 +175,7 @@ struct OCSYNC_EXPORT csync_s {
   } priority;
 
   struct {
-    char *uri = nullptr;	
+    char *uri = nullptr;
     FileMap files;
   } local;
 
