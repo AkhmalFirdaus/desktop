@@ -992,28 +992,28 @@ void SocketApi::command_SYNCMODE_ONLINE(const QString &path, SocketListener *lis
 {
     Q_UNUSED(listener)
 
-    const auto localFile = mapToCacheFilename(path);
-    const auto folder = FolderMan::instance()->folderForPath(localFile);
-    const auto relativePath = folder->relativePath(localFile);
-    const auto journal = folder->journalDb();
+    const auto fileData = FileData::get(path);
+    const auto journal = fileData.folder->journalDb();
 
-    qDebug() << "\n"
-             << Q_FUNC_INFO << "ONLINE_DOWNLOAD_MODE: " << relativePath;
-    journal->setSyncMode(relativePath, SyncJournalDb::SYNCMODE_ONLINE);
+    qDebug() << "SYNCMODE_ONLINE: " << path << fileData.folderRelativePath;
+    journal->setSyncMode(fileData.folderRelativePath, SyncJournalDb::SYNCMODE_ONLINE);
+
+    // Trigger sync
+    fileData.folder->scheduleThisFolderSoon();
 }
 
 void SocketApi::command_SYNCMODE_OFFLINE(const QString &path, SocketListener *listener)
 {
     Q_UNUSED(listener)
 
-    const auto localFile = mapToCacheFilename(path);
-    const auto folder = FolderMan::instance()->folderForPath(localFile);
-    const auto relativePath = folder->relativePath(localFile);
-    const auto journal = folder->journalDb();
+    const auto fileData = FileData::get(path);
+    const auto journal = fileData.folder->journalDb();
 
-    qDebug() << "\n"
-             << Q_FUNC_INFO << "OFFLINE_DOWNLOAD_MODE: " << relativePath;
-    journal->setSyncMode(relativePath, SyncJournalDb::SYNCMODE_OFFLINE);
+    qDebug() << "SYNCMODE_OFFLINE: " << path << fileData.folderRelativePath;
+    journal->setSyncMode(fileData.folderRelativePath, SyncJournalDb::SYNCMODE_OFFLINE);
+
+    // Trigger sync
+    fileData.folder->scheduleThisFolderSoon();
 }
 
 QString OCC::SocketApi::mapToCacheFilename(const QString &vfsFilename)
