@@ -174,7 +174,7 @@ IF( WIN32 )
     list(APPEND client_SRCS vfs_windows.cpp)
 ENDIF()
 
-IF( WIN32 OR APPLE )
+IF( APPLE )
 	list(APPEND client_SRCS syncwrapper.cpp)
 ENDIF()
 
