@@ -202,21 +202,26 @@ signals:
     // A new folder was discovered and was not synced because of the confirmation feature
     void newBigFolder(const QString &folder, bool isExternal);
 };
-    
-class OWNCLOUDSYNC_EXPORT DiscoveryFolderFileList : public QObject {
+
+class OWNCLOUDSYNC_EXPORT DiscoveryFolderFileList : public QObject
+{
     Q_OBJECT
-    
+
     QPointer<DiscoverySingleDirectoryJob> _singleDirJob;
     QString _pathPrefix; // remote path
     AccountPtr _account;
-    DiscoveryDirectoryResult *_DiscoveryFolderFileListResult;
-    bool _firstFolderProcessed;
+    DiscoveryDirectoryResult *_DiscoveryFolderFileListResult = nullptr;
+    bool _firstFolderProcessed = false;
 
 public:
-    DiscoveryFolderFileList(AccountPtr account) : QObject(), _account(account), _DiscoveryFolderFileListResult(nullptr), _firstFolderProcessed(false)
-    { }
+    DiscoveryFolderFileList(AccountPtr account)
+        : QObject()
+        , _account(account)
+    {
+    }
+
     QByteArray _dataFingerprint;
-    
+
 public slots:
     // From Job:
     //void singleDirectoryJobResultSlot(const QList<FileStatPointer> &);
