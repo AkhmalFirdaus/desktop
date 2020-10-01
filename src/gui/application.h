@@ -96,7 +96,6 @@ protected slots:
 
 private:
     void setHelp();
-	bool removeDirs(const QString& dirName);
 
     QPointer<ownCloudGui> _gui;
 

@@ -686,32 +686,4 @@ void Application::slotGuiIsShowingSettings()
     emit isShowingSettingsDialog();
 }
 
-bool Application::removeDirs(const QString & dirName)
-{
-    bool result = true;
-    QDir dir(dirName);
-
-    if (dir.exists(dirName)) {
-        for (const auto &info : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-            if (info.isDir()) {
-                result = removeDirs(info.absoluteFilePath());
-            } else {
-                result = QFile::remove(info.absoluteFilePath());
-                if (!result) {
-                    const QFile::Permissions permissions = QFile::permissions(info.absoluteFilePath());
-                    if (!(permissions & QFile::WriteUser)) {
-                        result = QFile::setPermissions(info.absoluteFilePath(), permissions | QFile::WriteUser) && QFile::remove(info.absoluteFilePath());
-                    }
-                }
-            }
-
-            if (!result) {
-                return result;
-            }
-        }
-        result = true;
-    }
-    return result;
-}
-
 } // namespace OCC
