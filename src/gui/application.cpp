@@ -400,6 +400,8 @@ void Application::slotownCloudWizardDone(int res)
         }
 
         Systray::instance()->showWindow();
+    } else {
+        qCInfo(lcApplication) << "No account configured yet. Closing wizard.";
     }
 }
 
