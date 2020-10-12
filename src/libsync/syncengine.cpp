@@ -334,47 +334,6 @@ void SyncEngine::deleteStaleErrorBlacklistEntries(const SyncFileItemVector &sync
     _journal->deleteStaleErrorBlacklistEntries(blacklist_file_paths);
 }
 
-void SyncEngine::deleteUnusedOnlineCachedFiles()
-{
-    qCInfo(lcEngine) << "Cleaning up unused online files for" << _journal->databaseFilePath();
-
-    //< Get paths SyncMode table.
-    QList<QString> list = _journal->getSyncModePaths();
-
-    if (!list.empty()) {
-        for (const auto &item : list) {
-            const auto secondsSinceLastAccess = _journal->secondsSinceLastAccess(item);
-            const auto syncMode = _journal->getSyncMode(item);
-
-            qCDebug(lcEngine) << "Evaluating:" << item << syncMode << secondsSinceLastAccess;
-
-            //< After 10' and assumption SYNCMODE_ONLINE = Online, SYNCMODE_ALWAYS = Offline.
-            if (secondsSinceLastAccess > 65 && (syncMode == SyncJournalDb::SyncMode::SYNCMODE_ONLINE)) {
-#if defined(Q_OS_WIN)
-                const auto relative_prefix = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles/";
-#else
-                const auto relative_prefix = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/cachedFiles/";
-#endif
-
-                const QString realPathItem = relative_prefix + item;
-
-                QDir dir(realPathItem);
-                //< if is dir
-                if (dir.exists()) {
-                    qCDebug(lcEngine) << "Delete directory:" << realPathItem;
-                    dir.removeRecursively();
-                    _journal->deleteFileRecord(item, true);
-                } else {
-                    qCDebug(lcEngine) << "Delete file:" << realPathItem;
-                    QFile::remove(realPathItem);
-                    _journal->deleteFileRecord(item, false);
-                }
-                _journal->deleteSyncMode(item);
-            }
-        }
-    }
-}
-
 void SyncEngine::conflictRecordMaintenance()
 {
     // Remove stale conflict entries from the database
@@ -1361,8 +1320,6 @@ void SyncEngine::slotFinished(bool success)
     _progressInfo->_lastCompletedItem = SyncFileItem();
     _progressInfo->_status = ProgressInfo::Done;
     emit transmissionProgress(*_progressInfo);
-
-    deleteUnusedOnlineCachedFiles();
 
     finalize(success);
 }

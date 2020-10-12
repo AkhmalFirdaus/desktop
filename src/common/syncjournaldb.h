@@ -278,27 +278,6 @@ public:
 	*/
     int deleteSyncMode(const QString &path);
 
-    /**
-	* @brief  Retrieves the last access local datetime of the given path
-	* @path File path
-	* @return On success, QDateTime representing the last access time. On failure, an invalid QDateTime object with null date and time.
-	*/
-    QDateTime getLastAccess(const QString &path);
-
-    /**
-	* @brief  Sets the last access time to the current local time in format yyyy-MM-dd HH:mm:ss
-	* @path File path
-	* @return Number of modified records on success. -1 on failure.
-	*/
-    int updateLastAccess(const QString &path);
-
-    /**
-	* @brief  Returns the difference in seconds between the current datetime and the record lastAccessDateTime
-	* @path File path
-	* @return Seconds since last accesson success. -1 on failure.
-	*/
-    qint64 secondsSinceLastAccess(const QString &path);
-
 private:
     int getFileRecordCount();
     bool updateDatabaseStructure();
@@ -359,8 +338,6 @@ private:
     SqlQuery _setSyncModeQuery;
     SqlQuery _deleteSyncModeQuery;
     SqlQuery _getSyncModePathsQuery;
-    SqlQuery _getLastAccessQuery;
-    SqlQuery _setLastAccessQuery;
 
     /* Storing etags to these folders, or their parent folders, is filtered out.
      *

@@ -2200,66 +2200,6 @@ int SyncJournalDb::deleteSyncMode(QString const &path)
     return _deleteSyncModeQuery.numRowsAffected();
 }
 
-QDateTime SyncJournalDb::getLastAccess(const QString &path)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return QDateTime{};
-    _getLastAccessQuery.initOrReset(QByteArrayLiteral("SELECT lastaccess FROM syncmode WHERE path=?1;"), _db);
-    _getLastAccessQuery.bindValue(1, path);
-    if (!_getLastAccessQuery.exec()) {
-        qWarning() << "Error SQL statement getSyncMode: "
-                   << _getLastAccessQuery.lastQuery() << " :"
-                   << _getLastAccessQuery.error();
-        return QDateTime{};
-    }
-    if (!_getLastAccessQuery.next())
-        return QDateTime{};
-
-    QString dateString = _getLastAccessQuery.stringValue(0);
-    QString format = "yyyy-MM-dd HH:mm:ss";
-    QDateTime lastAccessDateTime = QDateTime::fromString(dateString, format);
-
-    if (lastAccessDateTime.isNull())
-        qWarning() << "getLastAccess: "
-                      "Invalid date returned from journal DB";
-
-    return lastAccessDateTime;
-}
-
-int SyncJournalDb::updateLastAccess(const QString &path)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return -1;
-
-    QString format = "yyyy-MM-dd HH:mm:ss";
-    QString currentDateTime = QDateTime::currentDateTime().toString(format);
-
-    _setLastAccessQuery.initOrReset(QByteArrayLiteral("UPDATE syncmode SET lastaccess=?1 WHERE path=?2;"), _db);
-    _setLastAccessQuery.bindValue(1, currentDateTime);
-    _setLastAccessQuery.bindValue(2, path);
-    if (!_setLastAccessQuery.exec()) {
-        qWarning() << "Error SQL statement setSyncMode: "
-                   << _setLastAccessQuery.lastQuery() << " :"
-                   << _setLastAccessQuery.error();
-        return -1;
-    }
-    return _setLastAccessQuery.numRowsAffected();
-}
-
-qint64 SyncJournalDb::secondsSinceLastAccess(QString const &path)
-{
-    QDateTime lastAccess = getLastAccess(path);
-    if (lastAccess.isNull())
-        return -1;
-    qint64 seconds = lastAccess.secsTo(QDateTime::currentDateTime());
-    // secsTo() might return negative values if the lastAccess datetime is after currentDateTime
-    if (seconds < 0)
-        return -1;
-    return seconds;
-}
-
 QList<QString> SyncJournalDb::getSyncModePaths()
 {
     QMutexLocker locker(&_mutex);
