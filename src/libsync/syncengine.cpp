@@ -64,7 +64,8 @@ bool SyncEngine::s_anySyncRunning = false;
 qint64 SyncEngine::minimumFileAgeForUpload = 2000;
 
 SyncEngine::SyncEngine(AccountPtr account, const QString &localPath,
-    const QString &remotePath, OCC::SyncJournalDb *journal)
+                       const QString &remotePath, OCC::SyncJournalDb *journal,
+                       bool virtualFileSystemEnabled)
     : _account(account)
     , _needsUpdate(false)
     , _syncRunning(false)
@@ -101,7 +102,7 @@ SyncEngine::SyncEngine(AccountPtr account, const QString &localPath,
     _clearTouchedFilesTimer.setInterval(30 * 1000);
     connect(&_clearTouchedFilesTimer, &QTimer::timeout, this, &SyncEngine::slotClearTouchedFiles);
 
-    _csync_ctx->virtualDriveEnabled = ConfigFile().enableVirtualFileSystem();
+    _csync_ctx->virtualDriveEnabled = virtualFileSystemEnabled;
 
     _thread.setObjectName("SyncEngine_Thread");
 }

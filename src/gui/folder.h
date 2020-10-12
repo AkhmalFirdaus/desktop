@@ -59,6 +59,8 @@ public:
     bool paused = false;
     /// whether the folder syncs hidden files
     bool ignoreHiddenFiles = false;
+    /// whether the folder use the virtual drive logic
+    bool virtualFileSystemEnabled = false;
     /// The CLSID where this folder appears in registry for the Explorer navigation pane entry.
     QUuid navigationPaneClsid;
 

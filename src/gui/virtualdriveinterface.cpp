@@ -59,6 +59,7 @@ OCC::VirtualDriveInterface::VirtualDriveInterface(AccountState *accountState, QO
             d.localPath = FolderDefinition::prepareLocalPath(_cachePath);
             d.targetPath = FolderDefinition::prepareTargetPath(QString());
             d.ignoreHiddenFiles = FolderMan::instance()->ignoreHiddenFiles();
+            d.virtualFileSystemEnabled = true;
             return d;
         }();
         FolderMan::instance()->addFolder(accountState, folderDefinition);

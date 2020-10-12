@@ -63,7 +63,8 @@ class OWNCLOUDSYNC_EXPORT SyncEngine : public QObject
     Q_OBJECT
 public:
     SyncEngine(AccountPtr account, const QString &localPath,
-        const QString &remotePath, SyncJournalDb *journal);
+               const QString &remotePath, SyncJournalDb *journal,
+               bool virtualFileSystemEnabled = false);
     ~SyncEngine();
 
     static QString csyncErrorToString(CSYNC_STATUS);
