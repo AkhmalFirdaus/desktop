@@ -495,9 +495,7 @@ bool SyncJournalDb::checkConnect()
     createStreamingSql.prepare(
         "CREATE TABLE IF NOT EXISTS syncmode ("
         "path TEXT PRIMARY KEY,"
-        "mode TEXT DEFAULT ('O'),"
-        "lastaccess TEXT DEFAULT (''),"
-        "downloaded TEXT DEFAULT ('N'))"
+        "mode TEXT DEFAULT ('O'));"
     );
     if (!createStreamingSql.exec())
         return sqlFail("create streaming table", createQuery);
