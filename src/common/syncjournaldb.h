@@ -246,29 +246,6 @@ public:
         SYNCMODE_OFFLINE = 'S',
     };
 
-    enum SyncModeDownload {
-        SYNCMODE_DOWNLOADED_NONE = '\0',
-        SYNCMODE_DOWNLOADED_NO = 'N',
-        SYNCMODE_DOWNLOADED_YES = 'Y',
-    };
-
-    /**
-	* Retrieves the sync mode of the provided path
-	*
-	* @path File path
-	* @return integer representing if file has been donwloaded.
-	*/
-    SyncModeDownload getSyncModeDownload(const QString &path);
-
-    /**
-	* Sets or registers the sync downloaded boolean
-	*
-	* @path File path
-	* @N, Y : download option
-	* @return Number of modified records on success. -1 on failure.
-	*/
-    int setSyncModeDownload(const QString &path, SyncModeDownload down);
-
     /**
 	* Retrieves the sync mode of the provided path
 	*
@@ -374,8 +351,6 @@ private:
     SqlQuery _getDataFingerprintQuery;
     SqlQuery _setDataFingerprintQuery1;
     SqlQuery _setDataFingerprintQuery2;
-    SqlQuery _getSyncModeDownloadQuery;
-    SqlQuery _setSyncModeDownloadQuery;
     SqlQuery _getConflictRecordQuery;
     SqlQuery _setConflictRecordQuery;
     SqlQuery _deleteConflictRecordQuery;

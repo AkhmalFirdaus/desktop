@@ -2145,46 +2145,6 @@ bool operator==(const SyncJournalDb::UploadInfo &lhs,
         && lhs._contentChecksum == rhs._contentChecksum;
 }
 
-SyncJournalDb::SyncModeDownload SyncJournalDb::getSyncModeDownload(const QString &path)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return SYNCMODE_DOWNLOADED_NONE;
-    _getSyncModeDownloadQuery.initOrReset(QByteArrayLiteral("SELECT downloaded FROM syncmode WHERE path=?1;"), _db);
-    _getSyncModeDownloadQuery.bindValue(1, path);
-    if (!_getSyncModeDownloadQuery.exec()) {
-        qWarning() << "Error SQL statement getSyncModeDownload: "
-                   << _getSyncModeDownloadQuery.lastQuery() << " :"
-                   << _getSyncModeDownloadQuery.error();
-        return SYNCMODE_DOWNLOADED_NONE;
-    }
-    if (!_getSyncModeDownloadQuery.next())
-        return SYNCMODE_DOWNLOADED_NONE;
-    QString modeStr = _getSyncModeDownloadQuery.stringValue(0);
-    if (modeStr.isEmpty())
-        return SYNCMODE_DOWNLOADED_NONE;
-    return static_cast<SyncModeDownload>(modeStr.begin()->toLatin1());
-}
-
-int SyncJournalDb::setSyncModeDownload(const QString &path, SyncModeDownload mode)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return -1;
-    QString modeStr(static_cast<char>(mode));
-    _setSyncModeDownloadQuery.initOrReset(QByteArrayLiteral("UPDATE syncmode SET downloaded=?2 WHERE path=?1;"), _db);
-    _setSyncModeDownloadQuery.bindValue(1, path);
-    _setSyncModeDownloadQuery.bindValue(2, modeStr);
-    if (!_setSyncModeDownloadQuery.exec()) {
-        qWarning() << "Error SQL statement setSyncModeDownload: "
-                   << _setSyncModeDownloadQuery.lastQuery() << " :"
-                   << _setSyncModeDownloadQuery.error();
-        return -1;
-    }
-    return _setSyncModeDownloadQuery.numRowsAffected();
-}
-
-
 SyncJournalDb::SyncMode SyncJournalDb::getSyncMode(const QString &path)
 {
     QMutexLocker locker(&_mutex);

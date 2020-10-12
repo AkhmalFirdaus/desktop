@@ -122,9 +122,6 @@ void SyncWrapper::sync(const QString path, bool is_fuse_created_file, csync_inst
             if (SyncJournalDb::instance()->updateLastAccess(folderRelativePath) == 0)
                 qCWarning(lcSyncWrapper) << "Couldn't update file to last access.";
 
-            if (SyncJournalDb::instance()->setSyncModeDownload(folderRelativePath, SyncJournalDb::SyncModeDownload::SYNCMODE_DOWNLOADED_NO) == 0)
-                qCWarning(lcSyncWrapper) << "Couldn't set file to SYNCMODE_DOWNLOADED_NO.";
-
             FolderMan::instance()->currentSyncFolder()->updateLocalFileTree(folderRelativePath, CSYNC_INSTRUCTION_NEW);
             //_syncDone.insert(folderRelativePath, false);
 			FolderMan::instance()->scheduleFolder();

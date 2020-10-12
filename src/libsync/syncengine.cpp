@@ -345,9 +345,8 @@ void SyncEngine::deleteUnusedOnlineCachedFiles()
         for (const auto &item : list) {
             const auto secondsSinceLastAccess = _journal->secondsSinceLastAccess(item);
             const auto syncMode = _journal->getSyncMode(item);
-            const auto downloadState = _journal->getSyncModeDownload(item);
 
-            qCDebug(lcEngine) << "Evaluating:" << item << syncMode << downloadState << secondsSinceLastAccess;
+            qCDebug(lcEngine) << "Evaluating:" << item << syncMode << secondsSinceLastAccess;
 
             //< After 10' and assumption SYNCMODE_ONLINE = Online, SYNCMODE_ALWAYS = Offline.
             if (secondsSinceLastAccess > 65 && (syncMode == SyncJournalDb::SyncMode::SYNCMODE_ONLINE)) {
