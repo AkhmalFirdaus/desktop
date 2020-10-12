@@ -490,15 +490,14 @@ bool SyncJournalDb::checkConnect()
         return sqlFail("Create table version", createQuery);
     }
 
-    // table for streaming information
-    SqlQuery createStreamingSql(_db);
-    createStreamingSql.prepare(
-        "CREATE TABLE IF NOT EXISTS syncmode ("
-        "path TEXT PRIMARY KEY,"
-        "mode TEXT DEFAULT ('O'));"
-    );
-    if (!createStreamingSql.exec())
-        return sqlFail("create streaming table", createQuery);
+    // create the syncmode table.
+    createQuery.prepare("CREATE TABLE IF NOT EXISTS syncmode("
+                        "path TEXT PRIMARY KEY,"
+                        "mode TEXT DEFAULT ('O'));"
+                        ");");
+    if (!createQuery.exec()) {
+        return sqlFail("create syncmode table", createQuery);
+    }
 
     bool forceRemoteDiscovery = false;
 
