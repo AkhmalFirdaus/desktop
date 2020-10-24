@@ -241,6 +241,12 @@ Systray::TaskBarPosition Systray::taskbarOrientation() const
     auto taskbarPosition = Utility::registryGetKeyValue(HKEY_CURRENT_USER,
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3",
         "Settings");
+    if (taskbarPosition.isNull()) {
+        // Windows 7
+        taskbarPosition = Utility::registryGetKeyValue(HKEY_CURRENT_USER,
+            "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects2",
+            "Settings");
+    }
     switch (taskbarPosition.toInt()) {
     // Mapping windows binary value (0 = left, 1 = top, 2 = right, 3 = bottom) to qml logic (0 = bottom, 1 = left...)
     case 0:
@@ -374,26 +380,23 @@ QPoint Systray::computeWindowPosition(int width, int height) const
     const auto windowRect = [=]() {
         const auto rect = QRect(topLeft, bottomRight);
         auto offset = QPoint();
-
         if (rect.left() < screenRect.left()) {
             offset.setX(screenRect.left() - rect.left() + 4);
         } else if (rect.right() > screenRect.right()) {
             offset.setX(screenRect.right() - rect.right() - 4);
         }
-
         if (rect.top() < screenRect.top()) {
             offset.setY(screenRect.top() - rect.top() + 4);
         } else if (rect.bottom() > screenRect.bottom()) {
             offset.setY(screenRect.bottom() - rect.bottom() - 4);
         }
-
         return rect.translated(offset);
     }();
 
     qCDebug(lcSystray) << "taskbarScreenEdge:" << taskbarScreenEdge;
     qCDebug(lcSystray) << "screenRect:" << screenRect;
     qCDebug(lcSystray) << "windowRect (reference)" << QRect(topLeft, bottomRight);
-    qCDebug(lcSystray) << "windowRect (adjusted )" << windowRect;
+    qCDebug(lcSystray) << "windowRect (adjusted)" << windowRect;
 
     return windowRect.topLeft();
 }
