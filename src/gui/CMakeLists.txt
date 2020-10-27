@@ -174,11 +174,6 @@ IF( WIN32 )
     list(APPEND client_SRCS vfs_windows.cpp)
 ENDIF()
 
-IF( APPLE )
-	list(APPEND client_SRCS syncwrapper.cpp)
-ENDIF()
-
-
 IF( NOT WIN32 AND NOT APPLE )
 set(client_SRCS ${client_SRCS} folderwatcher_linux.cpp)
 ENDIF()

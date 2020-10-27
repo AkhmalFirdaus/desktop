@@ -101,17 +101,6 @@ VfsMac::VfsMac(QString rootPath, bool isThreadSafe, OCC::AccountState *accountSt
     _remotefileListJob->setParent(this);
     connect(this, &VfsMac::startRemoteFileListJob, _remotefileListJob, &OCC::DiscoveryFolderFileList::doGetFolderContent);
     connect(_remotefileListJob, &OCC::DiscoveryFolderFileList::gotDataSignal, this, &VfsMac::folderFileListFinish);
-
-    // "talk" to the sync engine
-    _syncWrapper = OCC::SyncWrapper::instance();
-    connect(this, &VfsMac::addToFileTree, _syncWrapper, &OCC::SyncWrapper::updateFileTree, Qt::QueuedConnection);
-    connect(_syncWrapper, &OCC::SyncWrapper::syncFinish, this, &VfsMac::slotSyncFinish, Qt::QueuedConnection);
-
-	connect(this, &VfsMac::createItem, _syncWrapper, &OCC::SyncWrapper::createItemAtPath, Qt::QueuedConnection);
-    connect(this, &VfsMac::openFile, _syncWrapper, &OCC::SyncWrapper::openFileAtPath, Qt::QueuedConnection);
-    connect(this, &VfsMac::releaseFile, _syncWrapper, &OCC::SyncWrapper::releaseFileAtPath, Qt::QueuedConnection);
-    connect(this, &VfsMac::deleteItem, _syncWrapper, &OCC::SyncWrapper::deleteItemAtPath, Qt::QueuedConnection);
-    connect(this, &VfsMac::move, _syncWrapper, &OCC::SyncWrapper::moveItemAtPath, Qt::QueuedConnection);
 }
 
 bool VfsMac::enableAllocate()
@@ -517,7 +506,7 @@ bool VfsMac::removeItemAtPath(QString path, QVariantMap &error)
     QString p = rootPath_ + path;
     FileManager fs;
 
-	emit deleteItem(path);
+    emit deleteItem(path);
     return fs.removeItemAtPath(p, error);
 }
 
