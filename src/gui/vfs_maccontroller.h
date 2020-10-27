@@ -34,7 +34,7 @@ class VfsMacController : public OCC::VirtualDriveInterface
 {
     Q_OBJECT
 public:
-    explicit VfsMacController(AccountState *accountState, QObject *parent = nullptr);
+    explicit VfsMacController(OCC::AccountState *accountState, QObject *parent = nullptr);
     ~VfsMacController();
     void mount() override;
     void unmount() override;

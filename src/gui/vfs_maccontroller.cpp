@@ -83,7 +83,7 @@ void VfsMacController::slotquotaUpdated(qint64 total, qint64 used)
     fuse->setUsedQuota(used);
 }
 
-VfsMacController::VfsMacController(AccountState *accountState, QObject *parent)
+VfsMacController::VfsMacController(OCC::AccountState *accountState, QObject *parent)
     : OCC::VirtualDriveInterface(accountState, parent)
 {
     fuse = new VfsMac(cachePath(), false, accountState, this);
