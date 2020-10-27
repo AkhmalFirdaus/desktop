@@ -476,7 +476,6 @@ bool VfsMac::createDirectoryAtPath(QString path, QVariantMap attributes, QVarian
 {
     QString p = rootPath_ + path;
     FileManager fm;
-    emit createItem(path);
     return fm.createDirectory(p, attributes, error);
 }
 
@@ -484,7 +483,6 @@ bool VfsMac::createFileAtPath(QString path, QVariantMap attributes, int flags, Q
 {
     QString p = rootPath_ + path;
     FileManager fm;
-    emit createItem(path);
     return fm.createFileAtPath(p, attributes, flags, userData, error);
 }
 
@@ -506,7 +504,6 @@ bool VfsMac::removeItemAtPath(QString path, QVariantMap &error)
     QString p = rootPath_ + path;
     FileManager fs;
 
-    emit deleteItem(path);
     return fs.removeItemAtPath(p, error);
 }
 
@@ -518,7 +515,6 @@ bool VfsMac::moveItemAtPath(QString source, QString destination, QVariantMap &er
     // rename and return non-posix error codes.
 
     //Todo: remove old path
-    emit move(destination);
 
     QString p_src = rootPath_  + source;
     QString p_dst = rootPath_ + destination;
@@ -660,7 +656,6 @@ bool VfsMac::openFileAtPath(QString path, int mode, QVariant &userData, QVariant
 
     if (nameBuffer != "Finder" && nameBuffer != "QuickLookSatellite") {
        _mutex.lock();
-       emit openFile(path);
        _syncCondition.wait(&_mutex);
        _mutex.unlock();
     }
@@ -684,7 +679,6 @@ void VfsMac::releaseFileAtPath(QString path, QVariant userData)
     if(nameBuffer == "Finder")
     {
         qDebug() << "FUSE releaseFileAtPath: " << path;
-        emit releaseFile(path);
     }
 
     long num = userData.toLongLong();
