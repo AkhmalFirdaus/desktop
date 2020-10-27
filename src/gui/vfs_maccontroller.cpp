@@ -57,6 +57,22 @@ void VfsMacController::didUnmount(QVariantMap userInfo)
 void VfsMacController::mount()
 {
     if (fuse) {
+        QStringList options;
+
+        QFileInfo icons(QCoreApplication::applicationDirPath() + "/../Resources/Nextcloud.icns");
+        const auto volArg = QString("volicon=%1").arg(icons.canonicalFilePath());
+
+        options.append(volArg);
+
+        // Do not use the 'native_xattr' mount-time option unless the underlying
+        // file system supports native extended attributes. Typically, the user
+        // would be mounting an HFS+ directory through VfsMac, so we do want
+        // this option in that case.
+        options.append("native_xattr");
+        options.append("kill_on_unmount");
+        options.append("local");
+
+        options.append("volname=" + QApplication::applicationName() + "FS");
         fuse->mountAtPath(mountPath(), options);
     }
 }
@@ -99,24 +115,6 @@ VfsMacController::VfsMacController(OCC::AccountState *accountState, QObject *par
     connect(fuse, &VfsMac::FuseFileSystemDidMount, this, &VfsMacController::didMount);
     connect(fuse, &VfsMac::FuseFileSystemMountFailed, this, &VfsMacController::mountFailed);
     connect(fuse, &VfsMac::FuseFileSystemDidUnmount, this, &VfsMacController::didUnmount);
-
-    QStringList options;
-
-    QFileInfo icons(QCoreApplication::applicationDirPath() + "/../Resources/Nextcloud.icns");
-    const auto volArg = QString("volicon=%1").arg(icons.canonicalFilePath());
-
-    options.append(volArg);
-
-    // Do not use the 'native_xattr' mount-time option unless the underlying
-    // file system supports native extended attributes. Typically, the user
-    // would be mounting an HFS+ directory through VfsMac, so we do want
-    // this option in that case.
-    options.append("native_xattr");
-    options.append("kill_on_unmount");
-    options.append("local");
-
-    options.append("volname=" + QApplication::applicationName() + "FS");
-    fuse->mountAtPath(mountPath(), options);
 }
 
 VfsMacController::~VfsMacController()
