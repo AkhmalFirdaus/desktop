@@ -617,13 +617,6 @@ QStringList *VfsMac::contentsOfDirectoryAtPath(QString path, QVariantMap &error)
 
 #pragma mark File Contents
 
-void VfsMac::slotSyncFinish()
-{
-    _mutex.lock();
-    _syncCondition.wakeAll();
-    _mutex.unlock();
-}
-
 char *VfsMac::getProcessName(pid_t pid)
 {
     char pathBuffer[PROC_PIDPATHINFO_MAXSIZE];
@@ -648,9 +641,6 @@ bool VfsMac::openFileAtPath(QString path, int mode, QVariant &userData, QVariant
     qDebug() << "JJDCname: " << nameBuffer;
 
     if (nameBuffer != "Finder" && nameBuffer != "QuickLookSatellite") {
-       _mutex.lock();
-       _syncCondition.wait(&_mutex);
-       _mutex.unlock();
     }
 
     QString p = rootPath_ + path;

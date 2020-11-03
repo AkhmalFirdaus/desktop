@@ -80,7 +80,6 @@ private:
     int _counter = 0;
 
     QMutex _mutex;
-    QWaitCondition _syncCondition;
     QWaitCondition _dirCondition;
 
 #pragma mark Fuse operations.
@@ -549,9 +548,6 @@ public:
 
 public slots:
     void folderFileListFinish(OCC::DiscoveryDirectoryResult *dr);
-
-    // To sync: notify syncing is done
-    void slotSyncFinish();
 
 signals:
     void FuseFileSystemDidMount(QVariantMap userInfo);
