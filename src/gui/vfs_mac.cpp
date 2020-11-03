@@ -606,13 +606,6 @@ QStringList *VfsMac::contentsOfDirectoryAtPath(QString path, QVariantMap &error)
                     fm.createFileAtPath(completePath, attribs, fd, error);
                     close(fd.toInt());
                 }
-
-                const auto relativePath = _fileListMap.value(path)->list.at(i)->path;
-                const auto folder = OCC::FolderMan::instance()->folderForPath(completePath);
-                const auto journal = folder->journalDb();
-
-                // set all by default as online
-                journal->setSyncMode(relativePath, OCC::SyncJournalDb::SYNCMODE_ONLINE);
             }
         }
     }
