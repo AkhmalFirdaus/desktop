@@ -641,6 +641,9 @@ bool VfsMac::openFileAtPath(QString path, int mode, QVariant &userData, QVariant
     qDebug() << "JJDCname: " << nameBuffer;
 
     if (nameBuffer != "Finder" && nameBuffer != "QuickLookSatellite") {
+        QString fileName = path;
+        fileName.replace("/", "");
+        OCC::FolderMan::instance()->syncAllFolders(QStringList(fileName));
     }
 
     QString p = rootPath_ + path;
