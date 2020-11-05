@@ -31,6 +31,7 @@ public:
 
     QString cachePath() const;
     QString mountPath() const;
+    QString id() const;
 
     QString mapToCacheFilename(const QString &filename) const;
     QString mapToMountFilename(const QString &filename) const;
@@ -42,5 +43,6 @@ public slots:
 private:
     QString _cachePath;
     QString _mountPath;
+    QString _id;
 };
 }

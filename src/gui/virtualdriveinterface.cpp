@@ -39,9 +39,9 @@ OCC::VirtualDriveInterface::VirtualDriveInterface(AccountState *accountState, QO
 {
     const auto user = accountState->account()->davUser();
     const auto host = accountState->account()->davUrl().host();
-    const auto id = QString(user + '@' + host);
-    _cachePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles/" + id;
-    _mountPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" + OCC::Theme::instance()->appName() + "Volumes/" + id;
+    _id = QString(user + '@' + host);
+    _cachePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/cachedFiles/" + _id;
+    _mountPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" + OCC::Theme::instance()->appName() + "Volumes/" + _id;
 
     if (!ensureFolderExists(_cachePath)) {
         qCritical() << "Couldn't create cache dir for VFS:" << _cachePath;
@@ -76,6 +76,11 @@ QString OCC::VirtualDriveInterface::cachePath() const
 QString OCC::VirtualDriveInterface::mountPath() const
 {
     return _mountPath;
+}
+
+QString OCC::VirtualDriveInterface::id() const
+{
+    return _id;
 }
 
 QString OCC::VirtualDriveInterface::mapToCacheFilename(const QString &filename) const

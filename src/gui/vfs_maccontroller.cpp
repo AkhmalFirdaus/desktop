@@ -72,7 +72,7 @@ void VfsMacController::mount()
         options.append("kill_on_unmount");
         options.append("local");
 
-        options.append("volname=" + QApplication::applicationName() + "FS");
+        options.append("volname=" + id());
         fuse->mountAtPath(mountPath(), options);
     }
 }
