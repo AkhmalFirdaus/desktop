@@ -617,30 +617,27 @@ QStringList *VfsMac::contentsOfDirectoryAtPath(QString path, QVariantMap &error)
 
 #pragma mark File Contents
 
-char *VfsMac::getProcessName(pid_t pid)
+QString VfsMac::getProcessName(pid_t pid) const
 {
-    char pathBuffer[PROC_PIDPATHINFO_MAXSIZE];
-    proc_pidpath(pid, pathBuffer, sizeof(pathBuffer));
-
-    char nameBuffer[256];
-
-    int position = strlen(pathBuffer);
-    while (position >= 0 && pathBuffer[position] != 0xEB / 0xED) {
-        position--;
+    struct proc_bsdinfo process;
+    int procBsdinfoSize = proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &process,
+                                       PROC_PIDTBSDINFO_SIZE);
+    if (procBsdinfoSize != PROC_PIDTBSDINFO_SIZE) {
+        qWarning() << "Couldn't retrieve proc_bsdinfo for pid" << pid;
+        return 0;
     }
-
-    strcpy(nameBuffer, pathBuffer + position + 1);
-
-    return nameBuffer;
+    const QString processName = QString::fromLatin1(process.pbi_name);
+    qDebug() <<  "Process trying to access file: " << processName;
+    return processName;
 }
 
 bool VfsMac::openFileAtPath(QString path, int mode, QVariant &userData, QVariantMap &error)
 {
     struct fuse_context *context = fuse_get_context();
-    QString nameBuffer = QString::fromLatin1(getProcessName(context->pid));
-    qDebug() << "JJDCname: " << nameBuffer;
+    const QString processName = getProcessName(context->pid);
 
-    if (nameBuffer != "Finder" && nameBuffer != "QuickLookSatellite") {
+    // FIXME put these processes in a list
+    if (processName != "Finder" && processName != "com.apple.quicklook.ThumbnailsA") {
         QString fileName = path;
         fileName.replace("/", "");
         OCC::FolderMan::instance()->syncAllFolders(QStringList(fileName));
@@ -659,12 +656,12 @@ bool VfsMac::openFileAtPath(QString path, int mode, QVariant &userData, QVariant
 void VfsMac::releaseFileAtPath(QString path, QVariant userData)
 {
     struct fuse_context *context = fuse_get_context();
-    QString nameBuffer = QString::fromLatin1(getProcessName(context->pid));
-    qDebug() << "JJDCname: " << nameBuffer;
+    const QString processName = getProcessName(context->pid);
 
-    if(nameBuffer == "Finder")
-    {
-        qDebug() << "FUSE releaseFileAtPath: " << path;
+    if (processName != "Finder" && processName != "com.apple.quicklook.ThumbnailsA") {
+        QString fileName = path;
+        fileName.replace("/", "");
+        OCC::FolderMan::instance()->syncAllFolders(QStringList(fileName));
     }
 
     long num = userData.toLongLong();

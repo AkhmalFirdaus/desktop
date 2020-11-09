@@ -282,7 +282,7 @@ public:
     * param pid
     *
     */
-    char *getProcessName(pid_t pid);
+    QString getProcessName(pid_t pid) const;
 
     /*!
      * abstract Opens the file at the given path for read/write.
