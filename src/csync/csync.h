@@ -138,6 +138,15 @@ enum ItemType {
     ItemTypeSkip = 3
 };
 
+// This enum is used with BITFIELD(3) and BITFIELD(4) in several places.
+// Also, this value is stored in the database, so beware of value changes.
+enum ItemAvailability {
+    ItemUnavailable = 0,
+    ItemNeedsDownload = 1,
+    ItemNeedsCleanup = 2,
+    ItemAvailable = 3
+};
+
 
 #define FILE_ID_BUF_SIZE 36
 
@@ -176,6 +185,7 @@ struct OCSYNC_EXPORT csync_file_stat_t {
   enum csync_instructions_e instruction = CSYNC_INSTRUCTION_NONE; /* u32 */
 
   bool virtualfile BITFIELD(1);
+  ItemAvailability availability BITFIELD(4);
 
   csync_file_stat_t()
     : type(ItemTypeSkip)
@@ -184,6 +194,7 @@ struct OCSYNC_EXPORT csync_file_stat_t {
     , is_hidden(false)
     , isE2eEncrypted(false)
     , virtualfile(true)
+    , availability(ItemAvailable)
   { }
 
   static std::unique_ptr<csync_file_stat_t> fromSyncJournalFileRecord(const OCC::SyncJournalFileRecord &rec);

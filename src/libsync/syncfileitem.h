@@ -249,6 +249,7 @@ public:
     QString _directDownloadCookies;
     // virtual drive
     quint64 _virtualfile = 1;
+    ItemAvailability _availability = ItemAvailable;
 };
 
 inline bool operator<(const SyncFileItemPtr &item1, const SyncFileItemPtr &item2)

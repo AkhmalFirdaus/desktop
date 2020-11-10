@@ -265,7 +265,14 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
 		  // sync needs to happen after changing the file
 		  // or this check needs to happen in reconcile
 		  if (ctx->virtualDriveEnabled) {
-			if (ctx->priority.files.contains(base._path) ||
+              Q_ASSERT(
+                  ((base._virtualfile == 1) && !ctx->priority.files.contains(base._path) && (base._availability == ItemUnavailable)) ||
+                  ((base._virtualfile == 1) && ctx->priority.files.contains(base._path) && (base._availability == ItemNeedsDownload)) ||
+                  ((base._virtualfile == 0) && (base._availability == ItemNeedsCleanup)) ||
+                  ((base._virtualfile == 0) && (base._availability == ItemAvailable))
+              );
+
+              if (ctx->priority.files.contains(base._path) || base._availability == ItemNeedsDownload ||
 				ctx->statedb->getSyncMode(base._path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
 				fs->instruction = CSYNC_INSTRUCTION_EVAL;
 			} else {
@@ -296,7 +303,14 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
       }
 
       // Always evaluate offline drive files
-      if (ctx->priority.files.contains(fs->path) ||
+      Q_ASSERT(
+          ((base._virtualfile == 1) && !ctx->priority.files.contains(base._path) && (base._availability == ItemUnavailable)) ||
+          ((base._virtualfile == 1) && ctx->priority.files.contains(base._path) && (base._availability == ItemNeedsDownload)) ||
+          ((base._virtualfile == 0) && (base._availability == ItemNeedsCleanup)) ||
+          ((base._virtualfile == 0) && (base._availability == ItemAvailable))
+      );
+
+      if (ctx->priority.files.contains(fs->path) || base._availability == ItemNeedsDownload ||
           ctx->statedb->getSyncMode(fs->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
           fs->instruction = CSYNC_INSTRUCTION_EVAL;
       } else {
@@ -424,8 +438,15 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
 
 		  // First sync case
 		  if (ctx->virtualDriveEnabled) {
+              Q_ASSERT(
+                  ((fs->virtualfile == 1) && !ctx->priority.files.contains(fs->path) && (fs->availability == ItemUnavailable)) ||
+                  ((fs->virtualfile == 1) && ctx->priority.files.contains(fs->path) && (fs->availability == ItemNeedsDownload)) ||
+                  ((fs->virtualfile == 0) && (fs->availability == ItemNeedsCleanup)) ||
+                  ((fs->virtualfile == 0) && (fs->availability == ItemAvailable))
+              );
+
 			  if (fs->instruction == CSYNC_INSTRUCTION_NEW
-				  && fs->virtualfile
+                  && (fs->virtualfile || fs->availability == ItemUnavailable)
 				  && ctx->current == REMOTE_REPLICA) {
 				  fs->instruction = CSYNC_INSTRUCTION_UPDATE_METADATA;
 			  }

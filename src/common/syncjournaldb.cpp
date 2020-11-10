@@ -46,7 +46,8 @@ Q_LOGGING_CATEGORY(lcDb, "nextcloud.sync.database", QtInfoMsg)
 
 #define GET_FILE_RECORD_QUERY                                                                                                  \
     "SELECT path, inode, modtime, type, md5, fileid, remotePerm, filesize,"                                                    \
-    "  ignoredChildrenRemote, contentchecksumtype.name || ':' || contentChecksum, e2eMangledName, isE2eEncrypted, virtualfile" \
+    "  ignoredChildrenRemote, contentchecksumtype.name || ':' || contentChecksum,"                                             \
+    "  e2eMangledName, isE2eEncrypted, virtualfile, availability"                                                              \
     " FROM metadata"                                                                                                           \
     "  LEFT JOIN checksumtype as contentchecksumtype ON metadata.contentChecksumTypeId == contentchecksumtype.id"
 
@@ -65,6 +66,14 @@ static void fillFileRecordFromGetQuery(SyncJournalFileRecord &rec, SqlQuery &que
     rec._e2eMangledName = query.baValue(10);
     rec._isE2eEncrypted = query.intValue(11) > 0;
     rec._virtualfile = query.intValue(12);
+    rec._availability = static_cast<ItemAvailability>(query.intValue(13));
+
+    Q_ASSERT(
+        ((rec._virtualfile == 1) && (rec._availability == ItemUnavailable)) ||
+        ((rec._virtualfile == 1) && (rec._availability == ItemNeedsDownload)) ||
+        ((rec._virtualfile == 0) && (rec._availability == ItemNeedsCleanup)) ||
+        ((rec._virtualfile == 0) && (rec._availability == ItemAvailable))
+    );
 }
 
 static QByteArray defaultJournalMode(const QString &dbPath)
@@ -750,6 +759,16 @@ bool SyncJournalDb::updateMetadataTableStructure()
         commitInternal("update database structure: add virtualfile col");
     }
 
+    if (!columns.contains("availability")) {
+        SqlQuery query(_db);
+        query.prepare("ALTER TABLE metadata ADD COLUMN availability INTEGER;");
+        if (!query.exec()) {
+            sqlFail("updateDatabaseStructure: add availability column", query);
+            re = false;
+        }
+        commitInternal("update database structure: add availability column");
+    }
+
     if (!tableColumns("uploadinfo").contains("contentChecksum")) {
         SqlQuery query(_db);
         query.prepare("ALTER TABLE uploadinfo ADD COLUMN contentChecksum TEXT;");
@@ -880,7 +899,13 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
                  << "etag:" << record._etag << "fileId:" << record._fileId << "remotePerm:" << record._remotePerm.toString()
                  << "fileSize:" << record._fileSize << "checksum:" << record._checksumHeader
                  << "e2eMangledName:" << record._e2eMangledName << "isE2eEncrypted:" << record._isE2eEncrypted
-                 << "virtualfile:" << record._virtualfile;
+                 << "virtualfile:" << record._virtualfile << "availability:" << record._availability;
+    Q_ASSERT(
+        ((record._virtualfile == 1) && (record._availability == ItemUnavailable)) ||
+        ((record._virtualfile == 1) && (record._availability == ItemNeedsDownload)) ||
+        ((record._virtualfile == 0) && (record._availability == ItemNeedsCleanup)) ||
+        ((record._virtualfile == 0) && (record._availability == ItemAvailable))
+    );
 
     qlonglong phash = getPHash(record._path);
     if (checkConnect()) {
@@ -897,18 +922,10 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
         parseChecksumHeader(record._checksumHeader, &checksumType, &checksum);
         int contentChecksumTypeId = mapChecksumType(checksumType);
 
-		//FIXME I shouldn't change the virtualdrive value here, keep the same if the record already exists
-		SyncJournalFileRecord existing;
-		if (!getFileRecord(record._path, &existing)) {
-			record._virtualfile = 1;
-		} else {
-			record._virtualfile = record._virtualfile < 0 ? 1 : record._virtualfile;
-		}
-
         if (!_setFileRecordQuery.initOrReset(QByteArrayLiteral(
             "INSERT OR REPLACE INTO metadata "
-            "(phash, pathlen, path, inode, uid, gid, mode, modtime, type, md5, fileid, remotePerm, filesize, ignoredChildrenRemote, contentChecksum, contentChecksumTypeId, e2eMangledName, isE2eEncrypted, virtualfile) "
-            "VALUES (?1 , ?2, ?3 , ?4 , ?5 , ?6 , ?7,  ?8 , ?9 , ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19);"), _db)) {
+            "(phash, pathlen, path, inode, uid, gid, mode, modtime, type, md5, fileid, remotePerm, filesize, ignoredChildrenRemote, contentChecksum, contentChecksumTypeId, e2eMangledName, isE2eEncrypted, virtualfile, availability) "
+            "VALUES (?1 , ?2, ?3 , ?4 , ?5 , ?6 , ?7,  ?8 , ?9 , ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20);"), _db)) {
             return false;
         }
 
@@ -933,6 +950,7 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
         //1 is 0 byte file or new fine, do not sync, 0 is touched by the user,
         //it should sync on open
         _setFileRecordQuery.bindValue(19, record._virtualfile);
+        _setFileRecordQuery.bindValue(20, record._availability);
 
         if (!_setFileRecordQuery.exec()) {
             return false;
@@ -1323,6 +1341,7 @@ bool SyncJournalDb::setFileRecordMetadata(const SyncJournalFileRecord &record)
     existing._e2eMangledName = record._e2eMangledName;
     existing._isE2eEncrypted = record._isE2eEncrypted;
     existing._virtualfile = record._virtualfile;
+    existing._availability = record._availability;
     return setFileRecord(existing);
 }
 

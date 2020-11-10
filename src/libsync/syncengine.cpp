@@ -425,8 +425,16 @@ int SyncEngine::treewalkFile(csync_file_stat_t *file, csync_file_stat_t *other, 
 
     // Gets a default-constructed SyncFileItemPtr or the one from the first walk (=local walk)
     SyncFileItemPtr item = _syncItemMap.value(key);
-    if (!item)
+    if (!item) {
         item = SyncFileItemPtr(new SyncFileItem);
+        if (_csync_ctx->virtualDriveEnabled) {
+            item->_virtualfile = 1;
+            item->_availability = ItemUnavailable;
+        } else {
+            item->_virtualfile = 0;
+            item->_availability = ItemAvailable;
+        }
+    }
 
     if (item->_file.isEmpty() || instruction == CSYNC_INSTRUCTION_RENAME) {
         item->_file = fileUtf8;

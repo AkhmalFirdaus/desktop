@@ -343,5 +343,6 @@ std::unique_ptr<csync_file_stat_t> csync_file_stat_t::fromSyncJournalFileRecord(
     st->e2eMangledName = rec._e2eMangledName;
     st->isE2eEncrypted = rec._isE2eEncrypted;
     st->virtualfile = rec._virtualfile;
+    st->availability = rec._availability;
     return st;
 }

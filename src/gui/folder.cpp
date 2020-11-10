@@ -678,6 +678,16 @@ void Folder::startSync(const QStringList &pathList)
 	_engine->setFilePriority(pathList);
     _engine->setIgnoreHiddenFiles(_definition.ignoreHiddenFiles);
 
+    // FIXME: Maybe needs to be moved out and be drive responsibility
+    for (const auto &path : pathList) {
+        SyncJournalFileRecord rec;
+        _journal.getFileRecord(path, &rec);
+        if (rec.isValid() && rec._availability != ItemAvailable) {
+            rec._availability = ItemNeedsDownload;
+            _journal.setFileRecord(rec);
+        }
+    }
+
     QMetaObject::invokeMethod(_engine.data(), "startSync", Qt::QueuedConnection);
 
     emit syncStarted();

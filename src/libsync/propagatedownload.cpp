@@ -906,6 +906,7 @@ void PropagateDownloadFile::downloadFinished()
         bool vf = false;
         if (propagator()->_journal->getFileRecord(_item->_file, &rec)) {
             vf = rec._virtualfile;
+            Q_ASSERT(vf == (rec._availability == ItemUnavailable || rec._availability == ItemNeedsDownload));
         }
         if (!FileSystem::verifyFileUnchanged(fn, expectedSize, expectedMtime) && !vf) {
             propagator()->_anotherSyncNeeded = true;
@@ -994,6 +995,7 @@ void PropagateDownloadFile::updateMetadata(bool isConflict)
     SyncJournalFileRecord rec;
     if (propagator()->_journal->getFileRecord(_item->_file, &rec)) {
         rec._virtualfile = 0;
+        rec._availability = ItemAvailable;
         if (propagator()->_journal->setFileRecordMetadata(rec)) {
             propagator()->_journal->commit("file is not virtualfile");
         }
