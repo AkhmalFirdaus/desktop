@@ -59,6 +59,7 @@ void VfsMacController::mount()
     if (fuse) {
         QStringList options;
 
+        // FIXME this icon won't work on branded clients
         QFileInfo icons(QCoreApplication::applicationDirPath() + "/../Resources/Nextcloud.icns");
         const auto volArg = QString("volicon=%1").arg(icons.canonicalFilePath());
 
