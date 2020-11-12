@@ -423,8 +423,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
 
                 //another case
                 if (ctx->virtualDriveEnabled) {
-                    if (availability == ItemNeedsDownload ||
-                        ctx->statedb->getSyncMode(cur->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
+                    if (availability == ItemNeedsDownload) {
                         cur->instruction = CSYNC_INSTRUCTION_SYNC;
                         other->instruction = CSYNC_INSTRUCTION_NONE;
                     } else {
@@ -450,8 +449,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
 
                 //another another case
                 if (ctx->virtualDriveEnabled) {
-                    if (availability == ItemNeedsDownload ||
-                        ctx->statedb->getSyncMode(cur->path) ==	OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
+                    if (availability == ItemNeedsDownload) {
                         cur->instruction = CSYNC_INSTRUCTION_NONE;
                         other->instruction = CSYNC_INSTRUCTION_SYNC;
                     } else {

@@ -998,6 +998,22 @@ void SocketApi::command_SYNCMODE_ONLINE(const QString &path, SocketListener *lis
     qDebug() << "SYNCMODE_ONLINE: " << path << fileData.folderRelativePath;
     journal->setSyncMode(fileData.folderRelativePath, SyncJournalDb::SYNCMODE_ONLINE);
 
+    auto record = fileData.journalRecord();
+    switch (record._availability) {
+    case ItemUnavailable:
+        break;
+    case ItemNeedsDownload:
+        record._availability = ItemUnavailable;
+        journal->setFileRecord(record);
+        break;
+    case ItemNeedsCleanup:
+        break;
+    case ItemAvailable:
+        record._availability = ItemNeedsCleanup;
+        journal->setFileRecord(record);
+        break;
+    }
+
     // Trigger sync
     fileData.folder->scheduleThisFolderSoon();
 }
@@ -1011,6 +1027,22 @@ void SocketApi::command_SYNCMODE_OFFLINE(const QString &path, SocketListener *li
 
     qDebug() << "SYNCMODE_OFFLINE: " << path << fileData.folderRelativePath;
     journal->setSyncMode(fileData.folderRelativePath, SyncJournalDb::SYNCMODE_OFFLINE);
+
+    auto record = fileData.journalRecord();
+    switch (record._availability) {
+    case ItemUnavailable:
+        record._availability = ItemNeedsDownload;
+        journal->setFileRecord(record);
+        break;
+    case ItemNeedsDownload:
+        break;
+    case ItemNeedsCleanup:
+        record._availability = ItemNeedsDownload;
+        journal->setFileRecord(record);
+        break;
+    case ItemAvailable:
+        break;
+    }
 
     // Trigger sync
     fileData.folder->scheduleThisFolderSoon();

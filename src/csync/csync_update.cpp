@@ -265,8 +265,7 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
 		  // sync needs to happen after changing the file
 		  // or this check needs to happen in reconcile
 		  if (ctx->virtualDriveEnabled) {
-              if (base._availability == ItemNeedsDownload ||
-				ctx->statedb->getSyncMode(base._path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
+              if (base._availability == ItemNeedsDownload) {
 				fs->instruction = CSYNC_INSTRUCTION_EVAL;
 			} else {
 				fs->instruction = CSYNC_INSTRUCTION_NONE;
@@ -296,8 +295,7 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
       }
 
       // Always evaluate offline drive files
-      if (base._availability == ItemNeedsDownload ||
-          ctx->statedb->getSyncMode(fs->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
+      if (base._availability == ItemNeedsDownload) {
           fs->instruction = CSYNC_INSTRUCTION_EVAL;
       } else {
           // second run or when the user opens a file
@@ -580,12 +578,6 @@ static bool fill_tree_from_db(CSYNC *ctx, const char *uri)
             }
 
             st->instruction = CSYNC_INSTRUCTION_IGNORE;
-
-			//if (ctx->virtualDriveEnabled) {
-			//	if (ctx->statedb->getSyncMode(rec._path) != OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
-			//		st->instruction = CSYNC_INSTRUCTION_IGNORE;
-			//	} 
-			//}
         }
 
         /* store into result list. */
