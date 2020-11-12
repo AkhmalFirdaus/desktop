@@ -528,6 +528,9 @@ void FolderMan::slotSyncOnceFileUnlocks(const QString &path)
 
 void FolderMan::syncAllFolders(const QStringList &priorityList)
 {
+    qRegisterMetaType<OCC::SyncResult>();
+    QEventLoop loop;
+    int count = 0;
     foreach (Folder *f, _folderMap.values()) {
         if (f && f->canSync()) {
             auto alias = f->alias();
@@ -578,9 +581,19 @@ void FolderMan::syncAllFolders(const QStringList &priorityList)
                 registerFolderWithSocketApi(folder);
 
                 _currentSyncFolder = folder;
+                count++;
+                connect(folder, &Folder::syncFinished, &loop, [&count, &loop] {
+                    count--;
+                    if (count <= 0) {
+                        loop.quit();
+                    }
+                });
                 folder->startSync(priorityList);
             }
         }
+    }
+    if (count > 0) {
+        loop.exec();
     }
 }
 

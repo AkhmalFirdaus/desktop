@@ -117,4 +117,6 @@ private:
 };
 }
 
+Q_DECLARE_METATYPE(OCC::SyncResult)
+
 #endif

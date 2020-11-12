@@ -235,7 +235,7 @@ public:
 signals:
     void syncStateChange();
     void syncStarted();
-    void syncFinished(const SyncResult &result);
+    void syncFinished(const OCC::SyncResult &result);
     void progressInfo(const ProgressInfo &progress);
     void newBigFolderDiscovered(const QString &); // A new folder bigger than the threshold was discovered
     void syncPausedChanged(Folder *, bool paused);
