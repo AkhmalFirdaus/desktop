@@ -135,7 +135,6 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
     OCC::SyncJournalFileRecord base;
     ctx->statedb->getFileRecord(cur->path, &base);
 
-    const auto isVirtualFile = base.isValid() ? base._virtualfile == 1 : cur->virtualfile == 1;
     const auto availability = base.isValid() ? base._availability : cur->availability;
 
     /* file only found on current replica */
@@ -149,14 +148,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
         case CSYNC_INSTRUCTION_NONE:
         case CSYNC_INSTRUCTION_UPDATE_METADATA:
             // First sync situation, we don't have the file locally, only remote
-            Q_ASSERT(
-                (isVirtualFile && !ctx->priority.files.contains(cur->path) && (availability == ItemUnavailable)) ||
-                (isVirtualFile && ctx->priority.files.contains(cur->path) && (availability == ItemNeedsDownload)) ||
-                (!isVirtualFile && (availability == ItemNeedsCleanup)) ||
-                (!isVirtualFile && (availability == ItemAvailable))
-            );
-
-            if (ctx->virtualDriveEnabled && (isVirtualFile || availability == ItemUnavailable)) {
+            if (ctx->virtualDriveEnabled && availability == ItemUnavailable) {
                 /* */
                 break;
             }
@@ -335,14 +327,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
             case CSYNC_INSTRUCTION_EVAL:
                 // First time user opened the file
                 if (ctx->virtualDriveEnabled) {
-                    Q_ASSERT(
-                        (isVirtualFile && !ctx->priority.files.contains(cur->path) && (availability == ItemUnavailable)) ||
-                        (isVirtualFile && ctx->priority.files.contains(cur->path) && (availability == ItemNeedsDownload)) ||
-                        (!isVirtualFile && (availability == ItemNeedsCleanup)) ||
-                        (!isVirtualFile && (availability == ItemAvailable))
-                    );
-
-                    if ((isVirtualFile && ctx->priority.files.contains(cur->path)) || availability == ItemNeedsDownload) {
+                    if (availability == ItemNeedsDownload) {
                         if (ctx->current == LOCAL_REPLICA) {
                             cur->instruction = CSYNC_INSTRUCTION_NONE;
                             other->instruction = CSYNC_INSTRUCTION_SYNC;
@@ -438,14 +423,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
 
                 //another case
                 if (ctx->virtualDriveEnabled) {
-                    Q_ASSERT(
-                        (isVirtualFile && !ctx->priority.files.contains(cur->path) && (availability == ItemUnavailable)) ||
-                        (isVirtualFile && ctx->priority.files.contains(cur->path) && (availability == ItemNeedsDownload)) ||
-                        (!isVirtualFile && (availability == ItemNeedsCleanup)) ||
-                        (!isVirtualFile && (availability == ItemAvailable))
-                    );
-
-                    if (ctx->priority.files.contains(cur->path) || availability == ItemNeedsDownload ||
+                    if (availability == ItemNeedsDownload ||
                         ctx->statedb->getSyncMode(cur->path) == OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
                         cur->instruction = CSYNC_INSTRUCTION_SYNC;
                         other->instruction = CSYNC_INSTRUCTION_NONE;
@@ -472,14 +450,7 @@ static void _csync_merge_algorithm_visitor(csync_file_stat_t *cur, CSYNC *ctx)
 
                 //another another case
                 if (ctx->virtualDriveEnabled) {
-                    Q_ASSERT(
-                        (isVirtualFile && !ctx->priority.files.contains(cur->path) && (availability == ItemUnavailable)) ||
-                        (isVirtualFile && ctx->priority.files.contains(cur->path) && (availability == ItemNeedsDownload)) ||
-                        (!isVirtualFile && (availability == ItemNeedsCleanup)) ||
-                        (!isVirtualFile && (availability == ItemAvailable))
-                    );
-
-                    if (ctx->priority.files.contains(cur->path) || availability == ItemNeedsDownload ||
+                    if (availability == ItemNeedsDownload ||
                         ctx->statedb->getSyncMode(cur->path) ==	OCC::SyncJournalDb::SyncMode::SYNCMODE_OFFLINE) {
                         cur->instruction = CSYNC_INSTRUCTION_NONE;
                         other->instruction = CSYNC_INSTRUCTION_SYNC;

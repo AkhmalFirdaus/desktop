@@ -89,22 +89,8 @@ std::unique_ptr<csync_file_stat_t> csync_vio_readdir(CSYNC *ctx, csync_vio_handl
   }
 
   if (entry) {
-      if (ctx->virtualDriveEnabled) {
-          entry->virtualfile = 1;
-          entry->availability = ItemUnavailable;
-      } else {
-          entry->virtualfile = 0;
-          entry->availability = ItemAvailable;
-      }
+      entry->availability = ctx->virtualDriveEnabled ? ItemUnavailable : ItemAvailable;
   }
-
-  Q_ASSERT(
-      !entry ||
-      ((entry->virtualfile == 1) && (entry->availability == ItemUnavailable)) ||
-      ((entry->virtualfile == 1) && (entry->availability == ItemNeedsDownload)) ||
-      ((entry->virtualfile == 0) && (entry->availability == ItemNeedsCleanup)) ||
-      ((entry->virtualfile == 0) && (entry->availability == ItemAvailable))
-  );
 
   return entry;
 }

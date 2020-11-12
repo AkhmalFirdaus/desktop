@@ -115,11 +115,6 @@ SyncEngine::~SyncEngine()
     _excludedFiles.reset();
 }
 
-void SyncEngine::setFilePriority(const QStringList &paths) {
-	_csync_ctx->priority.files << paths;
-	_csync_ctx->priority.files.removeDuplicates();
-}
-
 //Convert an error code from csync to a user readable string.
 // Keep that function thread safe as it can be called from the sync thread or the main thread
 QString SyncEngine::csyncErrorToString(CSYNC_STATUS err)
@@ -427,13 +422,7 @@ int SyncEngine::treewalkFile(csync_file_stat_t *file, csync_file_stat_t *other, 
     SyncFileItemPtr item = _syncItemMap.value(key);
     if (!item) {
         item = SyncFileItemPtr(new SyncFileItem);
-        if (_csync_ctx->virtualDriveEnabled) {
-            item->_virtualfile = 1;
-            item->_availability = ItemUnavailable;
-        } else {
-            item->_virtualfile = 0;
-            item->_availability = ItemAvailable;
-        }
+        item->_availability = _csync_ctx->virtualDriveEnabled ? ItemUnavailable : ItemAvailable;
     }
 
     if (item->_file.isEmpty() || instruction == CSYNC_INSTRUCTION_RENAME) {

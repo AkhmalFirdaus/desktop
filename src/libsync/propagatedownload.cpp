@@ -903,12 +903,11 @@ void PropagateDownloadFile::downloadFinished()
         const time_t expectedMtime = _item->_previousModtime;
 
         SyncJournalFileRecord rec;
-        bool vf = false;
+        bool isVirtualFile = false;
         if (propagator()->_journal->getFileRecord(_item->_file, &rec)) {
-            vf = rec._virtualfile;
-            Q_ASSERT(vf == (rec._availability == ItemUnavailable || rec._availability == ItemNeedsDownload));
+            isVirtualFile = (rec._availability == ItemUnavailable || rec._availability == ItemNeedsDownload);
         }
-        if (!FileSystem::verifyFileUnchanged(fn, expectedSize, expectedMtime) && !vf) {
+        if (!FileSystem::verifyFileUnchanged(fn, expectedSize, expectedMtime) && !isVirtualFile) {
             propagator()->_anotherSyncNeeded = true;
             done(SyncFileItem::SoftError, tr("File has changed since discovery"));
             return;
@@ -994,10 +993,9 @@ void PropagateDownloadFile::updateMetadata(bool isConflict)
 
     SyncJournalFileRecord rec;
     if (propagator()->_journal->getFileRecord(_item->_file, &rec)) {
-        rec._virtualfile = 0;
         rec._availability = ItemAvailable;
         if (propagator()->_journal->setFileRecordMetadata(rec)) {
-            propagator()->_journal->commit("file is not virtualfile");
+            propagator()->_journal->commit("file is now available (non virtual anymore)");
         }
     }
 }

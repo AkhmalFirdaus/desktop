@@ -184,7 +184,6 @@ struct OCSYNC_EXPORT csync_file_stat_t {
 
   enum csync_instructions_e instruction = CSYNC_INSTRUCTION_NONE; /* u32 */
 
-  bool virtualfile BITFIELD(1);
   ItemAvailability availability BITFIELD(4);
 
   csync_file_stat_t()
@@ -193,7 +192,6 @@ struct OCSYNC_EXPORT csync_file_stat_t {
     , has_ignored_files(false)
     , is_hidden(false)
     , isE2eEncrypted(false)
-    , virtualfile(false)
     , availability(ItemAvailable)
   { }
 

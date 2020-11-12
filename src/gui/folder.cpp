@@ -675,7 +675,6 @@ void Folder::startSync(const QStringList &pathList)
         _previousLocalDiscoveryPaths.clear();
     }
     _localDiscoveryPaths.clear();
-	_engine->setFilePriority(pathList);
     _engine->setIgnoreHiddenFiles(_definition.ignoreHiddenFiles);
 
     // FIXME: Maybe needs to be moved out and be drive responsibility

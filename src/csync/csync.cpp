@@ -238,7 +238,6 @@ int csync_s::reinitialize() {
   read_remote_from_db = true;
 
   local.files.clear();
-  priority.files.clear();
   remote.files.clear();
 
   renames.folder_renamed_from.clear();
@@ -342,7 +341,6 @@ std::unique_ptr<csync_file_stat_t> csync_file_stat_t::fromSyncJournalFileRecord(
     st->checksumHeader = rec._checksumHeader;
     st->e2eMangledName = rec._e2eMangledName;
     st->isE2eEncrypted = rec._isE2eEncrypted;
-    st->virtualfile = rec._virtualfile;
     st->availability = rec._availability;
     return st;
 }
