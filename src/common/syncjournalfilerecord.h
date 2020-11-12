@@ -66,7 +66,7 @@ public:
     QByteArray _checksumHeader;
     QByteArray _e2eMangledName;
     bool _isE2eEncrypted = false;
-    qint64 _virtualfile; // 1 files created by the virtual file system, 0 created by the user
+    qint64 _virtualfile = 0; // 1 files created by the virtual file system, 0 created by the user
     ItemAvailability _availability = ItemAvailable;
 };
 

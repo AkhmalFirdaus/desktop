@@ -193,7 +193,7 @@ struct OCSYNC_EXPORT csync_file_stat_t {
     , has_ignored_files(false)
     , is_hidden(false)
     , isE2eEncrypted(false)
-    , virtualfile(true)
+    , virtualfile(false)
     , availability(ItemAvailable)
   { }
 

@@ -248,7 +248,7 @@ public:
     QString _directDownloadUrl;
     QString _directDownloadCookies;
     // virtual drive
-    quint64 _virtualfile = 1;
+    quint64 _virtualfile = 0;
     ItemAvailability _availability = ItemAvailable;
 };
 
