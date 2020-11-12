@@ -240,44 +240,6 @@ public:
      */
     void clearFileTable();
 
-    enum SyncMode {
-        SYNCMODE_NONE = '\0',
-        SYNCMODE_ONLINE = 'O',
-        SYNCMODE_OFFLINE = 'S',
-    };
-
-    /**
-	* Retrieves the sync mode of the provided path
-	*
-	* @path File path
-	* @return integer representing the download mode in case of success, -1 on failure. If multiple paths match the @path parameter, the first result will be returned
-	*/
-    SyncMode getSyncMode(const QString &path);
-
-    /**
-	* Retrieves the sync mode of the provided path
-	*
-	* @return the list of paths in the
-	*/
-    QList<QString> getSyncModePaths();
-
-    /**
-	* Sets or registers the sync mode
-	*
-	* @path File path
-	* @mode New download mode
-	* @return Number of modified records on success. -1 on failure.
-	*/
-    int setSyncMode(const QString &path, SyncMode mode);
-
-    /**
-	* Deletes syncmode register matching the provided path
-	*
-	* @path File path
-	* @return Number of affected records on success. -1 on failure.
-	*/
-    int deleteSyncMode(const QString &path);
-
 private:
     int getFileRecordCount();
     bool updateDatabaseStructure();
@@ -333,11 +295,6 @@ private:
     SqlQuery _getConflictRecordQuery;
     SqlQuery _setConflictRecordQuery;
     SqlQuery _deleteConflictRecordQuery;
-
-    SqlQuery _getSyncModeQuery;
-    SqlQuery _setSyncModeQuery;
-    SqlQuery _deleteSyncModeQuery;
-    SqlQuery _getSyncModePathsQuery;
 
     /* Storing etags to these folders, or their parent folders, is filtered out.
      *

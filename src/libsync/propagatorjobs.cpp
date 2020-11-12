@@ -81,7 +81,6 @@ bool PropagateLocalRemove::removeRecursively(const QString &path)
                 deletedDir = it.first;
             }
             propagator()->_journal->deleteFileRecord(it.first.mid(folderDir.size()), it.second);
-            propagator()->_journal->deleteSyncMode(it.first.mid(folderDir.size()));
         }
 
         _error = errors.join(", ");
@@ -128,7 +127,6 @@ void PropagateLocalRemove::start()
     }
     propagator()->reportProgress(*_item, 0);
     propagator()->_journal->deleteFileRecord(_item->_originalFile, _item->isDirectory());
-    propagator()->_journal->deleteSyncMode(_item->_originalFile);
     propagator()->_journal->commit("Local remove");
     done(SyncFileItem::Success);
 }

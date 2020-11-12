@@ -31,6 +31,12 @@ namespace OCC {
 
 class SyncFileItem;
 
+enum class SyncMode {
+    Unspecified = 0,
+    Online = 1,
+    Offline = 2,
+};
+
 /**
  * @brief The SyncJournalFileRecord class
  * @ingroup libsync
@@ -67,6 +73,7 @@ public:
     QByteArray _e2eMangledName;
     bool _isE2eEncrypted = false;
     ItemAvailability _availability = ItemAvailable;
+    SyncMode _syncMode = SyncMode::Unspecified;
 };
 
 bool OCSYNC_EXPORT

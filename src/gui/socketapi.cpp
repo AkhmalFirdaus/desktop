@@ -846,10 +846,7 @@ void SocketApi::sendVirtualDriveContextMenuOptions(const SocketApi::FileData &fi
     const auto isOnTheServer = record.isValid();
     const auto flagString = isOnTheServer ? QLatin1String("::") : QLatin1String(":d:");
 
-    const auto journal = fileData.folder->journalDb();
-    const auto syncMode = journal->getSyncMode(fileData.folderRelativePath);
-
-    if (syncMode == SyncJournalDb::SYNCMODE_OFFLINE) {
+    if (record._syncMode == SyncMode::Offline) {
         listener->sendMessage(QLatin1String("MENU_ITEM:SYNCMODE_ONLINE") + flagString + tr("Set file as available online only"));
     } else {
         listener->sendMessage(QLatin1String("MENU_ITEM:SYNCMODE_OFFLINE") + flagString + tr("Set file as always available"));
@@ -996,23 +993,23 @@ void SocketApi::command_SYNCMODE_ONLINE(const QString &path, SocketListener *lis
     const auto journal = fileData.folder->journalDb();
 
     qDebug() << "SYNCMODE_ONLINE: " << path << fileData.folderRelativePath;
-    journal->setSyncMode(fileData.folderRelativePath, SyncJournalDb::SYNCMODE_ONLINE);
-
     auto record = fileData.journalRecord();
+    record._syncMode = SyncMode::Online;
+
     switch (record._availability) {
     case ItemUnavailable:
         break;
     case ItemNeedsDownload:
         record._availability = ItemUnavailable;
-        journal->setFileRecord(record);
         break;
     case ItemNeedsCleanup:
         break;
     case ItemAvailable:
         record._availability = ItemNeedsCleanup;
-        journal->setFileRecord(record);
         break;
     }
+
+    journal->setFileRecord(record);
 
     // Trigger sync
     fileData.folder->scheduleThisFolderSoon();
@@ -1026,23 +1023,23 @@ void SocketApi::command_SYNCMODE_OFFLINE(const QString &path, SocketListener *li
     const auto journal = fileData.folder->journalDb();
 
     qDebug() << "SYNCMODE_OFFLINE: " << path << fileData.folderRelativePath;
-    journal->setSyncMode(fileData.folderRelativePath, SyncJournalDb::SYNCMODE_OFFLINE);
-
     auto record = fileData.journalRecord();
+    record._syncMode = SyncMode::Offline;
+
     switch (record._availability) {
     case ItemUnavailable:
         record._availability = ItemNeedsDownload;
-        journal->setFileRecord(record);
         break;
     case ItemNeedsDownload:
         break;
     case ItemNeedsCleanup:
         record._availability = ItemNeedsDownload;
-        journal->setFileRecord(record);
         break;
     case ItemAvailable:
         break;
     }
+
+    journal->setFileRecord(record);
 
     // Trigger sync
     fileData.folder->scheduleThisFolderSoon();

@@ -47,7 +47,7 @@ Q_LOGGING_CATEGORY(lcDb, "nextcloud.sync.database", QtInfoMsg)
 #define GET_FILE_RECORD_QUERY                                                                                                  \
     "SELECT path, inode, modtime, type, md5, fileid, remotePerm, filesize,"                                                    \
     "  ignoredChildrenRemote, contentchecksumtype.name || ':' || contentChecksum,"                                             \
-    "  e2eMangledName, isE2eEncrypted, availability"                                                                           \
+    "  e2eMangledName, isE2eEncrypted, availability, syncMode"                                                                 \
     " FROM metadata"                                                                                                           \
     "  LEFT JOIN checksumtype as contentchecksumtype ON metadata.contentChecksumTypeId == contentchecksumtype.id"
 
@@ -66,6 +66,7 @@ static void fillFileRecordFromGetQuery(SyncJournalFileRecord &rec, SqlQuery &que
     rec._e2eMangledName = query.baValue(10);
     rec._isE2eEncrypted = query.intValue(11) > 0;
     rec._availability = static_cast<ItemAvailability>(query.intValue(12));
+    rec._syncMode = static_cast<SyncMode>(query.intValue(13));
 }
 
 static QByteArray defaultJournalMode(const QString &dbPath)
@@ -491,15 +492,6 @@ bool SyncJournalDb::checkConnect()
         return sqlFail("Create table version", createQuery);
     }
 
-    // create the syncmode table.
-    createQuery.prepare("CREATE TABLE IF NOT EXISTS syncmode("
-                        "path TEXT PRIMARY KEY,"
-                        "mode TEXT DEFAULT ('O'));"
-                        ");");
-    if (!createQuery.exec()) {
-        return sqlFail("create syncmode table", createQuery);
-    }
-
     bool forceRemoteDiscovery = false;
 
     SqlQuery versionQuery("SELECT major, minor, patch FROM version;", _db);
@@ -751,6 +743,16 @@ bool SyncJournalDb::updateMetadataTableStructure()
         commitInternal("update database structure: add availability column");
     }
 
+    if (!columns.contains("syncMode")) {
+        SqlQuery query(_db);
+        query.prepare("ALTER TABLE metadata ADD COLUMN syncMode INTEGER;");
+        if (!query.exec()) {
+            sqlFail("updateDatabaseStructure: add syncMode column", query);
+            re = false;
+        }
+        commitInternal("update database structure: add syncMode column");
+    }
+
     if (!tableColumns("uploadinfo").contains("contentChecksum")) {
         SqlQuery query(_db);
         query.prepare("ALTER TABLE uploadinfo ADD COLUMN contentChecksum TEXT;");
@@ -881,7 +883,7 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
                  << "etag:" << record._etag << "fileId:" << record._fileId << "remotePerm:" << record._remotePerm.toString()
                  << "fileSize:" << record._fileSize << "checksum:" << record._checksumHeader
                  << "e2eMangledName:" << record._e2eMangledName << "isE2eEncrypted:" << record._isE2eEncrypted
-                 << "availability:" << record._availability;
+                 << "availability:" << record._availability << "syncMode:" << static_cast<int>(record._syncMode);
 
     qlonglong phash = getPHash(record._path);
     if (checkConnect()) {
@@ -900,8 +902,8 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
 
         if (!_setFileRecordQuery.initOrReset(QByteArrayLiteral(
             "INSERT OR REPLACE INTO metadata "
-            "(phash, pathlen, path, inode, uid, gid, mode, modtime, type, md5, fileid, remotePerm, filesize, ignoredChildrenRemote, contentChecksum, contentChecksumTypeId, e2eMangledName, isE2eEncrypted, availability) "
-            "VALUES (?1 , ?2, ?3 , ?4 , ?5 , ?6 , ?7,  ?8 , ?9 , ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19);"), _db)) {
+            "(phash, pathlen, path, inode, uid, gid, mode, modtime, type, md5, fileid, remotePerm, filesize, ignoredChildrenRemote, contentChecksum, contentChecksumTypeId, e2eMangledName, isE2eEncrypted, availability, syncMode) "
+            "VALUES (?1 , ?2, ?3 , ?4 , ?5 , ?6 , ?7,  ?8 , ?9 , ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20);"), _db)) {
             return false;
         }
 
@@ -924,6 +926,7 @@ bool SyncJournalDb::setFileRecord(const SyncJournalFileRecord &_record)
         _setFileRecordQuery.bindValue(17, record._e2eMangledName);
         _setFileRecordQuery.bindValue(18, record._isE2eEncrypted);
         _setFileRecordQuery.bindValue(19, record._availability);
+        _setFileRecordQuery.bindValue(20, static_cast<int>(record._syncMode));
 
         if (!_setFileRecordQuery.exec()) {
             return false;
@@ -1314,6 +1317,7 @@ bool SyncJournalDb::setFileRecordMetadata(const SyncJournalFileRecord &record)
     existing._e2eMangledName = record._e2eMangledName;
     existing._isE2eEncrypted = record._isE2eEncrypted;
     existing._availability = record._availability;
+    existing._syncMode = record._syncMode;
     return setFileRecord(existing);
 }
 
@@ -2131,82 +2135,6 @@ bool operator==(const SyncJournalDb::UploadInfo &lhs,
         && lhs._size == rhs._size
         && lhs._transferid == rhs._transferid
         && lhs._contentChecksum == rhs._contentChecksum;
-}
-
-SyncJournalDb::SyncMode SyncJournalDb::getSyncMode(const QString &path)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return SYNCMODE_NONE;
-    _getSyncModeQuery.initOrReset(QByteArrayLiteral("SELECT mode FROM syncmode WHERE path=?1;"), _db);
-    _getSyncModeQuery.bindValue(1, path);
-    if (!_getSyncModeQuery.exec()) {
-        qWarning() << "Error SQL statement getSyncMode: "
-                   << _getSyncModeQuery.lastQuery() << " :"
-                   << _getSyncModeQuery.error();
-        return SYNCMODE_NONE;
-    }
-    if (!_getSyncModeQuery.next())
-        return SYNCMODE_NONE;
-    QString modeStr = _getSyncModeQuery.stringValue(0);
-    if (modeStr.isEmpty())
-        return SYNCMODE_NONE;
-    return static_cast<SyncMode>(modeStr.begin()->toLatin1());
-}
-
-int SyncJournalDb::setSyncMode(const QString &path, SyncMode mode)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return -1;
-    QString modeStr(static_cast<char>(mode));
-    _setSyncModeQuery.initOrReset(QByteArrayLiteral("INSERT OR REPLACE INTO syncmode (path, mode)  VALUES (?1, ?2);"), _db);
-    _setSyncModeQuery.bindValue(1, path);
-    _setSyncModeQuery.bindValue(2, modeStr);
-    if (!_setSyncModeQuery.exec()) {
-        qWarning() << "Error SQL statement setSyncMode: "
-                   << _setSyncModeQuery.lastQuery() << " :"
-                   << _setSyncModeQuery.error();
-        return -1;
-    }
-    return _setSyncModeQuery.numRowsAffected();
-}
-
-int SyncJournalDb::deleteSyncMode(QString const &path)
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return -1;
-    _deleteSyncModeQuery.initOrReset(QByteArrayLiteral("DELETE FROM syncmode WHERE path=?1;"), _db);
-    _deleteSyncModeQuery.bindValue(1, path);
-    if (!_deleteSyncModeQuery.exec()) {
-        qWarning() << "Error SQL statement setSyncMode: "
-                   << _deleteSyncModeQuery.lastQuery() << " :"
-                   << _deleteSyncModeQuery.error();
-        return -1;
-    }
-    return _deleteSyncModeQuery.numRowsAffected();
-}
-
-QList<QString> SyncJournalDb::getSyncModePaths()
-{
-    QMutexLocker locker(&_mutex);
-    if (!checkConnect())
-        return QList<QString> {};
-    QString path;
-    _getSyncModePathsQuery.initOrReset(QByteArrayLiteral("SELECT path from syncmode"), _db);
-    if (!_getSyncModePathsQuery.exec()) {
-        qWarning() << "Error SQL statement getSyncModePaths: "
-                   << _getSyncModePathsQuery.lastQuery() << " :"
-                   << _getSyncModePathsQuery.error();
-        return QList<QString>{};
-    }
-
-    QList<QString> list;
-    while (_getSyncModePathsQuery.next())
-        list.append(_getSyncModePathsQuery.stringValue(0));
-
-    return list;
 }
 
 } // namespace OCC
