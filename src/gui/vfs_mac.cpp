@@ -637,7 +637,7 @@ bool VfsMac::openFileAtPath(QString path, int mode, QVariant &userData, QVariant
     const QString processName = getProcessName(context->pid);
 
     // FIXME put these processes in a list
-    if (processName != "Finder" && processName != "com.apple.quicklook.ThumbnailsA") {
+    if (!processName.contains("finder", Qt::CaseInsensitive) && !processName.contains("quicklook", Qt::CaseInsensitive)) {
         QString fileName = path;
         fileName.replace("/", "");
         OCC::FolderMan::instance()->syncAllFolders(QStringList(fileName));
@@ -658,7 +658,8 @@ void VfsMac::releaseFileAtPath(QString path, QVariant userData)
     struct fuse_context *context = fuse_get_context();
     const QString processName = getProcessName(context->pid);
 
-    if (processName != "Finder" && processName != "com.apple.quicklook.ThumbnailsA") {
+    // FIXME put these processes in a list
+    if (!processName.contains("finder", Qt::CaseInsensitive) && !processName.contains("quicklook", Qt::CaseInsensitive)) {
         QString fileName = path;
         fileName.replace("/", "");
         OCC::FolderMan::instance()->syncAllFolders(QStringList(fileName));
