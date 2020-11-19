@@ -266,11 +266,11 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
 		  // or this check needs to happen in reconcile
 		  if (ctx->virtualDriveEnabled) {
               if (base._availability == ItemNeedsDownload) {
-				fs->instruction = CSYNC_INSTRUCTION_EVAL;
-			} else {
-				fs->instruction = CSYNC_INSTRUCTION_NONE;
-			}
-		  }
+                  fs->instruction = CSYNC_INSTRUCTION_EVAL;
+              } else {
+                  fs->instruction = CSYNC_INSTRUCTION_NONE;
+              }
+          }
 
           goto out;
       }
