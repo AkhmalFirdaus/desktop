@@ -294,17 +294,15 @@ static int _csync_detect_update(CSYNC *ctx, std::unique_ptr<csync_file_stat_t> f
           fs->has_ignored_files = base._serverHasIgnoredFiles;
       }
 
-      // Always evaluate offline drive files
-      if (base._availability == ItemNeedsDownload) {
+      // Always evaluate offline drive files which need a download
+      if (ctx->virtualDriveEnabled && base._availability == ItemNeedsDownload) {
           fs->instruction = CSYNC_INSTRUCTION_EVAL;
+      } else if (metadata_differ) {
+          /* file id or permissions has changed. Which means we need to update them in the DB. */
+          qCInfo(lcUpdate, "Need to update metadata for: %s", fs->path.constData());
+          fs->instruction = CSYNC_INSTRUCTION_UPDATE_METADATA;
       } else {
-          // second run or when the user opens a file
-          if (metadata_differ) {
-              /* file id or permissions has changed. Which means we need to update them in the DB. */
-              fs->instruction = CSYNC_INSTRUCTION_UPDATE_METADATA;
-          } else {
-              fs->instruction = CSYNC_INSTRUCTION_NONE;
-          }
+          fs->instruction = CSYNC_INSTRUCTION_NONE;
       }
 
   } else {
