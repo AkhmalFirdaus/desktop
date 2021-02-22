@@ -18,6 +18,7 @@
 #include "configfile.h"
 #include "accessmanager.h"
 #include "creds/abstractcredentials.h"
+#include "creds/credentialmanager.h"
 #include "capabilities.h"
 #include "theme.h"
 #include "pushnotifications.h"
@@ -60,7 +61,9 @@ const char app_password[] = "_app-password";
 
 Account::Account(QObject *parent)
     : QObject(parent)
+    , _uuid(QUuid::createUuid())
     , _capabilities(QVariantMap())
+    , _credentialManager(new CredentialManager(this))
 {
     qRegisterMetaType<AccountPtr>("AccountPtr");
     qRegisterMetaType<Account *>("Account*");
@@ -97,6 +100,16 @@ void Account::setSharedThis(AccountPtr sharedThis)
 QString Account::davPathBase()
 {
     return QStringLiteral("/remote.php/dav/files");
+}
+
+CredentialManager *Account::credentialManager() const
+{
+    return _credentialManager;
+}
+
+QUuid Account::uuid() const
+{
+    return _uuid;
 }
 
 AccountPtr Account::sharedFromThis()

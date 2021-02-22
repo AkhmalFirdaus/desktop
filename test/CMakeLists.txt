@@ -30,6 +30,7 @@ nextcloud_add_test(ConcatUrl)
 nextcloud_add_test(Cookies)
 nextcloud_add_test(XmlParse)
 nextcloud_add_test(ChecksumValidator)
+nextcloud_add_test(CredentialManager)
 
 nextcloud_add_test(ClientSideEncryption)
 nextcloud_add_test(ExcludedFiles)

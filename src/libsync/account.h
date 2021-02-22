@@ -18,6 +18,7 @@
 
 #include <QByteArray>
 #include <QUrl>
+#include <QUuid>
 #include <QNetworkCookie>
 #include <QNetworkRequest>
 #include <QSslSocket>
@@ -49,6 +50,7 @@ class ReadPasswordJob;
 
 namespace OCC {
 
+class CredentialManager;
 class AbstractCredentials;
 class Account;
 using AccountPtr = QSharedPointer<Account>;
@@ -255,6 +257,10 @@ public:
     PushNotifications *pushNotifications() const;
     void setPushNotificationsReconnectInterval(int interval);
 
+    QUuid uuid() const;
+
+    CredentialManager *credentialManager() const;
+
 public slots:
     /// Used when forgetting credentials
     void clearQNAMCache();
@@ -300,6 +306,7 @@ private:
 
     QWeakPointer<Account> _sharedThis;
     QString _id;
+    QUuid _uuid;
     QString _davUser;
     QString _displayName;
     QTimer _pushNotificationsReconnectTimer;
@@ -336,6 +343,7 @@ private:
     /// Used in RemoteWipe
     bool _wroteAppPassword = false;
 
+    CredentialManager *_credentialManager;
     friend class AccountManager;
 
     // Direct Editing
