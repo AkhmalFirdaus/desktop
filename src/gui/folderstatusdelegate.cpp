@@ -265,34 +265,38 @@ void FolderStatusDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     // paint an error overlay if there is an error string or conflict string
     auto drawTextBox = [&](const QStringList &texts, QColor color) {
-        QRect rect = localPathRect;
-        rect.setLeft(iconRect.left());
-        rect.setTop(h);
-        rect.setHeight(texts.count() * subFm.height() + 2 * margin);
-        rect.setRight(option.rect.right() - margin);
+        QRect roundRect = QStyle::visualRect(option.direction, option.rect, QRect());
+        roundRect.setLeft(iconRect.left());
+        roundRect.setTop(h);
+        roundRect.setHeight(2 * margin);
+        foreach (QString eText, texts) {
+            roundRect.setHeight(roundRect.height() + subFm.boundingRect(QRect(), textAlign & Qt::TextWordWrap, eText).height());
+        }
+        roundRect.setRight(option.rect.right() - margin);
 
         // save previous state to not mess up colours with the background (fixes issue: https://github.com/nextcloud/desktop/issues/1237)
         painter->save();
         painter->setBrush(color);
         painter->setPen(QColor(0xaa, 0xaa, 0xaa));
-        painter->drawRoundedRect(QStyle::visualRect(option.direction, option.rect, rect),
-            4, 4);
+        painter->drawRoundedRect(roundRect, 4, 4);
         painter->setPen(Qt::white);
         painter->setFont(errorFont);
-        QRect textRect(rect.left() + margin,
-            rect.top() + margin,
-            rect.width() - 2 * margin,
-            subFm.height());
 
+        int perStringY = roundRect.top() + margin;
         foreach (QString eText, texts) {
-            painter->drawText(QStyle::visualRect(option.direction, option.rect, textRect), textAlign,
-                subFm.elidedText(eText, Qt::ElideLeft, textRect.width()));
-            textRect.translate(0, textRect.height());
+            QRect perStringRect = subFm.boundingRect(
+                QRect(roundRect.left() + margin,
+                    perStringY,
+                    roundRect.width() - 2 * margin,
+                    999),
+                textAlign & Qt::TextWordWrap, eText);
+            painter->drawText(perStringRect, textAlign & Qt::TextWordWrap, eText);
+            perStringY += perStringRect.height();
         }
         // restore previous state
         painter->restore();
 
-        h = rect.bottom() + margin;
+        h = roundRect.bottom() + margin;
     };
 
     if (!conflictTexts.isEmpty())
