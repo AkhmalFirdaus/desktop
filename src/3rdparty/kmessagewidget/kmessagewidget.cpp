@@ -19,6 +19,7 @@
  * 02110-1301  USA
  */
 #include "kmessagewidget.h"
+#include "icon.h"
 
 #include <QAction>
 #include <QApplication>
@@ -94,7 +95,7 @@ void KMessageWidgetPrivate::init(KMessageWidget *q_ptr)
     auto *closeAction = new QAction(q);
     closeAction->setText(KMessageWidget::tr("&Close"));
     closeAction->setToolTip(KMessageWidget::tr("Close message"));
-    closeAction->setIcon(QIcon::fromTheme("window-close-symbolic")); // ivan: NC customization
+    closeAction->setIcon(Icon::fromTheme("window-close-symbolic")); // ivan: NC customization
 
     QObject::connect(closeAction, &QAction::triggered, q, &KMessageWidget::animatedHide);
 

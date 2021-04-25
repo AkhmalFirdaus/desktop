@@ -293,7 +293,7 @@ void ShareUserGroupWidget::slotPrivateLinkShare()
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
     // this icon is not handled by slotStyleChanged() -> customizeStyle but we can live with that
-    menu->addAction(Theme::createColorAwareIcon(":/client/theme/copy.svg"),
+    menu->addAction(Icon::fromTheme(":/client/theme/copy.svg"),
                     tr("Copy link"),
         this, SLOT(slotPrivateLinkCopy()));
 
@@ -486,9 +486,9 @@ ShareUserLine::ShareUserLine(QSharedPointer<UserGroupShare> share,
 
     menu->addSeparator();
 
-      // Adds action to delete share widget
-      QIcon deleteicon = QIcon::fromTheme(QLatin1String("user-trash"),QIcon(QLatin1String(":/client/theme/delete.svg")));
-      _deleteShareButton= new QAction(deleteicon,tr("Unshare"), this);
+        // Adds action to delete share widget
+        QIcon deleteicon = Icon::fromTheme("user-trash", Icon::fromTheme("edit-delete", QGuiApplication::palette()));
+        _deleteShareButton= new QAction(deleteicon,tr("Unshare"), this);
 
     menu->addAction(_deleteShareButton);
     connect(_deleteShareButton, &QAction::triggered, this, &ShareUserLine::on_deleteShareButton_clicked);

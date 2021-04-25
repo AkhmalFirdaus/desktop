@@ -16,9 +16,27 @@ public:
 
     static QIcon fromTheme(const QString &name, const QPalette &palette);
 
-    static QIcon createColorAwareIcon(const QString &name);
-
     static bool isDarkColor(const QColor &color);
+
+
+
+    /**
+     * @brief Creates a colour-aware icon based on the specified palette's base colour.
+     *
+     * @return QIcon, colour-aware (inverted on dark backgrounds).
+     *
+     * 2019/12/09: Moved here from SettingsDialog.
+     */
+    // static QIcon createColorAwareIcon(const QString &name, const QPalette &palette);
+
+    /**
+     * @brief Creates a colour-aware icon based on the app palette's base colour (Dark-/Light-Mode switching).
+     *
+     * @return QIcon, colour-aware (inverted on dark backgrounds).
+     *
+     * 2019/12/09: Moved here from SettingsDialog.
+     */
+    // static QIcon createColorAwareIcon(const QString &name);
 };
 
 #endif

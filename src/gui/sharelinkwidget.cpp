@@ -241,7 +241,7 @@ void ShareLinkWidget::setupUiOptions()
     _addAnotherLinkAction = _linkContextMenu->addAction(Icon::fromTheme("list-add"),
         tr("Add another link"));
 
-    _ui->enableShareLink->setIcon(Icon::fromTheme("emblem-shared"));
+    _ui->enableShareLink->setIcon(Icon::fromTheme("send-to"));
     disconnect(_ui->enableShareLink, &QPushButton::clicked, this, &ShareLinkWidget::slotCreateShareLink);
     connect(_ui->enableShareLink, &QPushButton::clicked, this, &ShareLinkWidget::slotCopyLinkShare);
 
@@ -565,7 +565,7 @@ void ShareLinkWidget::customizeStyle()
 
     _addAnotherLinkAction->setIcon(Icon::fromTheme("list-add", QGuiApplication::palette()));
 
-    _ui->enableShareLink->setIcon(Icon::fromTheme("emblem-shared", QGuiApplication::palette()));
+    _ui->enableShareLink->setIcon(Icon::fromTheme("send-to", QGuiApplication::palette()));
 
     _ui->shareLinkIconLabel->setPixmap(Theme::createColorAwarePixmap(":/client/theme/public.svg", QGuiApplication::palette()));
 

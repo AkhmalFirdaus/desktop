@@ -20,6 +20,7 @@
 #include "folderman.h"
 #include "accountstate.h"
 #include <theme.h>
+#include "icon.h"
 #include <account.h>
 
 #include <QFileIconProvider>
@@ -434,7 +435,7 @@ void FolderStatusDelegate::slotStyleChanged()
 
 void FolderStatusDelegate::customizeStyle()
 {
-    _iconMore = Theme::createColorAwareIcon(QLatin1String(":/client/theme/more.svg"));
+    _iconMore = Icon::fromTheme(QLatin1String(":/client/theme/more.svg"));
 }
 
 } // namespace OCC

@@ -17,6 +17,7 @@
 
 #include "folderman.h"
 #include "theme.h"
+#include "icon.h"
 #include "generalsettings.h"
 #include "networksettings.h"
 #include "accountsettings.h"
@@ -344,7 +345,7 @@ void SettingsDialog::customizeStyle()
     _toolBar->setStyleSheet(TOOLBAR_CSS().arg(background, dark, highlightColor, highlightTextColor));
 
     Q_FOREACH (QAction *a, _actionGroup->actions()) {
-        QIcon icon = Theme::createColorAwareIcon(a->property("iconPath").toString(), palette());
+        QIcon icon = Icon::fromTheme(a->property("iconPath").toString(), palette());
         a->setIcon(icon);
         auto *btn = qobject_cast<QToolButton *>(_toolBar->widgetForAction(a));
         if (btn)
@@ -396,7 +397,7 @@ QAction *SettingsDialog::createActionWithIcon(const QIcon &icon, const QString &
 QAction *SettingsDialog::createColorAwareAction(const QString &iconPath, const QString &text)
 {
     // all buttons must have the same size in order to keep a good layout
-    QIcon coloredIcon = Theme::createColorAwareIcon(iconPath, palette());
+    QIcon coloredIcon = Icon::fromTheme(iconPath, palette());
     return createActionWithIcon(coloredIcon, text, iconPath);
 }
 

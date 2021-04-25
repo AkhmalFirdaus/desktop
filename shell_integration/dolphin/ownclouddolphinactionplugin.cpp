@@ -17,6 +17,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA               *
  ******************************************************************************/
 
+#include "icon.h"
+
 #include <KCoreAddons/KPluginFactory>
 #include <KCoreAddons/KPluginLoader>
 #include <KIOWidgets/kabstractfileitemactionplugin.h>
@@ -92,7 +94,7 @@ public:
         }
         
         menu->setTitle(helper->contextMenuTitle());
-        menu->setIcon(QIcon::fromTheme(helper->contextMenuIconName()));
+        menu->setIcon(Icon::fromTheme(helper->contextMenuIconName()));
         return { menu->menuAction() };
     }
 

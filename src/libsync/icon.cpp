@@ -10,9 +10,9 @@ namespace OCC {
 QIcon Icon::fromTheme(const QString &name)
 {
     if (Theme::instance()->systrayUseMonoIcons()) {
-        return QIcon::fromTheme(name);
+        return Icon::fromTheme(name + "-symbolic", QGuiApplication::palette());
     } else {
-        return QIcon::fromTheme(name + "-symbolic");
+        return QIcon::fromTheme(name);
     }
 
 }
@@ -20,12 +20,16 @@ QIcon Icon::fromTheme(const QString &name)
 QIcon Icon::fromTheme(const QString &name, const QIcon &fallback)
 {
     if (Theme::instance()->systrayUseMonoIcons()) {
-        return QIcon::fromTheme(name, fallback);
+        return Icon::fromTheme(name + "-symbolic", QGuiApplication::palette());
+        // return Icon::fromTheme(name + "-symbolic", QGuiApplication::palette(), fallback)
     } else {
-        return QIcon::fromTheme(name + "-symbolic", fallback);
+        return QIcon::fromTheme(name, fallback);
     }
 
 }
+
+
+// QIcon Icon::fromTheme(const QString &name, const QPalette &palette, const QIcon &fallback)
 
 QIcon Icon::fromTheme(const QString &name, const QPalette &palette)
 {
@@ -54,11 +58,6 @@ QIcon Icon::fromTheme(const QString &name, const QPalette &palette)
         icon.addPixmap(QPixmap::fromImage(inverted), QIcon::Normal, QIcon::On);
     }
     return icon;
-}
-
-QIcon Icon::createColorAwareIcon(const QString &name)
-{
-    return Icon::fromTheme(name, QGuiApplication::palette());
 }
 
 bool Icon::isDarkColor(const QColor &color)

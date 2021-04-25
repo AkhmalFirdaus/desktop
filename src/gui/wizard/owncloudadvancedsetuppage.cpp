@@ -572,7 +572,7 @@ void OwncloudAdvancedSetupPage::setRadioChecked(QRadioButton *radio)
 
 void OwncloudAdvancedSetupPage::styleSyncLogo()
 {
-    const auto syncArrowIcon = Theme::createColorAwareIcon(QLatin1String(":/client/theme/sync-arrow.svg"), palette());
+    const auto syncArrowIcon = Icon::fromTheme("sync-arrow"), palette());
     _ui.syncLogoLabel->setPixmap(syncArrowIcon.pixmap(QSize(50, 50)));
 }
 
