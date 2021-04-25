@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 512 512"
-    xmlns="http://www.w3.org/2000/svg" version="1.1">
+    xmlns="http://www.w3.org/2000/svg">
     <circle fill="rgb(58,91,162)" cx="256" cy="256" r="256" />
     <path fill="white" d="M224.023,160.085C224.023,124.713 252.598,96.139 287.961,96.139L336.033,96.139L336.033,160.085L303.834,160.085C295.226,160.085 287.961,167.342 287.961,175.958L287.961,208.15L336.033,208.15L336.033,272.088L287.961,272.088L287.961,416.308L224.023,416.308L224.023,272.088L175.958,272.088L175.958,208.15L224.023,208.15L224.023,160.085Z" />
 </svg>
