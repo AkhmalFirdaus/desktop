@@ -20,6 +20,7 @@
 #include "guiutility.h"
 #include "sharemanager.h"
 #include "theme.h"
+#include "icon.h"
 
 #include "QProgressIndicator.h"
 #include <QBuffer>
@@ -232,15 +233,15 @@ void ShareLinkWidget::setupUiOptions()
     }
 
     // Adds action to unshare widget (check box)
-    _unshareLinkAction = _linkContextMenu->addAction(QIcon(":/client/theme/delete.svg"),
+    _unshareLinkAction = _linkContextMenu->addAction(Icon::fromTheme("edit-delete"),
         tr("Delete share link"));
 
     _linkContextMenu->addSeparator();
 
-    _addAnotherLinkAction = _linkContextMenu->addAction(QIcon(":/client/theme/add.svg"),
+    _addAnotherLinkAction = _linkContextMenu->addAction(Icon::fromTheme("list-add"),
         tr("Add another link"));
 
-    _ui->enableShareLink->setIcon(QIcon(":/client/theme/copy.svg"));
+    _ui->enableShareLink->setIcon(Icon::fromTheme("emblem-shared"));
     disconnect(_ui->enableShareLink, &QPushButton::clicked, this, &ShareLinkWidget::slotCreateShareLink);
     connect(_ui->enableShareLink, &QPushButton::clicked, this, &ShareLinkWidget::slotCopyLinkShare);
 
@@ -560,19 +561,19 @@ void ShareLinkWidget::slotStyleChanged()
 
 void ShareLinkWidget::customizeStyle()
 {
-    _unshareLinkAction->setIcon(Theme::createColorAwareIcon(":/client/theme/delete.svg"));
+    _unshareLinkAction->setIcon(Icon::fromTheme("edit-delete", QGuiApplication::palette()));
 
-    _addAnotherLinkAction->setIcon(Theme::createColorAwareIcon(":/client/theme/add.svg"));
+    _addAnotherLinkAction->setIcon(Icon::fromTheme("list-add", QGuiApplication::palette()));
 
-    _ui->enableShareLink->setIcon(Theme::createColorAwareIcon(":/client/theme/copy.svg"));
+    _ui->enableShareLink->setIcon(Icon::fromTheme("emblem-shared", QGuiApplication::palette()));
 
-    _ui->shareLinkIconLabel->setPixmap(Theme::createColorAwarePixmap(":/client/theme/public.svg"));
+    _ui->shareLinkIconLabel->setPixmap(Theme::createColorAwarePixmap(":/client/theme/public.svg", QGuiApplication::palette()));
 
-    _ui->shareLinkToolButton->setIcon(Theme::createColorAwareIcon(":/client/theme/more.svg"));
+    _ui->shareLinkToolButton->setIcon(Icon::fromTheme("view-more-horizontal", QGuiApplication::palette()));
 
-    _ui->confirmNote->setIcon(Theme::createColorAwareIcon(":/client/theme/confirm.svg"));
-    _ui->confirmPassword->setIcon(Theme::createColorAwareIcon(":/client/theme/confirm.svg"));
-    _ui->confirmExpirationDate->setIcon(Theme::createColorAwareIcon(":/client/theme/confirm.svg"));
+    _ui->confirmNote->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
+    _ui->confirmPassword->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
+    _ui->confirmExpirationDate->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
 
     _ui->progressIndicator->setColor(QGuiApplication::palette().color(QPalette::Text));
 }

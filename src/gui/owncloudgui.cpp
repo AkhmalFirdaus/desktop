@@ -15,6 +15,7 @@
 #include "application.h"
 #include "owncloudgui.h"
 #include "theme.h"
+#include "icon.h"
 #include "folderman.h"
 #include "progressdispatcher.h"
 #include "owncloudsetupwizard.h"
@@ -67,7 +68,7 @@ ownCloudGui::ownCloudGui(Application *parent)
     _tray = Systray::instance();
     _tray->setTrayEngine(new QQmlApplicationEngine(this));
     // for the beginning, set the offline icon until the account was verified
-    _tray->setIcon(Theme::instance()->folderOfflineIcon(/*systray?*/ true));
+    _tray->setIcon(Icon::fromTheme("branded-logo"));
 
     _tray->show();
 
@@ -265,7 +266,7 @@ void ownCloudGui::slotComputeOverallSyncStatus()
     }
 
     if (!problemAccounts.empty()) {
-        _tray->setIcon(Theme::instance()->folderOfflineIcon(true));
+        _tray->setIcon(Icon::fromTheme("branded-logo"));
         if (allDisconnected) {
             setStatusText(tr("Disconnected"));
         } else {
@@ -295,12 +296,12 @@ void ownCloudGui::slotComputeOverallSyncStatus()
     }
 
     if (allSignedOut) {
-        _tray->setIcon(Theme::instance()->folderOfflineIcon(true));
+        _tray->setIcon(Icon::fromTheme("branded-logo"));
         _tray->setToolTip(tr("Please sign in"));
         setStatusText(tr("Signed out"));
         return;
     } else if (allPaused) {
-        _tray->setIcon(Theme::instance()->syncStateIcon(SyncResult::Paused, true));
+        _tray->setIcon(Icon::fromTheme("network-idle"));
         _tray->setToolTip(tr("Account synchronization is disabled"));
         setStatusText(tr("Synchronization is paused"));
         return;
@@ -317,18 +318,16 @@ void ownCloudGui::slotComputeOverallSyncStatus()
 
     // If the sync succeeded but there are unresolved conflicts,
     // show the problem icon!
-    auto iconStatus = overallStatus;
-    if (iconStatus == SyncResult::Success && hasUnresolvedConflicts) {
-        iconStatus = SyncResult::Problem;
+    if (overallStatus == SyncResult::Success && hasUnresolvedConflicts) {
+        _tray->setIcon(Icon::fromTheme("network-no-route"));
     }
 
     // If we don't get a status for whatever reason, that's a Problem
-    if (iconStatus == SyncResult::Undefined) {
-        iconStatus = SyncResult::Problem;
+    if (overallStatus == SyncResult::Undefined) {
+        _tray->setIcon(Icon::fromTheme("network-no-route"));
     }
 
-    QIcon statusIcon = Theme::instance()->syncStateIcon(iconStatus, true);
-    _tray->setIcon(statusIcon);
+
 
     // create the tray blob message, check if we have an defined state
     if (map.count() > 0) {

@@ -27,6 +27,7 @@
 #include "thumbnailjob.h"
 #include "sharemanager.h"
 #include "theme.h"
+#include "icon.h"
 
 #include "QProgressIndicator.h"
 #include <QBuffer>
@@ -86,7 +87,7 @@ ShareUserGroupWidget::ShareUserGroupWidget(AccountPtr account,
     _ui->shareeLineEdit->setCompleter(_completer);
 
     auto searchGloballyAction = new QAction(_ui->shareeLineEdit);
-    searchGloballyAction->setIcon(QIcon(":/client/theme/magnifying-glass.svg"));
+    searchGloballyAction->setIcon(Icon::fromTheme("system-search"));
     searchGloballyAction->setToolTip(tr("Search globally"));
 
     connect(searchGloballyAction, &QAction::triggered, this, [this]() {
@@ -409,7 +410,7 @@ void ShareUserGroupWidget::slotStyleChanged()
 
 void ShareUserGroupWidget::customizeStyle()
 {
-    _ui->confirmShare->setIcon(Theme::createColorAwareIcon(":/client/theme/confirm.svg"));
+    _ui->confirmShare->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
 
     _pi_sharee.setColor(QGuiApplication::palette().color(QPalette::Text));
 
@@ -744,13 +745,10 @@ void ShareUserLine::slotStyleChanged()
 
 void ShareUserLine::customizeStyle()
 {
-    _ui->permissionToolButton->setIcon(Theme::createColorAwareIcon(":/client/theme/more.svg"));
-
-    QIcon deleteicon = QIcon::fromTheme(QLatin1String("user-trash"),Theme::createColorAwareIcon(QLatin1String(":/client/theme/delete.svg")));
-    _deleteShareButton->setIcon(deleteicon);
-
-    _ui->noteConfirmButton->setIcon(Theme::createColorAwareIcon(":/client/theme/confirm.svg"));
-    _ui->confirmExpirationDate->setIcon(Theme::createColorAwareIcon(":/client/theme/confirm.svg"));
+    _ui->permissionToolButton->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
+    _deleteShareButton->setIcon(Icon::fromTheme("user-trash", Icon::fromTheme("edit-delete", QGuiApplication::palette())));
+    _ui->noteConfirmButton->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
+    _ui->confirmExpirationDate->setIcon(Icon::fromTheme("object-select", QGuiApplication::palette()));
     _ui->progressIndicator->setColor(QGuiApplication::palette().color(QPalette::WindowText));
 }
 

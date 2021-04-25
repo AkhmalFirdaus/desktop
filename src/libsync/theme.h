@@ -15,9 +15,9 @@
 #ifndef _THEME_H
 #define _THEME_H
 
-#include <QIcon>
 #include <QObject>
-#include "syncresult.h"
+#include <QMap>
+#include "icontheme.h"
 
 class QString;
 class QObject;
@@ -28,7 +28,11 @@ class QPalette;
 
 namespace OCC {
 
-class SyncResult;
+/**
+    * @brief Brand lists the possible OEM brands for the application
+    */
+enum Brand {Nextcloud, Other};
+
 
 /**
  * @brief The Theme class
@@ -36,22 +40,12 @@ class SyncResult;
  */
 class OWNCLOUDSYNC_EXPORT Theme : public QObject
 {
+    Q_ENUM(Brand);
+
     Q_OBJECT
     Q_PROPERTY(bool branded READ isBranded CONSTANT)
     Q_PROPERTY(QString appNameGUI READ appNameGUI CONSTANT)
     Q_PROPERTY(QString appName READ appName CONSTANT)
-    Q_PROPERTY(QUrl stateOnlineImageSource READ stateOnlineImageSource CONSTANT)
-    Q_PROPERTY(QUrl stateOfflineImageSource READ stateOfflineImageSource CONSTANT)
-    Q_PROPERTY(QUrl stateOnlineImageSource READ stateOnlineImageSource CONSTANT)
-    Q_PROPERTY(QUrl statusOnlineImageSource READ statusOnlineImageSource CONSTANT)
-    Q_PROPERTY(QUrl statusDoNotDisturbImageSource READ statusDoNotDisturbImageSource CONSTANT)
-    Q_PROPERTY(QUrl statusAwayImageSource READ statusAwayImageSource CONSTANT)
-    Q_PROPERTY(QUrl statusInvisibleImageSource READ statusInvisibleImageSource CONSTANT)
-#ifndef TOKEN_AUTH_ONLY
-    Q_PROPERTY(QIcon folderDisabledIcon READ folderDisabledIcon CONSTANT)
-    Q_PROPERTY(QIcon folderOfflineIcon READ folderOfflineIcon CONSTANT)
-    Q_PROPERTY(QIcon applicationIcon READ applicationIcon CONSTANT)
-#endif
     Q_PROPERTY(QString version READ version CONSTANT)
     Q_PROPERTY(QString helpUrl READ helpUrl CONSTANT)
     Q_PROPERTY(QString conflictHelpUrl READ conflictHelpUrl CONSTANT)
@@ -83,7 +77,14 @@ public:
      *
      * @return true if branded, false otherwise
      */
-    virtual bool isBranded() const;
+    //virtual bool isBranded() const;
+
+    /**
+     * @brief brand - The OEM branding of the application.
+     *
+     * @return Brand corresponding to the application brand.
+     */
+    virtual Brand brand() const;
 
     /**
      * @brief appNameGUI - Human readable application name.
@@ -117,63 +118,22 @@ public:
     virtual QString appName() const;
 
     /**
-     * @brief Returns full path to an online state icon
-     * @return QUrl full path to an icon
-     */
-    QUrl stateOnlineImageSource() const;
-
-    /**
-     * @brief Returns full path to an offline state icon
-     * @return QUrl full path to an icon
-     */
-    QUrl stateOfflineImageSource() const;
-    
-    /**
-     * @brief Returns full path to an online user status icon
-     * @return QUrl full path to an icon
-     */
-    QUrl statusOnlineImageSource() const;
-    
-    /**
-     * @brief Returns full path to an do not disturb user status icon
-     * @return QUrl full path to an icon
-     */
-    QUrl statusDoNotDisturbImageSource() const;
-    
-    /**
-     * @brief Returns full path to an away user status icon
-     * @return QUrl full path to an icon
-     */
-    QUrl statusAwayImageSource() const;
-    
-    /**
-     * @brief Returns full path to an invisible user status icon
-     * @return QUrl full path to an icon
-     */
-    QUrl statusInvisibleImageSource() const;
-
-    /**
      * @brief configFileName
      * @return the name of the config file.
      */
     virtual QString configFileName() const;
 
 #ifndef TOKEN_AUTH_ONLY
+    virtual QIcon applicationIcon() const;
     static QString hidpiFileName(const QString &fileName, QPaintDevice *dev = nullptr);
 
     static QString hidpiFileName(const QString &iconName, const QColor &backgroundColor, QPaintDevice *dev = nullptr);
 
     static bool isHidpi(QPaintDevice *dev = nullptr);
 
-    /**
-      * get an sync state icon
-      */
-    virtual QIcon syncStateIcon(SyncResult::Status, bool sysTray = false) const;
-
-    virtual QIcon folderDisabledIcon() const;
-    virtual QIcon folderOfflineIcon(bool sysTray = false) const;
-    virtual QIcon applicationIcon() const;
 #endif
+
+    static QIcon iconByName(const QString &name);
 
     virtual QString statusHeaderText(SyncResult::Status) const;
     virtual QString version() const;
@@ -247,9 +207,6 @@ public:
      */
     virtual QString enforcedLocale() const { return QString(); }
 
-    /** colored, white or black */
-    QString systrayIconFlavor(bool mono) const;
-
 #ifndef TOKEN_AUTH_ONLY
     /**
      * Override to use a string or a custom image name.
@@ -295,6 +252,11 @@ public:
     virtual QString aboutDetails() const;
 
     /**
+     * Check if mono icons are available
+     */
+    bool monoIconsAvailable() const;
+
+    /**
      * Define if the systray icons should be using mono design
      */
     void setSystrayUseMonoIcons(bool mono);
@@ -303,11 +265,6 @@ public:
      * Retrieve wether to use mono icons for systray
      */
     bool systrayUseMonoIcons() const;
-
-    /**
-     * Check if mono icons are available
-     */
-    bool monoIconsAvailable() const;
 
     /**
      * @brief Where to check for new Updates.
@@ -437,15 +394,7 @@ public:
      * important dependency versions.
      */
     virtual QString versionSwitchOutput() const;
-	
-	/**
-    * @brief Request suitable QIcon resource depending on the background colour of the parent widget.
-    *
-    * This should be replaced (TODO) by a real theming implementation for the client UI 
-    * (actually 2019/09/13 only systray theming).
-    */
-	virtual QIcon uiThemeIcon(const QString &iconName, bool uiHasDarkBg) const;
-    
+
     /**
      * @brief Perform a calculation to check if a colour is dark or light and accounts for different sensitivity of the human eye.
      *
@@ -546,31 +495,20 @@ public:
     virtual bool showVirtualFilesOption() const;
 
 protected:
-#ifndef TOKEN_AUTH_ONLY
-    QIcon themeIcon(const QString &name, bool sysTray = false) const;
-#endif
-    /**
-     * @brief Generates image path in the resources
-     * @param name Name of the image file
-     * @param size Size in the power of two (16, 32, 64, etc.)
-     * @param sysTray Whether the image requested is for Systray or not
-     * @return QString image path in the resources
-     **/
-    QString themeImagePath(const QString &name, int size = -1, bool sysTray = false) const;
     Theme();
-
-signals:
-    void systrayUseMonoIconsChanged(bool);
 
 private:
     Theme(Theme const &);
     Theme &operator=(Theme const &);
 
     static Theme *_instance;
+    mutable QMap<IconTheme::Flavor, IconTheme *> themes;
+    IconTheme::Flavor preferredTrayIconTheme;
+    IconTheme::Flavor preferredUiIconTheme;
     bool _mono = false;
-#ifndef TOKEN_AUTH_ONLY
-    mutable QHash<QString, QIcon> _iconCache;
-#endif
+
+signals:
+    void systrayUseMonoIconsChanged(bool);
 };
 }
 #endif // _THEME_H

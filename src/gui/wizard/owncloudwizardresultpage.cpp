@@ -21,6 +21,7 @@
 #include "wizard/owncloudwizardresultpage.h"
 #include "wizard/owncloudwizardcommon.h"
 #include "theme.h"
+#include "icon.h"
 
 namespace OCC {
 
@@ -35,8 +36,7 @@ OwncloudWizardResultPage::OwncloudWizardResultPage()
     setSubTitle(QLatin1String(" "));
 
     _ui.pbOpenLocal->setText(tr("Open Local Folder"));
-    // TODO: File doesn't exist anymore - unneccessary or replacement needed?
-    _ui.pbOpenLocal->setIcon(QIcon(QLatin1String(":/client/theme/folder-sync.png")));
+    _ui.pbOpenLocal->setIcon(Icon::fromTheme("folder")); // TODO: File doesn't exist anymore - unneccessary or replacement needed?
     _ui.pbOpenLocal->setIconSize(QSize(48, 48));
     _ui.pbOpenLocal->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     connect(_ui.pbOpenLocal, &QAbstractButton::clicked, this, &OwncloudWizardResultPage::slotOpenLocal);

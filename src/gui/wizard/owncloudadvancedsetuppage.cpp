@@ -28,6 +28,7 @@
 #include "wizard/owncloudadvancedsetuppage.h"
 #include "account.h"
 #include "theme.h"
+#include "icon.h"
 #include "configfile.h"
 #include "selectivesyncdialog.h"
 #include <folderman.h>
@@ -550,7 +551,7 @@ void OwncloudAdvancedSetupPage::customizeStyle()
 void OwncloudAdvancedSetupPage::styleLocalFolderLabel()
 {
     const auto backgroundColor = palette().window().color();
-    const auto folderIconFileName = Theme::instance()->isBranded() ? Theme::hidpiFileName("folder.png", backgroundColor)
+    const auto folderIconFileName = Theme::instance()->brand() != Brand::Nextcloud ? Theme::hidpiFileName("folder.png", backgroundColor)
                                                                    : Theme::hidpiFileName(":/client/theme/colored/folder.png");
     _ui.lLocal->setPixmap(folderIconFileName);
 }

@@ -14,6 +14,8 @@ if ( EXISTS ${OEM_THEME_DIR}/OEM.cmake )
 else ()
      include ( ${CMAKE_SOURCE_DIR}/NEXTCLOUD.cmake )
 endif()
+string(TOUPPER APPLICATION_ICON_SET APPLICATION_ICON_SET)
+string(COMPARE EQUAL APPLICATION_ICON_SET "SVG" USE_SVG)
 
 # Default suffix if the theme doesn't define one
 if(NOT DEFINED APPLICATION_VIRTUALFILE_SUFFIX)

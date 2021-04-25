@@ -16,6 +16,7 @@
 #include "account.h"
 #include "networkjobs.h"
 #include "theme.h"
+#include "icon.h"
 #include "folderman.h"
 #include "configfile.h"
 #include <QDialogButtonBox>
@@ -242,7 +243,7 @@ void SelectiveSyncWidget::slotUpdateDirectories(QStringList list)
     if (!root) {
         root = new SelectiveSyncTreeViewItem(_folderTree);
         root->setText(0, _rootName);
-        root->setIcon(0, Theme::instance()->applicationIcon());
+        root->setIcon(0, Icon::fromTheme("branded-logo"));
         root->setData(0, Qt::UserRole, QString());
         root->setCheckState(0, Qt::Checked);
         qint64 size = job ? job->_folderInfos[pathToRemove].size : -1;

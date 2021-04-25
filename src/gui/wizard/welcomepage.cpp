@@ -14,6 +14,7 @@
 
 #include "welcomepage.h"
 #include "theme.h"
+#include "icon.h"
 #include "wizard/owncloudwizard.h"
 #include "wizard/slideshow.h"
 #include "ui_welcomepage.h"
@@ -55,13 +56,13 @@ void WelcomePage::styleSlideShow()
     const auto theme = Theme::instance();
     const auto backgroundColor = palette().window().color();
 
-    const auto wizardNextcloudIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-nextcloud.png", backgroundColor)
+    const auto wizardNextcloudIconFileName = theme->brand() != Brand::Nextcloud ? Theme::hidpiFileName("wizard-nextcloud.png", backgroundColor)
                                                                 : Theme::hidpiFileName(":/client/theme/colored/wizard-nextcloud.png");
-    const auto wizardFilesIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-files.png", backgroundColor)
+    const auto wizardFilesIconFileName = theme->brand() != Brand::Nextcloud ? Theme::hidpiFileName("wizard-files.png", backgroundColor)
                                                             : Theme::hidpiFileName(":/client/theme/colored/wizard-files.png");
-    const auto wizardGroupwareIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-groupware.png", backgroundColor)
+    const auto wizardGroupwareIconFileName = theme->brand() != Brand::Nextcloud ? Theme::hidpiFileName("wizard-groupware.png", backgroundColor)
                                                                 : Theme::hidpiFileName(":/client/theme/colored/wizard-groupware.png");
-    const auto wizardTalkIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-talk.png", backgroundColor)
+    const auto wizardTalkIconFileName = theme->brand() != Brand::Nextcloud ? Theme::hidpiFileName("wizard-talk.png", backgroundColor)
                                                            : Theme::hidpiFileName(":/client/theme/colored/wizard-talk.png");
 
     _ui->slideShow->addSlide(wizardNextcloudIconFileName, tr("Keep your data secure and under your control"));
@@ -69,9 +70,8 @@ void WelcomePage::styleSlideShow()
     _ui->slideShow->addSlide(wizardGroupwareIconFileName, tr("Easy-to-use web mail, calendaring & contacts"));
     _ui->slideShow->addSlide(wizardTalkIconFileName, tr("Screensharing, online meetings & web conferences"));
 
-    const auto isDarkBackground = Theme::isDarkColor(backgroundColor);
-    _ui->slideShowNextButton->setIcon(theme->uiThemeIcon(QString("control-next.svg"), isDarkBackground));
-    _ui->slideShowPreviousButton->setIcon(theme->uiThemeIcon(QString("control-prev.svg"), isDarkBackground));
+    _ui->slideShowNextButton->setIcon(Icon::fromTheme("go-next", QGuiApplication::palette()));
+    _ui->slideShowPreviousButton->setIcon(Icon::fromTheme("go-previous", QGuiApplication::palette()));
 }
 
 void WelcomePage::setupSlideShow()
