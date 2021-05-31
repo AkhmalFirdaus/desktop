@@ -930,6 +930,9 @@ void DetermineAuthTypeJob::start()
         } else {
             _resultGet = LoginFlowV2;
         }
+
+        qCInfo(lcDetermineAuthTypeJob()) << "simple get finished with result" << _resultGet <<"on" << _account->url();
+
         _getDone = true;
         checkAllDone();
     });
