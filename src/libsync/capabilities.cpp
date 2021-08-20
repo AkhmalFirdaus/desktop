@@ -191,7 +191,14 @@ bool Capabilities::userStatus() const
 {
     return _capabilities.contains("notifications") &&
         _capabilities["notifications"].toMap().contains("ocs-endpoints") &&
-        _capabilities["notifications"].toMap()["ocs-endpoints"].toStringList().contains("user-status");
+            _capabilities["notifications"].toMap()["ocs-endpoints"].toStringList().contains("user-status");
+}
+
+bool Capabilities::hasExtendedSupport() const
+{
+    qCDebug(lcServerCapabilities()) << _capabilities;
+    const auto extendedSupportKey = QStringLiteral("extendedSupport");
+    return _capabilities.contains(extendedSupportKey) && _capabilities.value(extendedSupportKey).toBool();
 }
 
 PushNotificationTypes Capabilities::availablePushNotifications() const

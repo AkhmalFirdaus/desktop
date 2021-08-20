@@ -38,6 +38,7 @@ static const char caCertsKeyC[] = "CaCertificates";
 static const char accountsC[] = "Accounts";
 static const char versionC[] = "version";
 static const char serverVersionC[] = "serverVersion";
+static const std::array<char, 25> serverHasExtendedSupportC {"serverHasExtendedSupport"};
 
 // The maximum versions that this client can read
 static const int maxAccountsVersion = 2;
@@ -223,6 +224,7 @@ void AccountManager::saveAccountHelper(Account *acc, QSettings &settings, bool s
     settings.setValue(QLatin1String(urlC), acc->_url.toString());
     settings.setValue(QLatin1String(davUserC), acc->_davUser);
     settings.setValue(QLatin1String(serverVersionC), acc->_serverVersion);
+    settings.setValue(QLatin1String(serverHasExtendedSupportC.data()), acc->_serverHasExtendedSupport);
     if (acc->_credentials) {
         if (saveCredentials) {
             // Only persist the credentials if the parameter is set, on migration from 1.8.x
@@ -317,6 +319,7 @@ AccountPtr AccountManager::loadAccountHelper(QSettings &settings)
     qCInfo(lcAccountManager) << "Account for" << acc->url() << "using auth type" << authType;
 
     acc->_serverVersion = settings.value(QLatin1String(serverVersionC)).toString();
+    acc->_serverHasExtendedSupport = settings.value(QLatin1String(serverHasExtendedSupportC.data())).toBool();
     acc->_davUser = settings.value(QLatin1String(davUserC), "").toString();
 
     // We want to only restore settings for that auth type and the user value

@@ -135,7 +135,7 @@ private:
      *
      * Returns false and reports ServerVersionMismatch for very old servers.
      */
-    bool setAndCheckServerVersion(const QString &version);
+    bool setAndCheckServerVersion(const QString &version, bool hasExtendedSupport);
 
     QStringList _errors;
     AccountStatePtr _accountState;

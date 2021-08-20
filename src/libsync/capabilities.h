@@ -59,6 +59,7 @@ public:
     bool shareResharing() const;
     bool chunkingNg() const;
     bool userStatus() const;
+    bool hasExtendedSupport() const;
 
     /// Returns which kind of push notfications are available
     PushNotificationTypes availablePushNotifications() const;

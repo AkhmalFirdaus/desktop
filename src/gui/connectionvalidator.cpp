@@ -103,6 +103,7 @@ void ConnectionValidator::slotStatusFound(const QUrl &url, const QJsonObject &in
     // https://github.com/owncloud/core/pull/27473/files
     // so this string can be empty.
     QString serverVersion = CheckServerJob::version(info);
+    auto hasExtendedSupport = CheckServerJob::hasExtendedSupport(info);
 
     // status.php was found.
     qCInfo(lcConnectionValidator) << "** Application: ownCloud found: "
@@ -117,7 +118,7 @@ void ConnectionValidator::slotStatusFound(const QUrl &url, const QJsonObject &in
         _account->wantsAccountSaved(_account.data());
     }
 
-    if (!serverVersion.isEmpty() && !setAndCheckServerVersion(serverVersion)) {
+    if (!serverVersion.isEmpty() && !setAndCheckServerVersion(serverVersion, hasExtendedSupport)) {
         return;
     }
 
@@ -236,8 +237,9 @@ void ConnectionValidator::slotCapabilitiesRecieved(const QJsonDocument &json)
     _account->setCapabilities(caps.toVariantMap());
 
     // New servers also report the version in the capabilities
-    QString serverVersion = caps["core"].toObject()["status"].toObject()["version"].toString();
-    if (!serverVersion.isEmpty() && !setAndCheckServerVersion(serverVersion)) {
+    auto serverVersion = caps["core"].toObject()["status"].toObject()["version"].toString();
+    auto hasExtendedSupport = caps["core"].toObject()["status"].toObject()["extendedSupport"].toBool();
+    if (!serverVersion.isEmpty() && !setAndCheckServerVersion(serverVersion, hasExtendedSupport)) {
         return;
     }
 
@@ -256,10 +258,11 @@ void ConnectionValidator::fetchUser()
     userInfo->setActive(true);
 }
 
-bool ConnectionValidator::setAndCheckServerVersion(const QString &version)
+bool ConnectionValidator::setAndCheckServerVersion(const QString &version, bool hasExtendedSupport)
 {
     qCInfo(lcConnectionValidator) << _account->url() << "has server version" << version;
     _account->setServerVersion(version);
+    _account->setServerHasExtendedSupport(hasExtendedSupport);
 
     // We cannot deal with servers < 7.0.0
     if (_account->serverVersionInt()

@@ -566,7 +566,7 @@ bool Account::serverVersionUnsupported() const
         // not detected yet, assume it is fine.
         return false;
     }
-    return serverVersionInt() < makeServerVersion(NEXTCLOUD_SERVER_VERSION_MIN_SUPPORTED_MAJOR,
+    return !_serverHasExtendedSupport && serverVersionInt() < makeServerVersion(NEXTCLOUD_SERVER_VERSION_MIN_SUPPORTED_MAJOR,
                NEXTCLOUD_SERVER_VERSION_MIN_SUPPORTED_MINOR, NEXTCLOUD_SERVER_VERSION_MIN_SUPPORTED_PATCH);
 }
 
@@ -579,6 +579,16 @@ void Account::setServerVersion(const QString &version)
     auto oldServerVersion = _serverVersion;
     _serverVersion = version;
     emit serverVersionChanged(this, oldServerVersion, version);
+}
+
+void Account::setServerHasExtendedSupport(bool hasExtendedSupport)
+{
+    if (hasExtendedSupport == _serverHasExtendedSupport) {
+        return;
+    }
+
+    _serverHasExtendedSupport = hasExtendedSupport;
+    emit serverHasExtendedSupportChanged(this, _serverHasExtendedSupport);
 }
 
 void Account::writeAppPasswordOnce(QString appPassword){

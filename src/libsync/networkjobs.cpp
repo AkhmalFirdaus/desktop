@@ -468,6 +468,11 @@ bool CheckServerJob::installed(const QJsonObject &info)
     return info.value(QLatin1String("installed")).toBool();
 }
 
+bool CheckServerJob::hasExtendedSupport(const QJsonObject &info)
+{
+    return info.value(QLatin1String("extendedSupport")).toBool();
+}
+
 static void mergeSslConfigurationForSslButton(const QSslConfiguration &config, AccountPtr account)
 {
     if (config.peerCertificateChain().length() > 0) {

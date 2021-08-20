@@ -258,6 +258,7 @@ void OwncloudSetupWizard::slotFindServerBehindRedirect()
 void OwncloudSetupWizard::slotFoundServer(const QUrl &url, const QJsonObject &info)
 {
     auto serverVersion = CheckServerJob::version(info);
+    auto serverHasExtendedSupport = CheckServerJob::hasExtendedSupport(info);
 
     _ocWizard->appendToConfigurationLog(tr("<font color=\"green\">Successfully connected to %1: %2 version %3 (%4)</font><br/><br/>")
                                             .arg(Utility::escape(url.toString()),
@@ -268,6 +269,7 @@ void OwncloudSetupWizard::slotFoundServer(const QUrl &url, const QJsonObject &in
     // Note with newer servers we get the version actually only later in capabilities
     // https://github.com/owncloud/core/pull/27473/files
     _ocWizard->account()->setServerVersion(serverVersion);
+    _ocWizard->account()->setServerHasExtendedSupport(serverHasExtendedSupport);
 
     if (url != _ocWizard->account()->url()) {
         // We might be redirected, update the account

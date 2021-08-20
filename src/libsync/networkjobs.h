@@ -293,6 +293,7 @@ public:
     static QString version(const QJsonObject &info);
     static QString versionString(const QJsonObject &info);
     static bool installed(const QJsonObject &info);
+    static bool hasExtendedSupport(const QJsonObject &info);
 
 signals:
     /** Emitted when a status.php was successfully read.
@@ -420,10 +421,10 @@ signals:
      * @param statusCode - the OCS status code: 100 (!) for success
      */
     void etagResponseHeaderReceived(const QByteArray &value, int statusCode);
-    
+
     /**
      * @brief desktopNotificationStatusReceived - signal to report if notifications are allowed
-     * @param status - set desktop notifications allowed status 
+     * @param status - set desktop notifications allowed status
      */
     void allowDesktopNotificationsChanged(bool isAllowed);
 

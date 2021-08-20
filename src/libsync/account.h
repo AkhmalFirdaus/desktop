@@ -211,6 +211,8 @@ public:
     static int makeServerVersion(int majorVersion, int minorVersion, int patchVersion);
     void setServerVersion(const QString &version);
 
+    void setServerHasExtendedSupport(bool hasExtendedSupport);
+
     /** Whether the server is too old.
      *
      * Not supporting server versions is a gradual process. There's a hard
@@ -278,6 +280,8 @@ signals:
 
     void serverVersionChanged(Account *account, const QString &newVersion, const QString &oldVersion);
 
+    void serverHasExtendedSupportChanged(Account *account, bool hasExtendedSupport);
+
     void accountChangedAvatar();
     void accountChangedDisplayName();
 
@@ -319,6 +323,7 @@ private:
     QSslConfiguration _sslConfiguration;
     Capabilities _capabilities;
     QString _serverVersion;
+    bool _serverHasExtendedSupport;
     QScopedPointer<AbstractSslErrorHandler> _sslErrorHandler;
     QSharedPointer<QNetworkAccessManager> _am;
     QScopedPointer<AbstractCredentials> _credentials;

@@ -399,11 +399,15 @@ void Application::slotAccountStateRemoved(AccountState *accountState)
             _gui.data(), &ownCloudGui::slotAccountStateChanged);
         disconnect(accountState->account().data(), &Account::serverVersionChanged,
             _gui.data(), &ownCloudGui::slotTrayMessageIfServerUnsupported);
+        disconnect(accountState->account().data(), &Account::serverHasExtendedSupportChanged,
+            _gui.data(), &ownCloudGui::slotTrayMessageIfServerUnsupported);
     }
     if (_folderManager) {
         disconnect(accountState, &AccountState::stateChanged,
             _folderManager.data(), &FolderMan::slotAccountStateChanged);
         disconnect(accountState->account().data(), &Account::serverVersionChanged,
+            _folderManager.data(), &FolderMan::slotServerVersionChanged);
+        disconnect(accountState->account().data(), &Account::serverHasExtendedSupportChanged,
             _folderManager.data(), &FolderMan::slotServerVersionChanged);
     }
 
@@ -421,9 +425,13 @@ void Application::slotAccountStateAdded(AccountState *accountState)
         _gui.data(), &ownCloudGui::slotAccountStateChanged);
     connect(accountState->account().data(), &Account::serverVersionChanged,
         _gui.data(), &ownCloudGui::slotTrayMessageIfServerUnsupported);
+    connect(accountState->account().data(), &Account::serverHasExtendedSupportChanged,
+        _gui.data(), &ownCloudGui::slotTrayMessageIfServerUnsupported);
     connect(accountState, &AccountState::stateChanged,
         _folderManager.data(), &FolderMan::slotAccountStateChanged);
     connect(accountState->account().data(), &Account::serverVersionChanged,
+        _folderManager.data(), &FolderMan::slotServerVersionChanged);
+    connect(accountState->account().data(), &Account::serverHasExtendedSupportChanged,
         _folderManager.data(), &FolderMan::slotServerVersionChanged);
 
     _gui->slotTrayMessageIfServerUnsupported(accountState->account().data());
