@@ -39,26 +39,32 @@ class InvalidFilenameDialog;
 class ActivityListModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    Q_PROPERTY(AccountState *accountState READ accountState CONSTANT)
 public:
     enum DataRole {
-    ActionIconRole = Qt::UserRole + 1,
-    UserIconRole,
-    AccountRole,
-    ObjectTypeRole,
-    ActionsLinksRole,
-    ActionTextRole,
-    ActionTextColorRole,
-    ActionRole,
-    MessageRole,
-    DisplayPathRole,
-    PathRole,
-    AbsolutePathRole,
-    LinkRole,
-    PointInTimeRole,
-    AccountConnectedRole,
-    SyncFileStatusRole};
+        ActionIconRole = Qt::UserRole + 1,
+        UserIconRole,
+        AccountRole,
+        ObjectTypeRole,
+        ActionsLinksRole,
+        ActionTextRole,
+        ActionTextColorRole,
+        ActionRole,
+        MessageRole,
+        DisplayPathRole,
+        PathRole,
+        AbsolutePathRole,
+        LinkRole,
+        PointInTimeRole,
+        AccountConnectedRole,
+        SyncFileStatusRole,
+        DisplayActions
+    };
 
-    explicit ActivityListModel(AccountState *accountState, QObject* parent = nullptr);
+    explicit ActivityListModel(QObject *parent = nullptr);
+
+    explicit ActivityListModel(AccountState *accountState, QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -79,22 +85,28 @@ public:
     Q_INVOKABLE void triggerDefaultAction(int activityIndex);
     Q_INVOKABLE void triggerAction(int activityIndex, int actionIndex);
 
+    AccountState *accountState() const;
+
 public slots:
     void slotRefreshActivity();
     void slotRemoveAccount();
-
-private slots:
-    void slotActivitiesReceived(const QJsonDocument &json, int statusCode);
 
 signals:
     void activityJobStatusCode(int statusCode);
     void sendNotificationRequest(const QString &accountName, const QString &link, const QByteArray &verb, int row);
 
 protected:
+    void slotActivitiesReceived(const QJsonDocument &json, int statusCode);
     QHash<int, QByteArray> roleNames() const override;
 
+    AccountState *_accountState = nullptr;
+    bool _currentlyFetching = false;
+    bool _doneFetching = false;
+    bool _hideOldActivities = true;
+    bool _displayActions = true;
+
 private:
-    void startFetchJob();
+    virtual void startFetchJob();
     void combineActivityLists();
     bool canFetchActivities() const;
 
@@ -105,9 +117,6 @@ private:
     Activity _notificationIgnoredFiles;
     ActivityList _notificationErrorsLists;
     ActivityList _finalList;
-    AccountState *_accountState;
-    bool _currentlyFetching = false;
-    bool _doneFetching = false;
     int _currentItem = 0;
 
     int _totalActivitiesFetched = 0;

@@ -45,6 +45,13 @@ Window {
         userLineInstantiator.active = true;
     }
 
+    function openFileActivityDialog(displayPath, absolutePath) {
+        fileActivityDialogLoader.source = "qrc:/qml/src/gui/tray/FileActivityDialog.qml";
+        fileActivityDialogLoader.item.title =  displayPath + qsTr(" - File activity")
+        fileActivityDialogLoader.item.model.load(activityModel.accountState, absolutePath)
+        fileActivityDialogLoader.item.show()            
+    }
+
     Connections {
         target: UserModel
         function onNewUserSelected() {
@@ -69,6 +76,10 @@ Window {
         function onHideWindow() {
             trayWindow.hide();
             Systray.setClosed();
+        }
+
+        function onShowFileActivityDialog(displayPath, absolutePath) {
+            openFileActivityDialog(displayPath, absolutePath)
         }
     }
 
@@ -553,31 +564,20 @@ Window {
             }
         }   // Rectangle trayWindowHeaderBackground
 
-        ListView {
-            id: activityListView
-            anchors.top: trayWindowHeaderBackground.bottom
-            anchors.left: trayWindowBackground.left
-            anchors.right: trayWindowBackground.right
-            anchors.bottom: trayWindowBackground.bottom
-            clip: true
-            ScrollBar.vertical: ScrollBar {
-                id: listViewScrollbar
-            }
+       ActivityList {
+           anchors.top: trayWindowHeaderBackground.bottom
+           anchors.left: trayWindowBackground.left
+           anchors.right: trayWindowBackground.right
+           anchors.bottom: trayWindowBackground.bottom
+           
+           activityListModel: activityModel
+           onShowFileActivity: {
+               openFileActivityDialog(displayPath, absolutePath)
+           }
+       }
 
-            readonly property int maxActionButtons: 2
-
-            keyNavigationEnabled: true
-
-            Accessible.role: Accessible.List
-            Accessible.name: qsTr("Activity list")
-
-            model: activityModel
-
-            delegate: ActivityItem {  
-                width: activityListView.width
-                height: Style.trayWindowHeaderHeight
-                onClicked: activityModel.triggerDefaultAction(model.index)
-            }
+        Loader {
+            id: fileActivityDialogLoader
         }
-    }       // Rectangle trayWindowBackground
+    } // Rectangle trayWindowBackground
 }
