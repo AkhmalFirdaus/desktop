@@ -1,0 +1,41 @@
+diff --git a/shell_integration/dolphin/CMakeLists.txt b/shell_integration/dolphin/CMakeLists.txt
+index 60a38e389..f2fda6e1d 100644
+--- a/shell_integration/dolphin/CMakeLists.txt
++++ b/shell_integration/dolphin/CMakeLists.txt
+@@ -2,7 +2,7 @@ project(dolphin-owncloud)
+
+ cmake_minimum_required(VERSION 2.8.12)
+
+-set(QT_MIN_VERSION "5.15.0")
++set(QT_MIN_VERSION "5.12.0")
+ set(KF5_MIN_VERSION "5.16.0")
+ set(KDE_INSTALL_USE_QT_SYS_PATHS ON CACHE BOOL "Install the plugin in the right directory")
+
+diff --git a/shell_integration/libcloudproviders/CMakeLists.txt b/shell_integration/libcloudproviders/CMakeLists.txt
+index d5391a7a4..1dd464d25 100644
+--- a/shell_integration/libcloudproviders/CMakeLists.txt
++++ b/shell_integration/libcloudproviders/CMakeLists.txt
+@@ -41,7 +41,7 @@ macro(libcloudproviders_add_config _sources)
+ endmacro(libcloudproviders_add_config _sources)
+
+
+-find_package(Qt5 5.15 COMPONENTS DBus)
++find_package(Qt5 5.12 COMPONENTS DBus)
+ IF (Qt5DBus_FOUND)
+     STRING(TOLOWER "${APPLICATION_VENDOR}" DBUS_VENDOR)
+     STRING(REGEX REPLACE "[^A-z0-9]" "" DBUS_VENDOR "${DBUS_VENDOR}")
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 9cd372905..1a6e5daec 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -4,8 +4,8 @@ endif()
+
+ include(ECMEnableSanitizers)
+
+-find_package(Qt5 5.15 COMPONENTS Core Network Xml Concurrent REQUIRED)
+-find_package(Qt5 5.15 COMPONENTS WebEngineWidgets WebEngine)
++find_package(Qt5 5.12 COMPONENTS Core Network Xml Concurrent REQUIRED)
++find_package(Qt5 5.12 COMPONENTS WebEngineWidgets WebEngine)
+
+ if(Qt5WebEngine_FOUND AND Qt5WebEngineWidgets_FOUND)
+   add_compile_definitions(WITH_WEBENGINE=1)

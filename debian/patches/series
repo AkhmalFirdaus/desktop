@@ -2,3 +2,4 @@
 0003-use_system_buildflags.patch
 0004-sane-cmake.patch
 0005-inkscape-switch.patch
+0006-qt512.patch
