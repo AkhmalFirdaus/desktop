@@ -39,3 +39,26 @@ index 9cd372905..1a6e5daec 100644
 
  if(Qt5WebEngine_FOUND AND Qt5WebEngineWidgets_FOUND)
    add_compile_definitions(WITH_WEBENGINE=1)
+--- a/src/common/syncjournaldb.cpp
++++ b/src/common/syncjournaldb.cpp
+@@ -93,6 +93,7 @@ static QByteArray defaultJournalMode(const QString &dbPath)
+ SyncJournalDb::SyncJournalDb(const QString &dbFilePath, QObject *parent)
+     : QObject(parent)
+     , _dbFile(dbFilePath)
++    , _mutex(QMutex::Recursive)
+     , _transaction(0)
+     , _metadataTableIsEmpty(false)
+ {
+diff --git a/src/common/syncjournaldb.h b/src/common/syncjournaldb.h
+index ba4c0ede8..8436d4775 100644
+--- a/src/common/syncjournaldb.h
++++ b/src/common/syncjournaldb.h
+@@ -393,8 +393,8 @@ private:
+
+     SqlDatabase _db;
+     QString _dbFile;
+-    QRecursiveMutex _mutex; // Public functions are protected with the mutex.
++    QMutex _mutex; // Public functions are protected with the mutex.
+     QMap<QByteArray, int> _checksymTypeCache;
+     int _transaction;
+     bool _metadataTableIsEmpty;
