@@ -62,3 +62,56 @@ index ba4c0ede8..8436d4775 100644
      QMap<QByteArray, int> _checksymTypeCache;
      int _transaction;
      bool _metadataTableIsEmpty;
+
+--- a/src/common/utility_unix.cpp
++++ b/src/common/utility_unix.cpp
+@@ -90,7 +90,7 @@ void setLaunchOnStartup_private(const QString &appName, const QString &guiName,
+            << QLatin1String("Type=") << QLatin1String("Application\n")
+            << QLatin1String("StartupNotify=") << "false\n"
+            << QLatin1String("X-GNOME-Autostart-enabled=") << "true\n"
+-           << QLatin1String("X-GNOME-Autostart-Delay=10") << Qt::endl;
++           << QLatin1String("X-GNOME-Autostart-Delay=10") << endl;
+     } else {
+         if (!QFile::remove(desktopFileLocation)) {
+             qCWarning(lcUtility) << "Could not remove autostart desktop file";
+diff --git a/src/libsync/logger.cpp b/src/libsync/logger.cpp
+index 8aa0360c2..571f17ac4 100644
+--- a/src/libsync/logger.cpp
++++ b/src/libsync/logger.cpp
+@@ -92,7 +92,7 @@ void Logger::doLog(QtMsgType type, const QMessageLogContext &ctx, const QString
+         _crashLogIndex = (_crashLogIndex + 1) % CrashLogSize;
+         _crashLog[_crashLogIndex] = msg;
+         if (_logstream) {
+-            (*_logstream) << msg << Qt::endl;
++            (*_logstream) << msg << endl;
+             if (_doFileFlush)
+                 _logstream->flush();
+         }
+diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
+index c4e6e83b7..e443e454a 100644
+--- a/src/libsync/theme.cpp
++++ b/src/libsync/theme.cpp
+@@ -705,17 +705,17 @@ QString Theme::versionSwitchOutput() const
+     QTextStream stream(&helpText);
+     stream << appName()
+            << QLatin1String(" version ")
+-           << version() << Qt::endl;
++           << version() << endl;
+ #ifdef GIT_SHA1
+-    stream << "Git revision " << GIT_SHA1 << Qt::endl;
++    stream << "Git revision " << GIT_SHA1 << endl;
+ #endif
+-    stream << "Using Qt " << qVersion() << ", built against Qt " << QT_VERSION_STR << Qt::endl;
++    stream << "Using Qt " << qVersion() << ", built against Qt " << QT_VERSION_STR << endl;
+
+     if(!QGuiApplication::platformName().isEmpty())
+-        stream << "Using Qt platform plugin '" << QGuiApplication::platformName() << "'" << Qt::endl;
++        stream << "Using Qt platform plugin '" << QGuiApplication::platformName() << "'" << endl;
+
+-    stream << "Using '" << QSslSocket::sslLibraryVersionString() << "'" << Qt::endl;
+-    stream << "Running on " << Utility::platformName() << ", " << QSysInfo::currentCpuArchitecture() << Qt::endl;
++    stream << "Using '" << QSslSocket::sslLibraryVersionString() << "'" << endl;
++    stream << "Running on " << Utility::platformName() << ", " << QSysInfo::currentCpuArchitecture() << endl;
+     return helpText;
+ }
+ 
