@@ -9,6 +9,7 @@ ListView {
     id: activityList
 
     property NC.ActivityListModel activityListModel;
+    readonly property int maxActionButtons: 2
 
     signal showFileActivity(string displayPath, string absolutePath)
 
@@ -17,7 +18,6 @@ ListView {
         id: listViewScrollbar
     }
 
-    readonly property int maxActionButtons: 2
     keyNavigationEnabled: true
 
     Accessible.role: Accessible.List

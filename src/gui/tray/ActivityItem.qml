@@ -159,7 +159,7 @@ MouseArea {
                     color: parent.hovered ? Style.lightHover : "transparent"
                 }
                 ToolTip.visible: hovered
-                ToolTip.delay: 1000
+                ToolTip.delay: Qt.styleHints.mousePressAndHoldInterval
                 ToolTip.text: qsTr("Open share dialog")
                 onClicked: Systray.openShareDialog(displayPath, absolutePath)
                 

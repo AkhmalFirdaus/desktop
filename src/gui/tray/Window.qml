@@ -24,6 +24,13 @@ Window {
 
     readonly property int maxMenuHeight: Style.trayWindowHeight - Style.trayWindowHeaderHeight - 2 * Style.trayWindowBorderWidth
 
+    function openFileActivityDialog(displayPath, absolutePath) {
+        fileActivityDialogLoader.source = "qrc:/qml/src/gui/tray/FileActivityDialog.qml";
+        fileActivityDialogLoader.item.title =  displayPath + qsTr(" - File activity")
+        fileActivityDialogLoader.item.model.load(activityModel.accountState, absolutePath)
+        fileActivityDialogLoader.item.show()            
+    }
+
     Component.onCompleted: Systray.forceWindowInit(trayWindow)
 
     // Close tray window when focus is lost (e.g. click somewhere else on the screen)
@@ -43,13 +50,6 @@ Window {
         // see also id:accountMenu below
         userLineInstantiator.active = false;
         userLineInstantiator.active = true;
-    }
-
-    function openFileActivityDialog(displayPath, absolutePath) {
-        fileActivityDialogLoader.source = "qrc:/qml/src/gui/tray/FileActivityDialog.qml";
-        fileActivityDialogLoader.item.title =  displayPath + qsTr(" - File activity")
-        fileActivityDialogLoader.item.model.load(activityModel.accountState, absolutePath)
-        fileActivityDialogLoader.item.show()            
     }
 
     Connections {

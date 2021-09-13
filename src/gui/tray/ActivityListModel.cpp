@@ -262,7 +262,7 @@ void ActivityListModel::startFetchJob()
     }
     auto *job = new JsonApiJob(_accountState->account(), QLatin1String("ocs/v2.php/apps/activity/api/v2/activity"), this);
     QObject::connect(job, &JsonApiJob::jsonReceived,
-        this, &ActivityListModel::slotActivitiesReceived);
+        this, &ActivityListModel::activitiesReceived);
 
     QUrlQuery params;
     params.addQueryItem(QLatin1String("since"), QString::number(_currentItem));
@@ -274,7 +274,7 @@ void ActivityListModel::startFetchJob()
     job->start();
 }
 
-void ActivityListModel::slotActivitiesReceived(const QJsonDocument &json, int statusCode)
+void ActivityListModel::activitiesReceived(const QJsonDocument &json, int statusCode)
 {
     auto activities = json.object().value("ocs").toObject().value("data").toArray();
 

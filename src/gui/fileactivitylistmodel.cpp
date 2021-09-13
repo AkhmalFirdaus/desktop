@@ -39,7 +39,7 @@ void FileActivityListModel::load(AccountState *accountState, const QString &loca
 
     const auto file = localPath.mid(folder->cleanPath().length() + 1);
     SyncJournalFileRecord fileRecord;
-    if (!folder->journalDb()->getFileRecord(file, &fileRecord) && fileRecord.isValid()) {
+    if (!folder->journalDb()->getFileRecord(file, &fileRecord) || !fileRecord.isValid()) {
         return;
     }
 
@@ -56,7 +56,7 @@ void FileActivityListModel::startFetchJob()
     const QString url(QStringLiteral("ocs/v2.php/apps/activity/api/v2/activity/filter"));
     auto job = new JsonApiJob(_accountState->account(), url, this);
     QObject::connect(job, &JsonApiJob::jsonReceived,
-        this, &FileActivityListModel::slotActivitiesReceived);
+        this, &FileActivityListModel::activitiesReceived);
 
     QUrlQuery params;
     params.addQueryItem(QStringLiteral("sort"), QStringLiteral("asc"));
