@@ -115,3 +115,146 @@ index c4e6e83b7..e443e454a 100644
      return helpText;
  }
  
+diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
+index d0cfe36e4..574e173c9 100644
+--- a/src/libsync/account.cpp
++++ b/src/libsync/account.cpp
+@@ -48,7 +48,6 @@
+ #include <QJsonArray>
+ #include <QLoggingCategory>
+ 
+-#include <qsslconfiguration.h>
+ #include <qt5keychain/keychain.h>
+ #include "creds/abstractcredentials.h"
+ 
+@@ -395,7 +394,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+ void Account::setApprovedCerts(const QList<QSslCertificate> certs)
+ {
+     _approvedCerts = certs;
+-    QSslConfiguration::defaultConfiguration().addCaCertificates(certs);
++    QSslSocket::addDefaultCaCertificates(certs);
+ }
+ 
+ void Account::addApprovedCerts(const QList<QSslCertificate> certs)
+@@ -487,7 +486,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
+             return;
+ 
+         if (!approvedCerts.isEmpty()) {
+-            QSslConfiguration::defaultConfiguration().addCaCertificates(approvedCerts);
++            QSslSocket::addDefaultCaCertificates(approvedCerts);
+             addApprovedCerts(approvedCerts);
+             emit wantsAccountSaved(this);
+ 
+diff --git a/src/cmd/cmd.cpp b/src/cmd/cmd.cpp
+index da092807b..c4bf73a9c 100644
+--- a/src/cmd/cmd.cpp
++++ b/src/cmd/cmd.cpp
+@@ -296,9 +296,9 @@ void selectiveSyncFixup(OCC::SyncJournalDb *journal, const QStringList &newList)
+     bool ok = false;
+ 
+     const auto selectiveSyncList = journal->getSelectiveSyncList(SyncJournalDb::SelectiveSyncBlackList, &ok);
+-    const QSet<QString> oldBlackListSet(selectiveSyncList.begin(), selectiveSyncList.end());
++    const QSet<QString> oldBlackListSet = selectiveSyncList.toSet();
+     if (ok) {
+-        const QSet<QString> blackListSet(newList.begin(), newList.end());
++        const QSet<QString> blackListSet = newList.toSet();
+         const auto changes = (oldBlackListSet - blackListSet) + (blackListSet - oldBlackListSet);
+         for (const auto &it : changes) {
+             journal->schedulePathForRemoteDiscovery(it);
+diff --git a/src/libsync/ocsuserstatusconnector.cpp b/src/libsync/ocsuserstatusconnector.cpp
+index 95f3810e2..15e064326 100644
+--- a/src/libsync/ocsuserstatusconnector.cpp
++++ b/src/libsync/ocsuserstatusconnector.cpp
+@@ -110,10 +110,10 @@ quint64 clearAtEndOfToTimestamp(const OCC::ClearAt &clearAt)
+     Q_ASSERT(clearAt._type == OCC::ClearAtType::EndOf);
+ 
+     if (clearAt._endof == "day") {
+-        return QDate::currentDate().addDays(1).startOfDay().toTime_t();
++        return QDateTime(QDate::currentDate().addDays(1)).toTime_t();
+     } else if (clearAt._endof == "week") {
+         const auto days = Qt::Sunday - QDate::currentDate().dayOfWeek();
+-        return QDate::currentDate().addDays(days + 1).startOfDay().toTime_t();
++        return QDateTime(QDate::currentDate().addDays(days + 1)).toTime_t();
+     }
+     qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
+     return QDateTime::currentDateTime().toTime_t();
+diff --git a/src/libsync/syncengine.cpp b/src/libsync/syncengine.cpp
+index 38f49785a..c25967b14 100644
+--- a/src/libsync/syncengine.cpp
++++ b/src/libsync/syncengine.cpp
+@@ -690,11 +690,7 @@ void SyncEngine::slotDiscoveryFinished()
+             const QString script = qEnvironmentVariable("OWNCLOUD_POST_UPDATE_SCRIPT");
+ 
+             qCDebug(lcEngine) << "Post Update Script: " << script;
+-            auto scriptArgs = script.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+-            if (scriptArgs.size() > 0) {
+-                const auto scriptExecutable = scriptArgs.takeFirst();
+-                QProcess::execute(scriptExecutable, scriptArgs);
+-            }
++            QProcess::execute(script);
+ #else
+             qCWarning(lcEngine) << "**** Attention: POST_UPDATE_SCRIPT installed, but not executed because compiled with NDEBUG";
+     #endif
+diff --git a/src/libsync/syncfilestatustracker.cpp b/src/libsync/syncfilestatustracker.cpp
+index 9c4ae0e8c..276bc4f8d 100644
+--- a/src/libsync/syncfilestatustracker.cpp
++++ b/src/libsync/syncfilestatustracker.cpp
+@@ -339,7 +339,7 @@ SyncFileStatus SyncFileStatusTracker::resolveSyncAndErrorStatus(const QString &r
+ 
+ void SyncFileStatusTracker::invalidateParentPaths(const QString &path)
+ {
+-    QStringList splitPath = path.split('/', Qt::SkipEmptyParts);
++    QStringList splitPath = path.split('/', QString::SkipEmptyParts);
+     for (int i = 0; i < splitPath.size(); ++i) {
+         QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
+         emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
+diff --git a/test/syncenginetestutils.cpp b/test/syncenginetestutils.cpp
+index 7b5caa94a..001791af2 100644
+--- a/test/syncenginetestutils.cpp
++++ b/test/syncenginetestutils.cpp
+@@ -20,7 +20,7 @@ PathComponents::PathComponents(const char *path)
+ }
+ 
+ PathComponents::PathComponents(const QString &path)
+-    : QStringList { path.split(QLatin1Char('/'), Qt::SkipEmptyParts) }
++    : QStringList { path.split(QLatin1Char('/'), QString::SkipEmptyParts) }
+ {
+ }
+ 
+@@ -796,7 +796,7 @@ void FakeHangingReply::abort()
+     // Follow more or less the implementation of QNetworkReplyImpl::abort
+     close();
+     setError(OperationCanceledError, tr("Operation canceled"));
+-    emit errorOccurred(OperationCanceledError);
++    emit error(OperationCanceledError);
+     setFinished(true);
+     emit finished();
+ }
+diff --git a/test/testcookies.cpp b/test/testcookies.cpp
+index eead47953..a5053abd9 100644
+--- a/test/testcookies.cpp
++++ b/test/testcookies.cpp
+@@ -21,7 +21,7 @@ private slots:
+         const QString nonexistingPath = tmp.filePath("someNonexistingDir/test.db");
+         QNetworkCookie cookieA = QNetworkCookie("foo", "bar");
+         // tomorrow rounded
+-        cookieA.setExpirationDate(QDateTime::currentDateTimeUtc().addDays(1).date().startOfDay());
++        cookieA.setExpirationDate(QDateTime(QDateTime::currentDateTimeUtc().addDays(1).date()));
+         const QList<QNetworkCookie> cookies = {cookieA, QNetworkCookie("foo2", "bar")};
+         CookieJar jar;
+         jar.setAllCookies(cookies);
+diff --git a/test/testiconutils.cpp b/test/testiconutils.cpp
+index a25e9f0e6..4a026276e 100644
+--- a/test/testiconutils.cpp
++++ b/test/testiconutils.cpp
+@@ -47,8 +47,8 @@ private slots:
+             QVERIFY(!OCC::Ui::IconUtils::pixmapForBackground(blackImages.at(0), QColor("yellow")).isNull());
+         }
+ 
+-        const auto blackImagesExclusive = QSet<QString>(blackImages.begin(), blackImages.end()).subtract(QSet<QString>(whiteImages.begin(), whiteImages.end()));
+-        const auto whiteImagesExclusive = QSet<QString>(whiteImages.begin(), whiteImages.end()).subtract(QSet<QString>(blackImages.begin(), blackImages.end()));
++        const auto blackImagesExclusive = blackImages.toSet().subtract(whiteImages.toSet());
++        const auto whiteImagesExclusive = whiteImages.toSet().subtract(blackImages.toSet());
+ 
+         if (blackImagesExclusive != whiteImagesExclusive) {
+             // black pixmap for dark background - should fail as we don't have this image in black
