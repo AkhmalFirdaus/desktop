@@ -26,7 +26,8 @@ class FileActivityListModel : public ActivityListModel
 public:
     explicit FileActivityListModel(QObject *parent = nullptr);
 
-    Q_INVOKABLE void load(AccountState *accountState, const QString &fileId);
+public slots:
+    void load(AccountState *accountState, const QString &fileId);
 
 private:
     void startFetchJob() override;
