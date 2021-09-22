@@ -570,7 +570,8 @@ Window {
            anchors.right: trayWindowBackground.right
            anchors.bottom: trayWindowBackground.bottom
            
-           activityListModel: activityModel
+           /* activityListModel: activityModel */
+           model: activityModel
            onShowFileActivity: {
                openFileActivityDialog(displayPath, absolutePath)
            }

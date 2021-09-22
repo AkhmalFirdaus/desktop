@@ -8,6 +8,8 @@ import com.nextcloud.desktopclient 1.0
 MouseArea {
     id: activityMouseArea
 
+    readonly property int maxActionButtons: 2
+
     signal fileActivityButtonClicked(string absolutePath)
 
     enabled: (path !== "" || link !== "")

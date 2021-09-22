@@ -45,9 +45,11 @@ ActivityListModel::ActivityListModel(QObject *parent)
 {
 }
 
-ActivityListModel::ActivityListModel(AccountState *accountState, QObject *parent)
+ActivityListModel::ActivityListModel(AccountState *accountState, bool displayActions,
+    QObject *parent)
     : QAbstractListModel(parent)
     , _accountState(accountState)
+    , _displayActions(displayActions)
 {
 }
 

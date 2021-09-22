@@ -65,7 +65,8 @@ public:
 
     explicit ActivityListModel(QObject *parent = nullptr);
 
-    explicit ActivityListModel(AccountState *accountState, QObject *parent = nullptr);
+    explicit ActivityListModel(AccountState *accountState, bool displayActions = true,
+        QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -104,7 +105,6 @@ protected:
     bool _currentlyFetching = false;
     bool _doneFetching = false;
     bool _hideOldActivities = true;
-    bool _displayActions = true;
 
 private:
     virtual void startFetchJob();
@@ -119,6 +119,8 @@ private:
     ActivityList _notificationErrorsLists;
     ActivityList _finalList;
     int _currentItem = 0;
+
+    bool _displayActions = true;
 
     int _totalActivitiesFetched = 0;
     int _maxActivities = 100;

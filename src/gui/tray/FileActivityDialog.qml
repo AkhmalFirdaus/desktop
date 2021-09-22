@@ -12,6 +12,6 @@ Window {
 
     ActivityList {
         anchors.fill: parent
-        activityListModel: dialog.model
+        model: dialog.model
     }
 }

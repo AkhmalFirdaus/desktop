@@ -19,9 +19,8 @@
 namespace OCC {
 
 FileActivityListModel::FileActivityListModel(QObject *parent)
-    : ActivityListModel(nullptr, parent)
+    : ActivityListModel(nullptr, false, parent)
 {
-    _displayActions = false;
 }
 
 void FileActivityListModel::load(AccountState *accountState, const QString &localPath)
