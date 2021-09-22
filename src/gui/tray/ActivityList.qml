@@ -9,6 +9,7 @@ ListView {
     id: activityList
 
     signal showFileActivity(string displayPath, string absolutePath)
+    signal activityItemClicked(int index)
 
     ScrollBar.vertical: ScrollBar {
         id: listViewScrollbar
@@ -22,7 +23,8 @@ ListView {
     delegate: ActivityItem {
         width: activityList.width
         height: Style.trayWindowHeaderHeight
-        onClicked: activityListModel.triggerDefaultAction(model.index)
+        flickable: activityList
+        onClicked: activityItemClicked(model.index)
         onFileActivityButtonClicked: showFileActivity(displayPath, absolutePath)
     }
 }

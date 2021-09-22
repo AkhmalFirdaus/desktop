@@ -9,6 +9,7 @@ MouseArea {
     id: activityMouseArea
 
     readonly property int maxActionButtons: 2
+    property Flickable flickable
 
     signal fileActivityButtonClicked(string absolutePath)
 
@@ -111,7 +112,7 @@ MouseArea {
             }
             
             Repeater {
-                model: activityItem.links.length > activityList.maxActionButtons ? 1 : activityItem.links.length
+                model: activityItem.links.length > maxActionButtons ? 1 : activityItem.links.length
                 
                 ActivityActionButton {
                     id: activityActionButton
@@ -179,7 +180,7 @@ MouseArea {
                 
                 flat: true
                 hoverEnabled: true
-                visible: displayActions && ((path !== "") || (activityItem.links.length > activityList.maxActionButtons))
+                visible: displayActions && ((path !== "") || (activityItem.links.length > maxActionButtons))
                 display: AbstractButton.IconOnly
                 icon.source: "qrc:///client/theme/more.svg"
                 icon.color: "transparent"
@@ -197,7 +198,7 @@ MouseArea {
                 onClicked:  moreActionsButtonContextMenu.popup();
                 
                 Connections {
-                    target: activityList
+                    target: flickable
                     
                     function onMovementStarted() {
                         moreActionsButtonContextMenu.close();
@@ -220,7 +221,7 @@ MouseArea {
                         // transform model to contain indexed actions with primary action filtered out
                         function actionListToContextMenuList(actionList) {
                             // early out with non-altered data
-                            if (activityItem.links.length <= activityList.maxActionButtons) {
+                            if (activityItem.links.length <= maxActionButtons) {
                                 return actionList;
                             }
                             

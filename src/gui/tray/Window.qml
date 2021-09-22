@@ -575,6 +575,9 @@ Window {
            onShowFileActivity: {
                openFileActivityDialog(displayPath, absolutePath)
            }
+           onActivityItemClicked: {
+               model.triggerDefaultAction(index)
+           }
        }
 
         Loader {
