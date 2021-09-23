@@ -22,13 +22,13 @@ Window {
     flags:      Systray.useNormalWindow ? Qt.Window : Qt.Dialog | Qt.FramelessWindowHint
 
 
+    property var fileActivityDialogAbsolutePath: ""
     readonly property int maxMenuHeight: Style.trayWindowHeight - Style.trayWindowHeaderHeight - 2 * Style.trayWindowBorderWidth
 
     function openFileActivityDialog(displayPath, absolutePath) {
-        fileActivityDialogLoader.source = "qrc:/qml/src/gui/tray/FileActivityDialog.qml";
-        fileActivityDialogLoader.item.title =  displayPath + qsTr(" - File activity")
-        fileActivityDialogLoader.item.model.load(activityModel.accountState, absolutePath)
-        fileActivityDialogLoader.item.show()            
+        fileActivityDialogLoader.displayPath = displayPath
+        fileActivityDialogLoader.absolutePath = absolutePath
+        fileActivityDialogLoader.refresh()
     }
 
     Component.onCompleted: Systray.forceWindowInit(trayWindow)
@@ -570,7 +570,6 @@ Window {
            anchors.right: trayWindowBackground.right
            anchors.bottom: trayWindowBackground.bottom
            
-           /* activityListModel: activityModel */
            model: activityModel
            onShowFileActivity: {
                openFileActivityDialog(displayPath, absolutePath)
@@ -582,6 +581,24 @@ Window {
 
         Loader {
             id: fileActivityDialogLoader
+
+            property string displayPath: ""
+            property string absolutePath: ""
+
+            function refresh() {
+                active = true
+                item.model.load(activityModel.accountState, absolutePath)
+                item.show()            
+            }
+
+            active: false
+            sourceComponent: FileActivityDialog {
+                title: qsTr("%1 - File activity").arg(fileActivityDialogLoader.displayPath)
+            }
+
+            onLoaded: {
+                refresh()
+            }
         }
     } // Rectangle trayWindowBackground
 }
