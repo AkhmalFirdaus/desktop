@@ -23,6 +23,8 @@ ScrollView {
         Accessible.role: Accessible.List
         Accessible.name: qsTr("Activity list")
 
+        clip: true
+
         delegate: ActivityItem {
             width: activityList.contentWidth
             height: Style.trayWindowHeaderHeight
