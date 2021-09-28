@@ -59,13 +59,13 @@ public:
         PointInTimeRole,
         AccountConnectedRole,
         SyncFileStatusRole,
-        DisplayActions
+        DisplayActions,
     };
     Q_ENUM(DataRole)
 
     explicit ActivityListModel(QObject *parent = nullptr);
 
-    explicit ActivityListModel(AccountState *accountState, bool displayActions = true,
+    explicit ActivityListModel(AccountState *accountState,
         QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -101,10 +101,11 @@ protected:
     void activitiesReceived(const QJsonDocument &json, int statusCode);
     QHash<int, QByteArray> roleNames() const override;
 
-    AccountState *_accountState = nullptr;
-    bool _currentlyFetching = false;
-    bool _doneFetching = false;
-    bool _hideOldActivities = true;
+    void setAccountState(AccountState *state);
+    void setCurrentlyFetching(bool value);
+    void setDoneFetching(bool value);
+    void setHideOldActivities(bool value);
+    void setDisplayActions(bool value);
 
 private:
     virtual void startFetchJob();
@@ -129,6 +130,11 @@ private:
 
     QPointer<ConflictDialog> _currentConflictDialog;
     QPointer<InvalidFilenameDialog> _currentInvalidFilenameDialog;
+
+    AccountState *_accountState = nullptr;
+    bool _currentlyFetching = false;
+    bool _doneFetching = false;
+    bool _hideOldActivities = true;
 };
 }
 

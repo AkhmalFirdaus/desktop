@@ -45,11 +45,10 @@ ActivityListModel::ActivityListModel(QObject *parent)
 {
 }
 
-ActivityListModel::ActivityListModel(AccountState *accountState, bool displayActions,
+ActivityListModel::ActivityListModel(AccountState *accountState,
     QObject *parent)
     : QAbstractListModel(parent)
     , _accountState(accountState)
-    , _displayActions(displayActions)
 {
 }
 
@@ -70,6 +69,31 @@ QHash<int, QByteArray> ActivityListModel::roleNames() const
     roles[PointInTimeRole] = "dateTime";
     roles[DisplayActions] = "displayActions";
     return roles;
+}
+
+void ActivityListModel::setAccountState(AccountState *state)
+{
+    _accountState = state;
+}
+
+void ActivityListModel::setCurrentlyFetching(bool value)
+{
+    _currentlyFetching = value;
+}
+
+void ActivityListModel::setDoneFetching(bool value)
+{
+    _doneFetching = value;
+}
+
+void ActivityListModel::setHideOldActivities(bool value)
+{
+    _hideOldActivities = value;
+}
+
+void ActivityListModel::setDisplayActions(bool value)
+{
+    _displayActions = value;
 }
 
 QVariant ActivityListModel::data(const QModelIndex &index, int role) const

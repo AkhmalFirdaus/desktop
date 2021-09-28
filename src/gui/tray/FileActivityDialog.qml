@@ -5,8 +5,12 @@ import com.nextcloud.desktopclient 1.0 as NC
 Window {
     id: dialog
 
-    property NC.FileActivityListModel model: NC.FileActivityListModel { }
-    
+    property alias model: activityModel
+
+    NC.FileActivityListModel {
+        id: activityModel
+    }   
+
     width: 500
     height: 500
 

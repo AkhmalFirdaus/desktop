@@ -188,7 +188,7 @@ MouseArea {
                     color: parent.hovered ? Style.lightHover : "transparent"
                 }
                 ToolTip.visible: hovered
-                ToolTip.delay: 1000
+                ToolTip.delay: Qt.styleHints.mousePressAndHoldInterval
                 ToolTip.text: qsTr("Show more actions")
                 
                 Accessible.role: Accessible.Button

@@ -5,26 +5,30 @@ import Style 1.0
 
 import com.nextcloud.desktopclient 1.0 as NC
 
-ListView {
-    id: activityList
+ScrollView {
+    property alias model: activityList.model
 
     signal showFileActivity(string displayPath, string absolutePath)
     signal activityItemClicked(int index)
 
-    ScrollBar.vertical: ScrollBar {
-        id: listViewScrollbar
-    }
+    contentWidth: availableWidth
 
-    keyNavigationEnabled: true
+    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-    Accessible.role: Accessible.List
-    Accessible.name: qsTr("Activity list")
+    ListView {
+        id: activityList
 
-    delegate: ActivityItem {
-        width: activityList.width
-        height: Style.trayWindowHeaderHeight
-        flickable: activityList
-        onClicked: activityItemClicked(model.index)
-        onFileActivityButtonClicked: showFileActivity(displayPath, absolutePath)
+        keyNavigationEnabled: true
+
+        Accessible.role: Accessible.List
+        Accessible.name: qsTr("Activity list")
+
+        delegate: ActivityItem {
+            width: activityList.contentWidth
+            height: Style.trayWindowHeaderHeight
+            flickable: activityList
+            onClicked: activityItemClicked(model.index)
+            onFileActivityButtonClicked: showFileActivity(displayPath, absolutePath)
+        }
     }
 }

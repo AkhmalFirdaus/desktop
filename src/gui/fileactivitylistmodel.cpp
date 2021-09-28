@@ -19,8 +19,9 @@
 namespace OCC {
 
 FileActivityListModel::FileActivityListModel(QObject *parent)
-    : ActivityListModel(nullptr, false, parent)
+    : ActivityListModel(nullptr, parent)
 {
+    setDisplayActions(false);
 }
 
 void FileActivityListModel::load(AccountState *accountState, const QString &localPath)
@@ -29,14 +30,14 @@ void FileActivityListModel::load(AccountState *accountState, const QString &loca
     if (!accountState) {
         return;
     }
-    _accountState = accountState;
+    setAccountState(accountState);
 
     const auto folder = FolderMan::instance()->folderForPath(localPath);
     if (!folder) {
         return;
     }
 
-    const auto file = localPath.mid(folder->cleanPath().length() + 1);
+    const auto file = folder->fileFromLocalPath(localPath);
     SyncJournalFileRecord fileRecord;
     if (!folder->journalDb()->getFileRecord(file, &fileRecord) || !fileRecord.isValid()) {
         return;
@@ -48,12 +49,12 @@ void FileActivityListModel::load(AccountState *accountState, const QString &loca
 
 void FileActivityListModel::startFetchJob()
 {
-    if (!_accountState->isConnected()) {
+    if (!accountState()->isConnected()) {
         return;
     }
 
     const QString url(QStringLiteral("ocs/v2.php/apps/activity/api/v2/activity/filter"));
-    auto job = new JsonApiJob(_accountState->account(), url, this);
+    auto job = new JsonApiJob(accountState()->account(), url, this);
     QObject::connect(job, &JsonApiJob::jsonReceived,
         this, &FileActivityListModel::activitiesReceived);
 
@@ -62,9 +63,9 @@ void FileActivityListModel::startFetchJob()
     params.addQueryItem(QStringLiteral("object_type"), "files");
     params.addQueryItem(QStringLiteral("object_id"), _fileId);
     job->addQueryParams(params);
-    _currentlyFetching = true;
-    _doneFetching = true;
-    _hideOldActivities = false;
+    setCurrentlyFetching(true);
+    setDoneFetching(true);
+    setHideOldActivities(true);
     job->start();
 }
 }

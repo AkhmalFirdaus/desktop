@@ -594,11 +594,10 @@ Window {
             active: false
             sourceComponent: FileActivityDialog {
                 title: qsTr("%1 - File activity").arg(fileActivityDialogLoader.displayPath)
+                onClosing: fileActivityDialogLoader.active = false
             }
 
-            onLoaded: {
-                refresh()
-            }
+            onLoaded: refresh()
         }
     } // Rectangle trayWindowBackground
 }
