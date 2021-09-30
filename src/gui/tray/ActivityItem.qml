@@ -239,7 +239,7 @@ MouseArea {
                         }
 
                         MenuItem {
-                            text: qsTr("Activity")
+                            text: qsTr("View activity")
                             onClicked: fileActivityButtonClicked(absolutePath)
                         }
                         
