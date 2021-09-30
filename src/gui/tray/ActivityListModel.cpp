@@ -81,6 +81,11 @@ void ActivityListModel::setCurrentlyFetching(bool value)
     _currentlyFetching = value;
 }
 
+bool ActivityListModel::currentlyFetching() const
+{
+    return _currentlyFetching;
+}
+
 void ActivityListModel::setDoneFetching(bool value)
 {
     _doneFetching = value;

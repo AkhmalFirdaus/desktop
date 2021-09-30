@@ -18,6 +18,8 @@
 
 namespace OCC {
 
+Q_LOGGING_CATEGORY(lcFileActivityListModel, "nextcloud.gui.fileactivitylistmodel", QtInfoMsg)
+
 FileActivityListModel::FileActivityListModel(QObject *parent)
     : ActivityListModel(nullptr, parent)
 {
@@ -27,7 +29,7 @@ FileActivityListModel::FileActivityListModel(QObject *parent)
 void FileActivityListModel::load(AccountState *accountState, const QString &localPath)
 {
     Q_ASSERT(accountState);
-    if (!accountState) {
+    if (!accountState || currentlyFetching()) {
         return;
     }
     setAccountState(accountState);
@@ -52,6 +54,7 @@ void FileActivityListModel::startFetchJob()
     if (!accountState()->isConnected()) {
         return;
     }
+    setCurrentlyFetching(true);
 
     const QString url(QStringLiteral("ocs/v2.php/apps/activity/api/v2/activity/filter"));
     auto job = new JsonApiJob(accountState()->account(), url, this);
@@ -63,7 +66,6 @@ void FileActivityListModel::startFetchJob()
     params.addQueryItem(QStringLiteral("object_type"), "files");
     params.addQueryItem(QStringLiteral("object_id"), _fileId);
     job->addQueryParams(params);
-    setCurrentlyFetching(true);
     setDoneFetching(true);
     setHideOldActivities(true);
     job->start();

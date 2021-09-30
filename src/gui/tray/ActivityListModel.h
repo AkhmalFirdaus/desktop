@@ -103,12 +103,14 @@ protected:
 
     void setAccountState(AccountState *state);
     void setCurrentlyFetching(bool value);
+    bool currentlyFetching() const;
     void setDoneFetching(bool value);
     void setHideOldActivities(bool value);
     void setDisplayActions(bool value);
 
-private:
     virtual void startFetchJob();
+
+private:
     void combineActivityLists();
     bool canFetchActivities() const;
 

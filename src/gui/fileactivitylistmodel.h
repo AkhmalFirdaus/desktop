@@ -29,9 +29,10 @@ public:
 public slots:
     void load(AccountState *accountState, const QString &fileId);
 
-private:
+protected:
     void startFetchJob() override;
 
+private:
     QString _fileId;
 };
 }
