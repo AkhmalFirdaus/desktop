@@ -1,0 +1,39 @@
+diff --git a/src/libsync/vfs/cfapi/CMakeLists.txt b/src/libsync/vfs/cfapi/CMakeLists.txt
+index 77392c21f..42083f135 100644
+--- a/src/libsync/vfs/cfapi/CMakeLists.txt
++++ b/src/libsync/vfs/cfapi/CMakeLists.txt
+@@ -21,7 +21,7 @@ if (WIN32)
+ 
+     target_include_directories("${synclib_NAME}_vfs_cfapi" BEFORE PUBLIC ${CMAKE_CURRENT_BINARY_DIR} INTERFACE ${CMAKE_BINARY_DIR})
+ 
+-    set(vfs_installdir "${PLUGINDIR}")
++    set(vfs_installdir "${PLUGIN_INSTALL_DIR}")
+ 
+     GENERATE_EXPORT_HEADER( "${synclib_NAME}_vfs_cfapi"
+         BASE_NAME "${synclib_NAME}_vfs_cfapi"
+diff --git a/src/libsync/vfs/suffix/CMakeLists.txt b/src/libsync/vfs/suffix/CMakeLists.txt
+index 92426a5fb..e11375e5e 100644
+--- a/src/libsync/vfs/suffix/CMakeLists.txt
++++ b/src/libsync/vfs/suffix/CMakeLists.txt
+@@ -24,7 +24,7 @@ if(APPLE)
+     # For being loadable when client run from install dir (after make macdeployqt)
+     set(vfs_installdir "${LIB_INSTALL_DIR}/../PlugIns")
+ else()
+-    set(vfs_installdir "${PLUGINDIR}")
++    set(vfs_installdir "${PLUGIN_INSTALL_DIR}")
+ endif()
+ 
+ INSTALL(TARGETS "${synclib_NAME}_vfs_suffix"
+diff --git a/src/libsync/vfs/xattr/CMakeLists.txt b/src/libsync/vfs/xattr/CMakeLists.txt
+index ae6fe7abf..66f51b4be 100644
+--- a/src/libsync/vfs/xattr/CMakeLists.txt
++++ b/src/libsync/vfs/xattr/CMakeLists.txt
+@@ -32,7 +32,7 @@ if (LINUX)
+         # For being loadable when client run from install dir (after make macdeployqt)
+         set(vfs_installdir "${LIB_INSTALL_DIR}/../PlugIns")
+     else()
+-        set(vfs_installdir "${PLUGINDIR}")
++        set(vfs_installdir "${PLUGIN_INSTALL_DIR}")
+     endif()
+ 
+     GENERATE_EXPORT_HEADER( "${synclib_NAME}_vfs_xattr"
