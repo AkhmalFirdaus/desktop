@@ -3,3 +3,4 @@
 0004-sane-cmake.patch
 0005-inkscape-switch.patch
 0006-qt512.patch
+0007-vfs-plugin.patch
