@@ -258,3 +258,29 @@ index a25e9f0e6..4a026276e 100644
  
          if (blackImagesExclusive != whiteImagesExclusive) {
              // black pixmap for dark background - should fail as we don't have this image in black
+diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
+index f0bba8efe..896cb9153 100644
+--- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
++++ b/src/gui/tray/unifiedsearchresultimageprovider.cpp
+@@ -31,7 +31,7 @@ public:
+             return;
+         }
+ 
+-        _imagePaths = id.split(QLatin1Char(';'), Qt::SkipEmptyParts);
++        _imagePaths = id.split(QLatin1Char(';'), QString::SkipEmptyParts);
+         _requestedImageSize = requestedSize;
+ 
+         if (_imagePaths.isEmpty()) {
+diff --git a/src/gui/tray/unifiedsearchresultslistmodel.cpp b/src/gui/tray/unifiedsearchresultslistmodel.cpp
+index a6cc8569d..462961771 100644
+--- a/src/gui/tray/unifiedsearchresultslistmodel.cpp
++++ b/src/gui/tray/unifiedsearchresultslistmodel.cpp
+@@ -110,7 +110,7 @@ QString generateUrlForThumbnail(const QString &thumbnailUrl, const QUrl &serverU
+         // relative image resource URL, just needs some concatenation with current server URL
+         // some icons may contain parameters after (?)
+         const QStringList thumbnailUrlCopySplitted = thumbnailUrlCopy.contains(QLatin1Char('?'))
+-            ? thumbnailUrlCopy.split(QLatin1Char('?'), Qt::SkipEmptyParts)
++            ? thumbnailUrlCopy.split(QLatin1Char('?'), QString::SkipEmptyParts)
+             : QStringList{thumbnailUrlCopy};
+         Q_ASSERT(!thumbnailUrlCopySplitted.isEmpty());
+         serverUrlCopy.setPath(thumbnailUrlCopySplitted[0]);
