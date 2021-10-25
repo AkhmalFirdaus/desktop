@@ -293,3 +293,16 @@ index a6cc8569d..462961771 100644
  
      QUrlQuery params;
      params.addQueryItem(QStringLiteral("term"), _searchTerm);
+diff --git a/test/testunifiedsearchlistmodel.cpp b/test/testunifiedsearchlistmodel.cpp
+index ea7de04ba..0d1b33e09 100644
+--- a/test/testunifiedsearchlistmodel.cpp
++++ b/test/testunifiedsearchlistmodel.cpp
+@@ -334,7 +334,7 @@ private slots:
+             // handle search for provider
+             } else if (path.startsWith(QStringLiteral("/ocs/v2.php/search/providers")) && !searchTerm.isEmpty()) {
+                 const auto pathSplit = path.mid(QString(QStringLiteral("/ocs/v2.php/search/providers")).size())
+-                                           .split(QLatin1Char('/'), Qt::SkipEmptyParts);
++                                           .split(QLatin1Char('/'), QString::SkipEmptyParts);
+ 
+                 if (!pathSplit.isEmpty() && path.contains(pathSplit.first())) {
+                     reply = new FakePayloadReply(op, req,
