@@ -284,3 +284,12 @@ index a6cc8569d..462961771 100644
              : QStringList{thumbnailUrlCopy};
          Q_ASSERT(!thumbnailUrlCopySplitted.isEmpty());
          serverUrlCopy.setPath(thumbnailUrlCopySplitted[0]);
+@@ -485,7 +485,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
+     }
+ 
+     auto job = new JsonApiJob(_accountState->account(),
+-        QLatin1String("ocs/v2.php/search/providers/%1/search").arg(providerId));
++                              QLatin1String(QString("ocs/v2.php/search/providers/%1/search").arg(providerId).toLatin1()));
+ 
+     QUrlQuery params;
+     params.addQueryItem(QStringLiteral("term"), _searchTerm);
