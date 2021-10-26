@@ -1014,7 +1014,7 @@ void ProcessDirectoryJob::processFileAnalyzeLocalInfo(
 
         const auto folderPinState = localEntry.isDirectory ? _discoveryData->_syncOptions._vfs->pinState(path._local) : Optional<PinStateEnums::PinState>(PinState::Unspecified);
 
-        if (!isFilePlaceHolder && !folderPlaceHolderAvailability.isValid() && !folderPinState.isValid()) {
+        if (!isFilePlaceHolder && (!folderPlaceHolderAvailability.isValid()) && !folderPinState.isValid()) {
             // not a file placeholder and not a synced folder placeholder (new local folder)
             return;
         }
@@ -1028,9 +1028,13 @@ void ProcessDirectoryJob::processFileAnalyzeLocalInfo(
 
         if (!isFilePlaceHolder && !isOnlineOnlyFolder) {
             if (localEntry.isDirectory && folderPlaceHolderAvailability.isValid() && !isOnlineOnlyFolder) {
-                // a VFS folder but is not online0only (has some files hydrated)
+                // a VFS folder but is not online-only (has some files hydrated)
                 qCInfo(lcDisco) << "Virtual directory without db entry for" << path._local << "but it contains hydrated file(s), so let's keep it and reupload.";
-                emit _discoveryData->addErrorToGui(SyncFileItem::SoftError, tr("Conflict when uploading some files to a folder. Those, conflicted, are going to get cleared!"), path._local);
+                if (*folderPlaceHolderAvailability != VfsItemAvailability::AllHydrated) {
+                    emit _discoveryData->addErrorToGui(SyncFileItem::SoftError,
+                        tr("Conflict when uploading some files to a folder. Those, conflicted, are going to get cleared!"),
+                        path._local);
+                }
                 return;
             }
             qCWarning(lcDisco) << "Virtual file without db entry for" << path._local
