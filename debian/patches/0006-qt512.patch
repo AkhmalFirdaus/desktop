@@ -306,3 +306,16 @@ index ea7de04ba..0d1b33e09 100644
  
                  if (!pathSplit.isEmpty() && path.contains(pathSplit.first())) {
                      reply = new FakePayloadReply(op, req,
+diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
+index b6be1b111..cdafb9022 100644
+--- a/src/libsync/account.cpp
++++ b/src/libsync/account.cpp
+@@ -389,7 +389,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+     sslConfig.setSslOption(QSsl::SslOptionDisableSessionSharing, false);
+     sslConfig.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
+ 
+-    sslConfig.setOcspStaplingEnabled(Theme::instance()->enableStaplingOCSP());
++    assert(!Theme::instance()->enableStaplingOCSP());
+ 
+     return sslConfig;
+ }
