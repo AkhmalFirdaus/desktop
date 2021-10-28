@@ -1003,7 +1003,7 @@ void DetermineAuthTypeJob::start()
                 if (flow != QJsonValue::Undefined) {
                     if (flow.toInt() == 1) {
 #ifdef WITH_WEBENGINE
-                        _resultOldFlow = WebViewFlow;
+                        _resultOldFlow = LoginFlowV2; // WebViewFlow;
 #else // WITH_WEBENGINE
                         qCWarning(lcDetermineAuthTypeJob) << "Server does only support flow1, but this client was compiled without support for flow1";
 #endif // WITH_WEBENGINE
