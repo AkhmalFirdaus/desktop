@@ -40,10 +40,18 @@ index 0c051c9a4..3db5ebd59 100644
  if(Qt5WebEngine_FOUND AND Qt5WebEngineWidgets_FOUND)
    add_compile_definitions(WITH_WEBENGINE=1)
 diff --git a/src/cmd/cmd.cpp b/src/cmd/cmd.cpp
-index 0e2699051..287eccf09 100644
+index 0e2699051..bf81102b0 100644
 --- a/src/cmd/cmd.cpp
 +++ b/src/cmd/cmd.cpp
-@@ -296,9 +296,9 @@ void selectiveSyncFixup(OCC::SyncJournalDb *journal, const QStringList &newList)
+@@ -24,6 +24,7 @@
+ #include <QJsonDocument>
+ #include <QJsonObject>
+ #include <QNetworkProxy>
++#include <QRegularExpression>
+ #include <qdebug.h>
+ 
+ #include "account.h"
+@@ -296,9 +297,9 @@ void selectiveSyncFixup(OCC::SyncJournalDb *journal, const QStringList &newList)
      bool ok = false;
  
      const auto selectiveSyncList = journal->getSelectiveSyncList(SyncJournalDb::SelectiveSyncBlackList, &ok);
@@ -93,6 +101,18 @@ index 087254e60..4276c8410 100644
      } else {
          if (!QFile::remove(desktopFileLocation)) {
              qCWarning(lcUtility) << "Could not remove autostart desktop file";
+diff --git a/src/gui/creds/oauth.cpp b/src/gui/creds/oauth.cpp
+index aa528aa49..22ce217a0 100644
+--- a/src/gui/creds/oauth.cpp
++++ b/src/gui/creds/oauth.cpp
+@@ -20,6 +20,7 @@
+ #include "creds/oauth.h"
+ #include <QJsonObject>
+ #include <QJsonDocument>
++#include <QRegularExpression>
+ #include "theme.h"
+ #include "networkjobs.h"
+ #include "creds/httpcredentials.h"
 diff --git a/src/gui/notificationconfirmjob.cpp b/src/gui/notificationconfirmjob.cpp
 index 09e147da3..760d8869b 100644
 --- a/src/gui/notificationconfirmjob.cpp
@@ -105,6 +125,18 @@ index 09e147da3..760d8869b 100644
  
  namespace OCC {
  
+diff --git a/src/gui/sharedialog.cpp b/src/gui/sharedialog.cpp
+index 6f5e2837d..1cb5cb91a 100644
+--- a/src/gui/sharedialog.cpp
++++ b/src/gui/sharedialog.cpp
+@@ -33,6 +33,7 @@
+ #include <QPointer>
+ #include <QPushButton>
+ #include <QFrame>
++#include <QRegularExpression>
+ 
+ namespace {
+ QString createRandomPassword()
 diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
 index 97a57f519..ded760f8b 100644
 --- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
@@ -179,6 +211,18 @@ index b6be1b111..fdb053402 100644
              addApprovedCerts(approvedCerts);
              emit wantsAccountSaved(this);
  
+diff --git a/src/libsync/discoveryphase.h b/src/libsync/discoveryphase.h
+index c894cfc2a..c5d4eb48f 100644
+--- a/src/libsync/discoveryphase.h
++++ b/src/libsync/discoveryphase.h
+@@ -24,6 +24,7 @@
+ #include <QMutex>
+ #include <QWaitCondition>
+ #include <QRunnable>
++#include <QRegularExpression>
+ #include <deque>
+ #include "syncoptions.h"
+ #include "syncfileitem.h"
 diff --git a/src/libsync/logger.cpp b/src/libsync/logger.cpp
 index 2a90c976b..fe94ef848 100644
 --- a/src/libsync/logger.cpp
@@ -192,6 +236,18 @@ index 2a90c976b..fe94ef848 100644
              if (_doFileFlush)
                  _logstream->flush();
          }
+diff --git a/src/libsync/networkjobs.cpp b/src/libsync/networkjobs.cpp
+index f2ba661e4..0c86ee3ec 100644
+--- a/src/libsync/networkjobs.cpp
++++ b/src/libsync/networkjobs.cpp
+@@ -30,6 +30,7 @@
+ #include <QCoreApplication>
+ #include <QJsonDocument>
+ #include <QJsonObject>
++#include <QRegularExpression>
+ #include <qloggingcategory.h>
+ #ifndef TOKEN_AUTH_ONLY
+ #include <QPainter>
 diff --git a/src/libsync/ocsuserstatusconnector.cpp b/src/libsync/ocsuserstatusconnector.cpp
 index 95f3810e2..15e064326 100644
 --- a/src/libsync/ocsuserstatusconnector.cpp
@@ -209,11 +265,31 @@ index 95f3810e2..15e064326 100644
      }
      qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
      return QDateTime::currentDateTime().toTime_t();
+diff --git a/src/libsync/propagatedownload.cpp b/src/libsync/propagatedownload.cpp
+index 10ccd97db..996719d1b 100644
+--- a/src/libsync/propagatedownload.cpp
++++ b/src/libsync/propagatedownload.cpp
+@@ -33,6 +33,7 @@
+ #include <QNetworkAccessManager>
+ #include <QFileInfo>
+ #include <QDir>
++#include <QRegularExpression>
+ #include <cmath>
+ 
+ #ifdef Q_OS_UNIX
 diff --git a/src/libsync/syncengine.cpp b/src/libsync/syncengine.cpp
-index 9813e63cb..9a273a6c7 100644
+index 9813e63cb..ca43ba400 100644
 --- a/src/libsync/syncengine.cpp
 +++ b/src/libsync/syncengine.cpp
-@@ -695,11 +695,7 @@ void SyncEngine::slotDiscoveryFinished()
+@@ -53,6 +53,7 @@
+ #include <QSslCertificate>
+ #include <QProcess>
+ #include <QElapsedTimer>
++#include <QRegularExpression>
+ #include <qtextcodec.h>
+ 
+ namespace OCC {
+@@ -695,11 +696,7 @@ void SyncEngine::slotDiscoveryFinished()
              const QString script = qEnvironmentVariable("OWNCLOUD_POST_UPDATE_SCRIPT");
  
              qCDebug(lcEngine) << "Post Update Script: " << script;
