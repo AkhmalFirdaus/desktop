@@ -170,6 +170,8 @@ void AbstractNetworkJob::slotFinished()
 {
     _timer.stop();
 
+    auto requestUrl = _reply->request().url().toString();
+
     if (_reply->error() == QNetworkReply::SslHandshakeFailedError) {
         qCWarning(lcNetworkJob) << "SslHandshakeFailedError: " << errorString() << " : can be caused by a webserver wanting SSL client certificates";
     }

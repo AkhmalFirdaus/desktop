@@ -881,6 +881,9 @@ bool JsonApiJob::finished()
     qCInfo(lcJsonApiJob) << "JsonApiJob of" << reply()->request().url() << "FINISHED WITH STATUS"
                          << replyStatusString();
 
+    
+    auto requestUrl = reply()->request().url().toString();
+
     int statusCode = 0;
     int httpStatusCode = reply()->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (reply()->error() != QNetworkReply::NoError) {
@@ -927,6 +930,8 @@ bool JsonApiJob::finished()
         emit jsonReceived(json, statusCode);
         return true;
     }
+
+    auto jsonAsString = json.toJson();
 
     emit jsonReceived(json, statusCode);
     return true;
