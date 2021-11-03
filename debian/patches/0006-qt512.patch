@@ -3,150 +3,44 @@ index 60a38e389..f2fda6e1d 100644
 --- a/shell_integration/dolphin/CMakeLists.txt
 +++ b/shell_integration/dolphin/CMakeLists.txt
 @@ -2,7 +2,7 @@ project(dolphin-owncloud)
-
+ 
  cmake_minimum_required(VERSION 2.8.12)
-
+ 
 -set(QT_MIN_VERSION "5.15.0")
 +set(QT_MIN_VERSION "5.12.0")
  set(KF5_MIN_VERSION "5.16.0")
  set(KDE_INSTALL_USE_QT_SYS_PATHS ON CACHE BOOL "Install the plugin in the right directory")
-
+ 
 diff --git a/shell_integration/libcloudproviders/CMakeLists.txt b/shell_integration/libcloudproviders/CMakeLists.txt
 index d5391a7a4..1dd464d25 100644
 --- a/shell_integration/libcloudproviders/CMakeLists.txt
 +++ b/shell_integration/libcloudproviders/CMakeLists.txt
 @@ -41,7 +41,7 @@ macro(libcloudproviders_add_config _sources)
  endmacro(libcloudproviders_add_config _sources)
-
-
+ 
+ 
 -find_package(Qt5 5.15 COMPONENTS DBus)
 +find_package(Qt5 5.12 COMPONENTS DBus)
  IF (Qt5DBus_FOUND)
      STRING(TOLOWER "${APPLICATION_VENDOR}" DBUS_VENDOR)
      STRING(REGEX REPLACE "[^A-z0-9]" "" DBUS_VENDOR "${DBUS_VENDOR}")
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 9cd372905..1a6e5daec 100644
+index 0c051c9a4..3db5ebd59 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -4,8 +4,8 @@ endif()
-
+ 
  include(ECMEnableSanitizers)
-
+ 
 -find_package(Qt5 5.15 COMPONENTS Core Network Xml Concurrent REQUIRED)
 -find_package(Qt5 5.15 COMPONENTS WebEngineWidgets WebEngine)
 +find_package(Qt5 5.12 COMPONENTS Core Network Xml Concurrent REQUIRED)
 +find_package(Qt5 5.12 COMPONENTS WebEngineWidgets WebEngine)
-
+ 
  if(Qt5WebEngine_FOUND AND Qt5WebEngineWidgets_FOUND)
    add_compile_definitions(WITH_WEBENGINE=1)
---- a/src/common/syncjournaldb.cpp
-+++ b/src/common/syncjournaldb.cpp
-@@ -93,6 +93,7 @@ static QByteArray defaultJournalMode(const QString &dbPath)
- SyncJournalDb::SyncJournalDb(const QString &dbFilePath, QObject *parent)
-     : QObject(parent)
-     , _dbFile(dbFilePath)
-+    , _mutex(QMutex::Recursive)
-     , _transaction(0)
-     , _metadataTableIsEmpty(false)
- {
-diff --git a/src/common/syncjournaldb.h b/src/common/syncjournaldb.h
-index ba4c0ede8..8436d4775 100644
---- a/src/common/syncjournaldb.h
-+++ b/src/common/syncjournaldb.h
-@@ -393,8 +393,8 @@ private:
-
-     SqlDatabase _db;
-     QString _dbFile;
--    QRecursiveMutex _mutex; // Public functions are protected with the mutex.
-+    QMutex _mutex; // Public functions are protected with the mutex.
-     QMap<QByteArray, int> _checksymTypeCache;
-     int _transaction;
-     bool _metadataTableIsEmpty;
-
---- a/src/common/utility_unix.cpp
-+++ b/src/common/utility_unix.cpp
-@@ -90,7 +90,7 @@ void setLaunchOnStartup_private(const QString &appName, const QString &guiName,
-            << QLatin1String("Type=") << QLatin1String("Application\n")
-            << QLatin1String("StartupNotify=") << "false\n"
-            << QLatin1String("X-GNOME-Autostart-enabled=") << "true\n"
--           << QLatin1String("X-GNOME-Autostart-Delay=10") << Qt::endl;
-+           << QLatin1String("X-GNOME-Autostart-Delay=10") << endl;
-     } else {
-         if (!QFile::remove(desktopFileLocation)) {
-             qCWarning(lcUtility) << "Could not remove autostart desktop file";
-diff --git a/src/libsync/logger.cpp b/src/libsync/logger.cpp
-index 8aa0360c2..571f17ac4 100644
---- a/src/libsync/logger.cpp
-+++ b/src/libsync/logger.cpp
-@@ -92,7 +92,7 @@ void Logger::doLog(QtMsgType type, const QMessageLogContext &ctx, const QString
-         _crashLogIndex = (_crashLogIndex + 1) % CrashLogSize;
-         _crashLog[_crashLogIndex] = msg;
-         if (_logstream) {
--            (*_logstream) << msg << Qt::endl;
-+            (*_logstream) << msg << endl;
-             if (_doFileFlush)
-                 _logstream->flush();
-         }
-diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
-index c4e6e83b7..e443e454a 100644
---- a/src/libsync/theme.cpp
-+++ b/src/libsync/theme.cpp
-@@ -705,17 +705,17 @@ QString Theme::versionSwitchOutput() const
-     QTextStream stream(&helpText);
-     stream << appName()
-            << QLatin1String(" version ")
--           << version() << Qt::endl;
-+           << version() << endl;
- #ifdef GIT_SHA1
--    stream << "Git revision " << GIT_SHA1 << Qt::endl;
-+    stream << "Git revision " << GIT_SHA1 << endl;
- #endif
--    stream << "Using Qt " << qVersion() << ", built against Qt " << QT_VERSION_STR << Qt::endl;
-+    stream << "Using Qt " << qVersion() << ", built against Qt " << QT_VERSION_STR << endl;
-
-     if(!QGuiApplication::platformName().isEmpty())
--        stream << "Using Qt platform plugin '" << QGuiApplication::platformName() << "'" << Qt::endl;
-+        stream << "Using Qt platform plugin '" << QGuiApplication::platformName() << "'" << endl;
-
--    stream << "Using '" << QSslSocket::sslLibraryVersionString() << "'" << Qt::endl;
--    stream << "Running on " << Utility::platformName() << ", " << QSysInfo::currentCpuArchitecture() << Qt::endl;
-+    stream << "Using '" << QSslSocket::sslLibraryVersionString() << "'" << endl;
-+    stream << "Running on " << Utility::platformName() << ", " << QSysInfo::currentCpuArchitecture() << endl;
-     return helpText;
- }
- 
-diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
-index d0cfe36e4..574e173c9 100644
---- a/src/libsync/account.cpp
-+++ b/src/libsync/account.cpp
-@@ -48,7 +48,6 @@
- #include <QJsonArray>
- #include <QLoggingCategory>
- 
--#include <qsslconfiguration.h>
- #include <qt5keychain/keychain.h>
- #include "creds/abstractcredentials.h"
- 
-@@ -395,7 +394,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
- void Account::setApprovedCerts(const QList<QSslCertificate> certs)
- {
-     _approvedCerts = certs;
--    QSslConfiguration::defaultConfiguration().addCaCertificates(certs);
-+    QSslSocket::addDefaultCaCertificates(certs);
- }
- 
- void Account::addApprovedCerts(const QList<QSslCertificate> certs)
-@@ -487,7 +486,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
-             return;
- 
-         if (!approvedCerts.isEmpty()) {
--            QSslConfiguration::defaultConfiguration().addCaCertificates(approvedCerts);
-+            QSslSocket::addDefaultCaCertificates(approvedCerts);
-             addApprovedCerts(approvedCerts);
-             emit wantsAccountSaved(this);
- 
 diff --git a/src/cmd/cmd.cpp b/src/cmd/cmd.cpp
-index da092807b..c4bf73a9c 100644
+index 0e2699051..287eccf09 100644
 --- a/src/cmd/cmd.cpp
 +++ b/src/cmd/cmd.cpp
 @@ -296,9 +296,9 @@ void selectiveSyncFixup(OCC::SyncJournalDb *journal, const QStringList &newList)
@@ -161,6 +55,131 @@ index da092807b..c4bf73a9c 100644
          const auto changes = (oldBlackListSet - blackListSet) + (blackListSet - oldBlackListSet);
          for (const auto &it : changes) {
              journal->schedulePathForRemoteDiscovery(it);
+diff --git a/src/common/syncjournaldb.cpp b/src/common/syncjournaldb.cpp
+index 5c5195bba..11dc84458 100644
+--- a/src/common/syncjournaldb.cpp
++++ b/src/common/syncjournaldb.cpp
+@@ -93,6 +93,7 @@ static QByteArray defaultJournalMode(const QString &dbPath)
+ SyncJournalDb::SyncJournalDb(const QString &dbFilePath, QObject *parent)
+     : QObject(parent)
+     , _dbFile(dbFilePath)
++    , _mutex(QMutex::Recursive)
+     , _transaction(0)
+     , _metadataTableIsEmpty(false)
+ {
+diff --git a/src/common/syncjournaldb.h b/src/common/syncjournaldb.h
+index ba4c0ede8..8436d4775 100644
+--- a/src/common/syncjournaldb.h
++++ b/src/common/syncjournaldb.h
+@@ -393,7 +393,7 @@ private:
+ 
+     SqlDatabase _db;
+     QString _dbFile;
+-    QRecursiveMutex _mutex; // Public functions are protected with the mutex.
++    QMutex _mutex; // Public functions are protected with the mutex.
+     QMap<QByteArray, int> _checksymTypeCache;
+     int _transaction;
+     bool _metadataTableIsEmpty;
+diff --git a/src/common/utility_unix.cpp b/src/common/utility_unix.cpp
+index 087254e60..4276c8410 100644
+--- a/src/common/utility_unix.cpp
++++ b/src/common/utility_unix.cpp
+@@ -90,7 +90,7 @@ void setLaunchOnStartup_private(const QString &appName, const QString &guiName,
+            << QLatin1String("Type=") << QLatin1String("Application\n")
+            << QLatin1String("StartupNotify=") << "false\n"
+            << QLatin1String("X-GNOME-Autostart-enabled=") << "true\n"
+-           << QLatin1String("X-GNOME-Autostart-Delay=10") << Qt::endl;
++           << QLatin1String("X-GNOME-Autostart-Delay=10") << endl;
+     } else {
+         if (!QFile::remove(desktopFileLocation)) {
+             qCWarning(lcUtility) << "Could not remove autostart desktop file";
+diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
+index 97a57f519..ded760f8b 100644
+--- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
++++ b/src/gui/tray/unifiedsearchresultimageprovider.cpp
+@@ -31,7 +31,7 @@ public:
+             return;
+         }
+ 
+-        _imagePaths = id.split(QLatin1Char(';'), Qt::SkipEmptyParts);
++        _imagePaths = id.split(QLatin1Char(';'), QString::SkipEmptyParts);
+         _requestedImageSize = requestedSize;
+ 
+         if (_imagePaths.isEmpty()) {
+diff --git a/src/gui/tray/unifiedsearchresultslistmodel.cpp b/src/gui/tray/unifiedsearchresultslistmodel.cpp
+index a6cc8569d..ce56538e3 100644
+--- a/src/gui/tray/unifiedsearchresultslistmodel.cpp
++++ b/src/gui/tray/unifiedsearchresultslistmodel.cpp
+@@ -110,7 +110,7 @@ QString generateUrlForThumbnail(const QString &thumbnailUrl, const QUrl &serverU
+         // relative image resource URL, just needs some concatenation with current server URL
+         // some icons may contain parameters after (?)
+         const QStringList thumbnailUrlCopySplitted = thumbnailUrlCopy.contains(QLatin1Char('?'))
+-            ? thumbnailUrlCopy.split(QLatin1Char('?'), Qt::SkipEmptyParts)
++            ? thumbnailUrlCopy.split(QLatin1Char('?'), QString::SkipEmptyParts)
+             : QStringList{thumbnailUrlCopy};
+         Q_ASSERT(!thumbnailUrlCopySplitted.isEmpty());
+         serverUrlCopy.setPath(thumbnailUrlCopySplitted[0]);
+@@ -485,7 +485,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
+     }
+ 
+     auto job = new JsonApiJob(_accountState->account(),
+-        QLatin1String("ocs/v2.php/search/providers/%1/search").arg(providerId));
++                              QLatin1String(QString("ocs/v2.php/search/providers/%1/search").arg(providerId).toLatin1()));
+ 
+     QUrlQuery params;
+     params.addQueryItem(QStringLiteral("term"), _searchTerm);
+diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
+index b6be1b111..fdb053402 100644
+--- a/src/libsync/account.cpp
++++ b/src/libsync/account.cpp
+@@ -48,7 +48,6 @@
+ #include <QJsonArray>
+ #include <QLoggingCategory>
+ 
+-#include <qsslconfiguration.h>
+ #include <qt5keychain/keychain.h>
+ #include "creds/abstractcredentials.h"
+ 
+@@ -389,7 +388,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+     sslConfig.setSslOption(QSsl::SslOptionDisableSessionSharing, false);
+     sslConfig.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
+ 
+-    sslConfig.setOcspStaplingEnabled(Theme::instance()->enableStaplingOCSP());
++    assert(!Theme::instance()->enableStaplingOCSP());
+ 
+     return sslConfig;
+ }
+@@ -397,7 +396,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+ void Account::setApprovedCerts(const QList<QSslCertificate> certs)
+ {
+     _approvedCerts = certs;
+-    QSslConfiguration::defaultConfiguration().addCaCertificates(certs);
++    QSslSocket::addDefaultCaCertificates(certs);
+ }
+ 
+ void Account::addApprovedCerts(const QList<QSslCertificate> certs)
+@@ -492,7 +491,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
+             return;
+ 
+         if (!approvedCerts.isEmpty()) {
+-            QSslConfiguration::defaultConfiguration().addCaCertificates(approvedCerts);
++            QSslSocket::addDefaultCaCertificates(approvedCerts);
+             addApprovedCerts(approvedCerts);
+             emit wantsAccountSaved(this);
+ 
+diff --git a/src/libsync/logger.cpp b/src/libsync/logger.cpp
+index 2a90c976b..fe94ef848 100644
+--- a/src/libsync/logger.cpp
++++ b/src/libsync/logger.cpp
+@@ -94,7 +94,7 @@ void Logger::doLog(QtMsgType type, const QMessageLogContext &ctx, const QString
+         _crashLogIndex = (_crashLogIndex + 1) % CrashLogSize;
+         _crashLog[_crashLogIndex] = msg;
+         if (_logstream) {
+-            (*_logstream) << msg << Qt::endl;
++            (*_logstream) << msg << endl;
+             if (_doFileFlush)
+                 _logstream->flush();
+         }
 diff --git a/src/libsync/ocsuserstatusconnector.cpp b/src/libsync/ocsuserstatusconnector.cpp
 index 95f3810e2..15e064326 100644
 --- a/src/libsync/ocsuserstatusconnector.cpp
@@ -179,14 +198,14 @@ index 95f3810e2..15e064326 100644
      qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
      return QDateTime::currentDateTime().toTime_t();
 diff --git a/src/libsync/syncengine.cpp b/src/libsync/syncengine.cpp
-index 38f49785a..c25967b14 100644
+index 9813e63cb..9a273a6c7 100644
 --- a/src/libsync/syncengine.cpp
 +++ b/src/libsync/syncengine.cpp
-@@ -690,11 +690,7 @@ void SyncEngine::slotDiscoveryFinished()
+@@ -695,11 +695,7 @@ void SyncEngine::slotDiscoveryFinished()
              const QString script = qEnvironmentVariable("OWNCLOUD_POST_UPDATE_SCRIPT");
  
              qCDebug(lcEngine) << "Post Update Script: " << script;
--            auto scriptArgs = script.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+-            auto scriptArgs = script.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 -            if (scriptArgs.size() > 0) {
 -                const auto scriptExecutable = scriptArgs.takeFirst();
 -                QProcess::execute(scriptExecutable, scriptArgs);
@@ -208,8 +227,36 @@ index 9c4ae0e8c..276bc4f8d 100644
      for (int i = 0; i < splitPath.size(); ++i) {
          QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
          emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
+diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
+index 8fd5b1a3f..edf07b9b1 100644
+--- a/src/libsync/theme.cpp
++++ b/src/libsync/theme.cpp
+@@ -753,17 +753,17 @@ QString Theme::versionSwitchOutput() const
+     QTextStream stream(&helpText);
+     stream << appName()
+            << QLatin1String(" version ")
+-           << version() << Qt::endl;
++           << version() << endl;
+ #ifdef GIT_SHA1
+-    stream << "Git revision " << GIT_SHA1 << Qt::endl;
++    stream << "Git revision " << GIT_SHA1 << endl;
+ #endif
+-    stream << "Using Qt " << qVersion() << ", built against Qt " << QT_VERSION_STR << Qt::endl;
++    stream << "Using Qt " << qVersion() << ", built against Qt " << QT_VERSION_STR << endl;
+ 
+     if(!QGuiApplication::platformName().isEmpty())
+-        stream << "Using Qt platform plugin '" << QGuiApplication::platformName() << "'" << Qt::endl;
++        stream << "Using Qt platform plugin '" << QGuiApplication::platformName() << "'" << endl;
+ 
+-    stream << "Using '" << QSslSocket::sslLibraryVersionString() << "'" << Qt::endl;
+-    stream << "Running on " << Utility::platformName() << ", " << QSysInfo::currentCpuArchitecture() << Qt::endl;
++    stream << "Using '" << QSslSocket::sslLibraryVersionString() << "'" << endl;
++    stream << "Running on " << Utility::platformName() << ", " << QSysInfo::currentCpuArchitecture() << endl;
+     return helpText;
+ }
+ 
 diff --git a/test/syncenginetestutils.cpp b/test/syncenginetestutils.cpp
-index 7b5caa94a..001791af2 100644
+index 8b8f58871..eccfd89c5 100644
 --- a/test/syncenginetestutils.cpp
 +++ b/test/syncenginetestutils.cpp
 @@ -20,7 +20,7 @@ PathComponents::PathComponents(const char *path)
@@ -221,7 +268,7 @@ index 7b5caa94a..001791af2 100644
  {
  }
  
-@@ -796,7 +796,7 @@ void FakeHangingReply::abort()
+@@ -802,7 +802,7 @@ void FakeHangingReply::abort()
      // Follow more or less the implementation of QNetworkReplyImpl::abort
      close();
      setError(OperationCanceledError, tr("Operation canceled"));
@@ -258,41 +305,6 @@ index a25e9f0e6..4a026276e 100644
  
          if (blackImagesExclusive != whiteImagesExclusive) {
              // black pixmap for dark background - should fail as we don't have this image in black
-diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
-index f0bba8efe..896cb9153 100644
---- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
-+++ b/src/gui/tray/unifiedsearchresultimageprovider.cpp
-@@ -31,7 +31,7 @@ public:
-             return;
-         }
- 
--        _imagePaths = id.split(QLatin1Char(';'), Qt::SkipEmptyParts);
-+        _imagePaths = id.split(QLatin1Char(';'), QString::SkipEmptyParts);
-         _requestedImageSize = requestedSize;
- 
-         if (_imagePaths.isEmpty()) {
-diff --git a/src/gui/tray/unifiedsearchresultslistmodel.cpp b/src/gui/tray/unifiedsearchresultslistmodel.cpp
-index a6cc8569d..462961771 100644
---- a/src/gui/tray/unifiedsearchresultslistmodel.cpp
-+++ b/src/gui/tray/unifiedsearchresultslistmodel.cpp
-@@ -110,7 +110,7 @@ QString generateUrlForThumbnail(const QString &thumbnailUrl, const QUrl &serverU
-         // relative image resource URL, just needs some concatenation with current server URL
-         // some icons may contain parameters after (?)
-         const QStringList thumbnailUrlCopySplitted = thumbnailUrlCopy.contains(QLatin1Char('?'))
--            ? thumbnailUrlCopy.split(QLatin1Char('?'), Qt::SkipEmptyParts)
-+            ? thumbnailUrlCopy.split(QLatin1Char('?'), QString::SkipEmptyParts)
-             : QStringList{thumbnailUrlCopy};
-         Q_ASSERT(!thumbnailUrlCopySplitted.isEmpty());
-         serverUrlCopy.setPath(thumbnailUrlCopySplitted[0]);
-@@ -485,7 +485,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
-     }
- 
-     auto job = new JsonApiJob(_accountState->account(),
--        QLatin1String("ocs/v2.php/search/providers/%1/search").arg(providerId));
-+                              QLatin1String(QString("ocs/v2.php/search/providers/%1/search").arg(providerId).toLatin1()));
- 
-     QUrlQuery params;
-     params.addQueryItem(QStringLiteral("term"), _searchTerm);
 diff --git a/test/testunifiedsearchlistmodel.cpp b/test/testunifiedsearchlistmodel.cpp
 index ea7de04ba..0d1b33e09 100644
 --- a/test/testunifiedsearchlistmodel.cpp
@@ -306,16 +318,3 @@ index ea7de04ba..0d1b33e09 100644
  
                  if (!pathSplit.isEmpty() && path.contains(pathSplit.first())) {
                      reply = new FakePayloadReply(op, req,
-diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
-index b6be1b111..cdafb9022 100644
---- a/src/libsync/account.cpp
-+++ b/src/libsync/account.cpp
-@@ -389,7 +389,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
-     sslConfig.setSslOption(QSsl::SslOptionDisableSessionSharing, false);
-     sslConfig.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
- 
--    sslConfig.setOcspStaplingEnabled(Theme::instance()->enableStaplingOCSP());
-+    assert(!Theme::instance()->enableStaplingOCSP());
- 
-     return sslConfig;
- }
