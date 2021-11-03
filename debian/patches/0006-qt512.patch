@@ -93,6 +93,18 @@ index 087254e60..4276c8410 100644
      } else {
          if (!QFile::remove(desktopFileLocation)) {
              qCWarning(lcUtility) << "Could not remove autostart desktop file";
+diff --git a/src/gui/notificationconfirmjob.cpp b/src/gui/notificationconfirmjob.cpp
+index 09e147da3..760d8869b 100644
+--- a/src/gui/notificationconfirmjob.cpp
++++ b/src/gui/notificationconfirmjob.cpp
+@@ -17,6 +17,7 @@
+ #include "account.h"
+ 
+ #include <QBuffer>
++#include <QRegularExpression>
+ 
+ namespace OCC {
+ 
 diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
 index 97a57f519..ded760f8b 100644
 --- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
