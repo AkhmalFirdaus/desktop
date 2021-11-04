@@ -4,6 +4,7 @@
 #include <QWebEngineProfile>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineUrlRequestJob>
+#include <qdebug.h>
 #if QT_VERSION >= 0x051200
 #include <QWebEngineUrlScheme>
 #endif
@@ -30,6 +31,8 @@ class WebViewPageUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor
 public:
     WebViewPageUrlRequestInterceptor(QObject *parent = nullptr);
     void interceptRequest(QWebEngineUrlRequestInfo &info) override;
+
+    QUrl _url;
 };
 
 class WebViewPageUrlSchemeHandler : public QWebEngineUrlSchemeHandler
@@ -113,7 +116,10 @@ WebView::WebView(QWidget *parent)
     connect(_schemeHandler, &WebViewPageUrlSchemeHandler::urlCatched, this, &WebView::urlCatched);
 }
 
-void WebView::setUrl(const QUrl &url) {
+void WebView::setUrl(const QUrl &url)
+{
+    qDebug() << "URL" << url;
+    _interceptor->_url = url;
     _page->setUrl(url);
 }
 
@@ -135,8 +141,11 @@ WebViewPageUrlRequestInterceptor::WebViewPageUrlRequestInterceptor(QObject *pare
 
 }
 
-void WebViewPageUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info) {
-    info.setHttpHeader("OCS-APIREQUEST", "true");
+void WebViewPageUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
+{
+    if (info.requestUrl() == _url) {
+        info.setHttpHeader("OCS-APIREQUEST", "true");
+    }
 }
 
 WebViewPageUrlSchemeHandler::WebViewPageUrlSchemeHandler(QObject *parent)
