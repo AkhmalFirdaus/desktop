@@ -113,6 +113,20 @@ index aa528aa49..22ce217a0 100644
  #include "theme.h"
  #include "networkjobs.h"
  #include "creds/httpcredentials.h"
+diff --git a/src/gui/iconutils.cpp b/src/gui/iconutils.cpp
+index 40ad051ce..1ef1454e5 100644
+--- a/src/gui/iconutils.cpp
++++ b/src/gui/iconutils.cpp
+@@ -53,8 +53,7 @@ QPixmap pixmapForBackground(const QString &fileName, const QColor &backgroundCol
+     Q_ASSERT(!fileName.isEmpty());
+ 
+     const auto pixmapColor = backgroundColor.isValid() && !Theme::isDarkColor(backgroundColor)
+-        ? QColorConstants::Svg::black
+-        : QColorConstants::Svg::white;
++        ? QRgb(0x000000) : QRgb(0xffffff);
+     ;
+     return createSvgPixmapWithCustomColorCached(fileName, pixmapColor);
+ }
 diff --git a/src/gui/notificationconfirmjob.cpp b/src/gui/notificationconfirmjob.cpp
 index 09e147da3..760d8869b 100644
 --- a/src/gui/notificationconfirmjob.cpp
@@ -137,6 +151,28 @@ index 6f5e2837d..1cb5cb91a 100644
  
  namespace {
  QString createRandomPassword()
+diff --git a/src/gui/tray/svgimageprovider.cpp b/src/gui/tray/svgimageprovider.cpp
+index ab5760700..1a9d33332 100644
+--- a/src/gui/tray/svgimageprovider.cpp
++++ b/src/gui/tray/svgimageprovider.cpp
+@@ -30,7 +30,7 @@ namespace Ui {
+     {
+         Q_ASSERT(!id.isEmpty());
+ 
+-        const auto idSplit = id.split(QStringLiteral("/"), Qt::SkipEmptyParts);
++        const auto idSplit = id.split(QStringLiteral("/"), QString::SkipEmptyParts);
+ 
+         if (idSplit.isEmpty()) {
+             qCWarning(lcSvgImageProvider) << "Image id is incorrect!";
+@@ -38,7 +38,7 @@ namespace Ui {
+         }
+ 
+         const auto pixmapName = idSplit.at(0);
+-        const auto pixmapColor = idSplit.size() > 1 ? QColor(idSplit.at(1)) : QColorConstants::Svg::black;
++        const auto pixmapColor = idSplit.size() > 1 ? QColor(idSplit.at(1)) : QRgb(0x000000);
+ 
+         if (pixmapName.isEmpty() || !pixmapColor.isValid()) {
+             qCWarning(lcSvgImageProvider) << "Image id is incorrect!";
 diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
 index 97a57f519..ded760f8b 100644
 --- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
@@ -378,6 +414,51 @@ index eead47953..a5053abd9 100644
          const QList<QNetworkCookie> cookies = {cookieA, QNetworkCookie("foo2", "bar")};
          CookieJar jar;
          jar.setAllCookies(cookies);
+diff --git a/test/testiconutils.cpp b/test/testiconutils.cpp
+index 9f16acd7f..a9625eec3 100644
+--- a/test/testiconutils.cpp
++++ b/test/testiconutils.cpp
+@@ -37,9 +37,9 @@ private slots:
+ 
+         Q_ASSERT(!blackImages.isEmpty());
+ 
+-        QVERIFY(!OCC::Ui::IconUtils::drawSvgWithCustomFillColor(blackSvgDirPath + QStringLiteral("/") + blackImages.at(0), QColorConstants::Svg::red).isNull());
++        QVERIFY(!OCC::Ui::IconUtils::drawSvgWithCustomFillColor(blackSvgDirPath + QStringLiteral("/") + blackImages.at(0), QRgb(0xff0000)).isNull());
+ 
+-        QVERIFY(!OCC::Ui::IconUtils::drawSvgWithCustomFillColor(blackSvgDirPath + QStringLiteral("/") + blackImages.at(0), QColorConstants::Svg::green).isNull());
++        QVERIFY(!OCC::Ui::IconUtils::drawSvgWithCustomFillColor(blackSvgDirPath + QStringLiteral("/") + blackImages.at(0), QRgb(0x00ff00)).isNull());
+ 
+         const QString whiteSvgDirPath{QString{OCC::Theme::themePrefix} + QStringLiteral("white")};
+         const QDir whiteSvgDir(whiteSvgDirPath);
+@@ -47,7 +47,7 @@ private slots:
+ 
+         Q_ASSERT(!whiteImages.isEmpty());
+ 
+-        QVERIFY(!OCC::Ui::IconUtils::drawSvgWithCustomFillColor(whiteSvgDirPath + QStringLiteral("/") + whiteImages.at(0), QColorConstants::Svg::blue).isNull());
++        QVERIFY(!OCC::Ui::IconUtils::drawSvgWithCustomFillColor(whiteSvgDirPath + QStringLiteral("/") + whiteImages.at(0), QRgb(0x0000ff)).isNull());
+     }
+ 
+     void testCreateSvgPixmapWithCustomColor()
+@@ -57,16 +57,16 @@ private slots:
+ 
+         QVERIFY(!blackImages.isEmpty());
+ 
+-        QVERIFY(!OCC::Ui::IconUtils::createSvgImageWithCustomColor(blackImages.at(0), QColorConstants::Svg::red).isNull());
++        QVERIFY(!OCC::Ui::IconUtils::createSvgImageWithCustomColor(blackImages.at(0), QRgb(0xff0000)).isNull());
+ 
+-        QVERIFY(!OCC::Ui::IconUtils::createSvgImageWithCustomColor(blackImages.at(0), QColorConstants::Svg::green).isNull());
++        QVERIFY(!OCC::Ui::IconUtils::createSvgImageWithCustomColor(blackImages.at(0), QRgb(0x00ff00)).isNull());
+ 
+         const QDir whiteSvgDir(QString(QString{OCC::Theme::themePrefix}) + QStringLiteral("white"));
+         const QStringList whiteImages = whiteSvgDir.entryList(QStringList("*.svg"));
+         
+         QVERIFY(!whiteImages.isEmpty());
+ 
+-        QVERIFY(!OCC::Ui::IconUtils::createSvgImageWithCustomColor(whiteImages.at(0), QColorConstants::Svg::blue).isNull());
++        QVERIFY(!OCC::Ui::IconUtils::createSvgImageWithCustomColor(whiteImages.at(0), QRgb(0x0000ff)).isNull());
+     }
+ 
+     void testPixmapForBackground()
 diff --git a/test/testunifiedsearchlistmodel.cpp b/test/testunifiedsearchlistmodel.cpp
 index ea7de04ba..0d1b33e09 100644
 --- a/test/testunifiedsearchlistmodel.cpp
