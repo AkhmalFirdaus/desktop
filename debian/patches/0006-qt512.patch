@@ -278,18 +278,18 @@ index 10ccd97db..996719d1b 100644
  
  #ifdef Q_OS_UNIX
 diff --git a/src/libsync/syncengine.cpp b/src/libsync/syncengine.cpp
-index 9813e63cb..ca43ba400 100644
+index 25a2826bb..52a5a6a6b 100644
 --- a/src/libsync/syncengine.cpp
 +++ b/src/libsync/syncengine.cpp
-@@ -53,6 +53,7 @@
- #include <QSslCertificate>
+@@ -55,6 +55,7 @@
  #include <QProcess>
  #include <QElapsedTimer>
+ #include <QFileInfo>
 +#include <QRegularExpression>
  #include <qtextcodec.h>
  
  namespace OCC {
-@@ -695,11 +696,7 @@ void SyncEngine::slotDiscoveryFinished()
+@@ -697,11 +698,7 @@ void SyncEngine::slotDiscoveryFinished()
              const QString script = qEnvironmentVariable("OWNCLOUD_POST_UPDATE_SCRIPT");
  
              qCDebug(lcEngine) << "Post Update Script: " << script;
@@ -378,21 +378,6 @@ index eead47953..a5053abd9 100644
          const QList<QNetworkCookie> cookies = {cookieA, QNetworkCookie("foo2", "bar")};
          CookieJar jar;
          jar.setAllCookies(cookies);
-diff --git a/test/testiconutils.cpp b/test/testiconutils.cpp
-index a25e9f0e6..4a026276e 100644
---- a/test/testiconutils.cpp
-+++ b/test/testiconutils.cpp
-@@ -47,8 +47,8 @@ private slots:
-             QVERIFY(!OCC::Ui::IconUtils::pixmapForBackground(blackImages.at(0), QColor("yellow")).isNull());
-         }
- 
--        const auto blackImagesExclusive = QSet<QString>(blackImages.begin(), blackImages.end()).subtract(QSet<QString>(whiteImages.begin(), whiteImages.end()));
--        const auto whiteImagesExclusive = QSet<QString>(whiteImages.begin(), whiteImages.end()).subtract(QSet<QString>(blackImages.begin(), blackImages.end()));
-+        const auto blackImagesExclusive = blackImages.toSet().subtract(whiteImages.toSet());
-+        const auto whiteImagesExclusive = whiteImages.toSet().subtract(blackImages.toSet());
- 
-         if (blackImagesExclusive != whiteImagesExclusive) {
-             // black pixmap for dark background - should fail as we don't have this image in black
 diff --git a/test/testunifiedsearchlistmodel.cpp b/test/testunifiedsearchlistmodel.cpp
 index ea7de04ba..0d1b33e09 100644
 --- a/test/testunifiedsearchlistmodel.cpp
