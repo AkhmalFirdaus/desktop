@@ -349,7 +349,9 @@ void DiscoverySingleDirectoryJob::start()
           << "getlastmodified"
           << "getcontentlength"
           << "getetag"
+          << "http://owncloud.org/ns:size"
           << "http://owncloud.org/ns:id"
+          << "http://owncloud.org/ns:fileid"
           << "http://owncloud.org/ns:downloadURL"
           << "http://owncloud.org/ns:dDC"
           << "http://owncloud.org/ns:permissions"
@@ -429,6 +431,10 @@ static void propertyMapToRemoteInfo(const QMap<QString, QString> &map, RemoteInf
             result.isE2eEncrypted = true;
         }
     }
+
+    if (result.isDirectory && map.contains("size")) {
+        result.sizeOfFolder = map.value("size").toInt();
+    }
 }
 
 void DiscoverySingleDirectoryJob::directoryListingIteratedSlot(const QString &file, const QMap<QString, QString> &map)
@@ -448,12 +454,18 @@ void DiscoverySingleDirectoryJob::directoryListingIteratedSlot(const QString &fi
                 _dataFingerprint = "[empty]";
             }
         }
+        if (map.contains(QStringLiteral("fileid"))) {
+            _localFileId = map.value(QStringLiteral("fileid")).toUtf8();
+        }
         if (map.contains("id")) {
             _fileId = map.value("id").toUtf8();
         }
         if (map.contains("is-encrypted") && map.value("is-encrypted") == QStringLiteral("1")) {
             _isE2eEncrypted = true;
             Q_ASSERT(!_fileId.isEmpty());
+        }
+        if (map.contains("size")) {
+            _size = map.value("size").toInt();
         }
     } else {
 
@@ -478,7 +490,7 @@ void DiscoverySingleDirectoryJob::directoryListingIteratedSlot(const QString &fi
     //This works in concerto with the RequestEtagJob and the Folder object to check if the remote folder changed.
     if (map.contains("getetag")) {
         if (_firstEtag.isEmpty()) {
-            _firstEtag = parseEtag(map.value("getetag").toUtf8()); // for directory itself
+            _firstEtag = parseEtag(map.value(QStringLiteral("getetag")).toUtf8()); // for directory itself
         }
     }
 }
@@ -521,7 +533,7 @@ void DiscoverySingleDirectoryJob::lsJobFinishedWithErrorSlot(QNetworkReply *r)
 
 void DiscoverySingleDirectoryJob::fetchE2eMetadata()
 {
-    auto job = new GetMetadataApiJob(_account, _fileId);
+    const auto job = new GetMetadataApiJob(_account, _localFileId);
     connect(job, &GetMetadataApiJob::jsonReceived,
             this, &DiscoverySingleDirectoryJob::metadataReceived);
     connect(job, &GetMetadataApiJob::error,

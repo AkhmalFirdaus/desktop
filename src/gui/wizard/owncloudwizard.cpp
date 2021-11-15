@@ -29,7 +29,6 @@
 #include "wizard/owncloudhttpcredspage.h"
 #include "wizard/owncloudoauthcredspage.h"
 #include "wizard/owncloudadvancedsetuppage.h"
-#include "wizard/owncloudwizardresultpage.h"
 #include "wizard/webviewpage.h"
 #include "wizard/flow2authcredspage.h"
 
@@ -57,7 +56,6 @@ OwncloudWizard::OwncloudWizard(QWidget *parent)
     , _browserCredsPage(new OwncloudOAuthCredsPage)
     , _flow2CredsPage(new Flow2AuthCredsPage)
     , _advancedSetupPage(new OwncloudAdvancedSetupPage(this))
-    , _resultPage(new OwncloudWizardResultPage)
 #ifdef WITH_WEBENGINE
     , _webViewPage(new WebViewPage(this))
 #else // WITH_WEBENGINE
@@ -77,7 +75,6 @@ OwncloudWizard::OwncloudWizard(QWidget *parent)
     setPage(WizardCommon::Page_OAuthCreds, _browserCredsPage);
     setPage(WizardCommon::Page_Flow2AuthCreds, _flow2CredsPage);
     setPage(WizardCommon::Page_AdvancedSetup, _advancedSetupPage);
-    setPage(WizardCommon::Page_Result, _resultPage);
 #ifdef WITH_WEBENGINE
     setPage(WizardCommon::Page_WebView, _webViewPage);
 #endif // WITH_WEBENGINE
@@ -217,16 +214,9 @@ void OwncloudWizard::setRegistration(bool registration)
     _registration = registration;
 }
 
-
-void OwncloudWizard::enableFinishOnResultWidget(bool enable)
-{
-    _resultPage->setComplete(enable);
-}
-
 void OwncloudWizard::setRemoteFolder(const QString &remoteFolder)
 {
     _advancedSetupPage->setRemoteFolder(remoteFolder);
-    _resultPage->setRemoteFolder(remoteFolder);
 }
 
 void OwncloudWizard::successfulStep()
@@ -257,13 +247,17 @@ void OwncloudWizard::successfulStep()
         break;
 
     case WizardCommon::Page_ServerSetup:
-    case WizardCommon::Page_Result:
         qCWarning(lcWizard, "Should not happen at this stage.");
         break;
     }
 
     ownCloudGui::raiseDialog(this);
-    next();
+    if (nextId() == -1) {
+        disconnect(this, &QDialog::finished, this, &OwncloudWizard::basicSetupFinished);
+        emit basicSetupFinished(QDialog::Accepted);
+    } else {
+        next();
+    }
 }
 
 void OwncloudWizard::setAuthType(DetermineAuthTypeJob::AuthType type)
@@ -308,7 +302,7 @@ void OwncloudWizard::slotCurrentPageChanged(int id)
         id == WizardCommon::Page_Flow2AuthCreds) {
         setButtonLayout({ QWizard::Stretch, QWizard::BackButton });
     } else if (id == WizardCommon::Page_AdvancedSetup) {
-        setButtonLayout({ QWizard::Stretch, QWizard::CustomButton1, QWizard::BackButton, QWizard::NextButton });
+        setButtonLayout({ QWizard::Stretch, QWizard::CustomButton1, QWizard::BackButton, QWizard::FinishButton });
         setNextButtonAsDefault();
     } else {
         setButtonLayout({ QWizard::Stretch, QWizard::BackButton, QWizard::NextButton });
@@ -317,14 +311,6 @@ void OwncloudWizard::slotCurrentPageChanged(int id)
 
     if (id == WizardCommon::Page_ServerSetup) {
         emit clearPendingRequests();
-    }
-
-    if (id == WizardCommon::Page_Result) {
-        disconnect(this, &QDialog::finished, this, &OwncloudWizard::basicSetupFinished);
-        emit basicSetupFinished(QDialog::Accepted);
-        appendToConfigurationLog(QString());
-        // Immediately close on show, we currently don't want this page anymore
-        done(Accepted);
     }
 
     if (id == WizardCommon::Page_AdvancedSetup && (_credentialsPage == _browserCredsPage || _credentialsPage == _flow2CredsPage)) {
@@ -443,6 +429,7 @@ void OwncloudWizard::askExperimentalVirtualFilesFeature(QWidget *receiver, const
         acceptButton = msgBox->addButton(tr("Enable experimental placeholder mode"), QMessageBox::AcceptRole);
         msgBox->addButton(tr("Stay safe"), QMessageBox::RejectRole);
         break;
+    case Vfs::XAttr:
     case Vfs::Off:
         Q_UNREACHABLE();
     }

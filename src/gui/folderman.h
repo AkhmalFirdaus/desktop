@@ -62,7 +62,7 @@ class FolderMan : public QObject
 {
     Q_OBJECT
 public:
-    ~FolderMan();
+    ~FolderMan() override;
     static FolderMan *instance();
 
     int setupFolders();
@@ -323,6 +323,8 @@ private:
     void runEtagJobIfPossible(Folder *folder);
 
     bool pushNotificationsFilesReady(Account *account);
+
+    bool isSwitchToVfsNeeded(const FolderDefinition &folderDefinition) const;
 
     QSet<Folder *> _disabledFolders;
     Folder::Map _folderMap;

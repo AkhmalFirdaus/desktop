@@ -41,7 +41,7 @@ class OWNCLOUDSYNC_EXPORT AbstractNetworkJob : public QObject
     Q_OBJECT
 public:
     explicit AbstractNetworkJob(AccountPtr account, const QString &path, QObject *parent = nullptr);
-    virtual ~AbstractNetworkJob();
+    ~AbstractNetworkJob() override;
 
     virtual void start();
 
@@ -127,6 +127,9 @@ protected:
     QNetworkReply *sendRequest(const QByteArray &verb, const QUrl &url,
         QNetworkRequest req = QNetworkRequest(),
         QIODevice *requestBody = nullptr);
+
+    QNetworkReply *sendRequest(const QByteArray &verb, const QUrl &url,
+        QNetworkRequest req, const QByteArray &requestBody);
 
     // sendRequest does not take a relative path instead of an url,
     // but the old API allowed that. We have this undefined overload

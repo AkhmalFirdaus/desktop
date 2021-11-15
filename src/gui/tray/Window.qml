@@ -1,10 +1,11 @@
 import QtQml 2.12
 import QtQml.Models 2.1
-import QtQuick 2.9
+import QtQuick 2.15
 import QtQuick.Window 2.3
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.2
 import QtGraphicalEffects 1.0
+import "../"
 
 // Custom qml modules are in /theme (and included by resources.qrc)
 import Style 1.0
@@ -22,7 +23,14 @@ Window {
     flags:      Systray.useNormalWindow ? Qt.Window : Qt.Dialog | Qt.FramelessWindowHint
 
 
+    property var fileActivityDialogAbsolutePath: ""
     readonly property int maxMenuHeight: Style.trayWindowHeight - Style.trayWindowHeaderHeight - 2 * Style.trayWindowBorderWidth
+
+    function openFileActivityDialog(displayPath, absolutePath) {
+        fileActivityDialogLoader.displayPath = displayPath
+        fileActivityDialogLoader.absolutePath = absolutePath
+        fileActivityDialogLoader.refresh()
+    }
 
     Component.onCompleted: Systray.forceWindowInit(trayWindow)
 
@@ -43,18 +51,20 @@ Window {
         // see also id:accountMenu below
         userLineInstantiator.active = false;
         userLineInstantiator.active = true;
+        syncStatus.model.load();
     }
 
     Connections {
         target: UserModel
-        onNewUserSelected: {
+        function onNewUserSelected() {
             accountMenu.close();
+            syncStatus.model.load();
         }
     }
 
     Connections {
         target: Systray
-        onShowWindow: {
+        function onShowWindow() {
             accountMenu.close();
             appsMenu.close();
             Systray.positionWindow(trayWindow);
@@ -66,9 +76,13 @@ Window {
             Systray.setOpened();
             UserModel.fetchCurrentActivityModel();
         }
-        onHideWindow: {
+        function onHideWindow() {
             trayWindow.hide();
             Systray.setClosed();
+        }
+
+        function onShowFileActivityDialog(displayPath, absolutePath) {
+            openFileActivityDialog(displayPath, absolutePath)
         }
     }
 
@@ -87,6 +101,11 @@ Window {
 
     Rectangle {
         id: trayWindowBackground
+
+        property bool isUnifiedSearchActive: unifiedSearchResultsListViewSkeleton.visible
+                                             || unifiedSearchResultNothingFound.visible
+                                             || unifiedSearchResultsErrorLabel.visible
+                                             || unifiedSearchResultsListView.visible
 
         anchors.fill:   parent
         radius: Systray.useNormalWindow ? 0.0 : Style.trayWindowRadius
@@ -140,6 +159,10 @@ Window {
                             }
                         }
 
+                        Loader {
+                            id: userStatusSelectorDialogLoader
+                        }
+
                         Menu {
                             id: accountMenu
 
@@ -167,7 +190,14 @@ Window {
                             Instantiator {
                                 id: userLineInstantiator
                                 model: UserModel
-                                delegate: UserLine {}
+                                delegate: UserLine {
+                                    onShowUserStatusSelectorDialog: {
+                                        userStatusSelectorDialogLoader.source = "qrc:/qml/src/gui/UserStatusSelectorDialog.qml"
+                                        userStatusSelectorDialogLoader.item.title = qsTr("Set user status")
+                                        userStatusSelectorDialogLoader.item.model.load(index)
+                                        userStatusSelectorDialogLoader.item.show()
+                                    }
+                                }
                                 onObjectAdded: accountMenu.insertItem(index, object)
                                 onObjectRemoved: accountMenu.removeItem(object)
                             }
@@ -396,7 +426,7 @@ Window {
                                     visible: UserModel.currentUser.statusMessage !== ""
                                     width: Style.currentAccountLabelWidth
                                     text: UserModel.currentUser.statusMessage !== ""
-                                          ? UserModel.currentUser.statusMessage 
+                                          ? UserModel.currentUser.statusMessage
                                           : UserModel.currentUser.server
                                     elide: Text.ElideRight
                                     color: Style.ncTextColor
@@ -428,20 +458,20 @@ Window {
                 Item {
                     Layout.fillWidth: true
                 }
-                
+
                 RowLayout {
                     id: openLocalFolderRowLayout
                     spacing: 0
                     Layout.preferredWidth:  Style.trayWindowHeaderHeight
                     Layout.preferredHeight: Style.trayWindowHeaderHeight
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    
+
                     HeaderButton {
                         id: openLocalFolderButton
                         visible: UserModel.currentUser.hasLocalFolder
                         icon.source: "qrc:///client/theme/white/folder.svg"
                         onClicked: UserModel.openCurrentAccountLocalFolder()
-                        
+
                         Rectangle {
                             id: folderStateIndicatorBackground
                             width: Style.folderStateIndicatorSize
@@ -452,7 +482,7 @@ Window {
                             radius: width*0.5
                             z: 1
                         }
-    
+
                         Image {
                             id: folderStateIndicator
                             visible: UserModel.currentUser.hasLocalFolder
@@ -460,19 +490,17 @@ Window {
                                     ? Style.stateOnlineImageSource
                                     : Style.stateOfflineImageSource
                             cache: false
-                            
+
                             anchors.top: openLocalFolderButton.verticalCenter
-                            anchors.left: openLocalFolderButton.horizontalCenter  
+                            anchors.left: openLocalFolderButton.horizontalCenter
                             sourceSize.width: Style.folderStateIndicatorSize
                             sourceSize.height: Style.folderStateIndicatorSize
-        
+
                             Accessible.role: Accessible.Indicator
                             Accessible.name: UserModel.currentUser.isConnected ? qsTr("Connected") : qsTr("Disconnected")
                             z: 2
                         }
                     }
-                    
- 
 
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Open local folder of current account")
@@ -480,11 +508,11 @@ Window {
 
                 HeaderButton {
                     id: trayWindowTalkButton
-                    
+
                     visible: UserModel.currentUser.serverHasTalk
                     icon.source: "qrc:///client/theme/white/talk-app.svg"
                     onClicked: UserModel.openCurrentAccountTalk()
-                    
+
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Open Nextcloud Talk in browser")
                     Accessible.onPressAction: trayWindowTalkButton.clicked()
@@ -493,7 +521,7 @@ Window {
                 HeaderButton {
                     id: trayWindowAppsButton
                     icon.source: "qrc:///client/theme/white/more-apps.svg"
-  
+
                     onClicked: {
                         if(appsMenu.count <= 0) {
                             UserModel.openCurrentAccountServer()
@@ -508,12 +536,10 @@ Window {
                     Accessible.name: qsTr("More apps")
                     Accessible.onPressAction: trayWindowAppsButton.clicked()
 
-                    Menu {
+                    AutoSizingMenu {
                         id: appsMenu
                         y: (trayWindowAppsButton.y + trayWindowAppsButton.height + 2)
                         readonly property Item listContentItem: contentItem.contentItem
-                        width: Math.min(listContentItem.childrenRect.width + 4, Style.trayWindowWidth / 2)
-                        height: Math.min(implicitHeight, maxMenuHeight)
                         closePolicy: Menu.CloseOnPressOutsideParent | Menu.CloseOnEscape
 
                         background: Rectangle {
@@ -531,23 +557,8 @@ Window {
                                 text: appName
                                 font.pixelSize: Style.topLinePixelSize
                                 icon.source: appIconUrl
-                                width: contentItem.implicitWidth + leftPadding + rightPadding
                                 onTriggered: UserAppsModel.openAppUrl(appUrl)
                                 hoverEnabled: true
-
-                                background: Item {
-                                    width: appsMenu.width
-                                    height: parent.height
-
-                                    Rectangle {
-                                        anchors.fill: parent
-                                        anchors.margins: 1
-                                        color: appEntry.hovered ? Style.lightHover : "transparent"
-                                    }
-                                    
-                                    Accessible.role: Accessible.PopupMenu
-                                    Accessible.name: qsTr("Apps menu")
-                                }
 
                                 Accessible.role: Accessible.MenuItem
                                 Accessible.name: qsTr("Open %1 in browser").arg(appName)
@@ -559,31 +570,187 @@ Window {
             }
         }   // Rectangle trayWindowHeaderBackground
 
-        ListView {
-            id: activityListView
-            anchors.top: trayWindowHeaderBackground.bottom
+        UnifiedSearchInputContainer {
+            id: trayWindowUnifiedSearchInputContainer
+            height: Style.trayWindowHeaderHeight * 0.65
+
+            anchors {
+                top: trayWindowHeaderBackground.bottom
+                left: trayWindowBackground.left
+                right: trayWindowBackground.right
+
+                margins: {
+                    top: 10
+                }
+            }
+
+            text: UserModel.currentUser.unifiedSearchResultsListModel.searchTerm
+            readOnly: !UserModel.currentUser.isConnected || UserModel.currentUser.unifiedSearchResultsListModel.currentFetchMoreInProgressProviderId
+            isSearchInProgress: UserModel.currentUser.unifiedSearchResultsListModel.isSearchInProgress
+            onTextEdited: { UserModel.currentUser.unifiedSearchResultsListModel.searchTerm = trayWindowUnifiedSearchInputContainer.text }
+            onClearText: { UserModel.currentUser.unifiedSearchResultsListModel.searchTerm = "" }
+        }
+
+        ErrorBox {
+            id: unifiedSearchResultsErrorLabel
+            visible:  UserModel.currentUser.unifiedSearchResultsListModel.errorString && !unifiedSearchResultsListView.visible && ! UserModel.currentUser.unifiedSearchResultsListModel.isSearchInProgress && ! UserModel.currentUser.unifiedSearchResultsListModel.currentFetchMoreInProgressProviderId
+            text:  UserModel.currentUser.unifiedSearchResultsListModel.errorString
+            color: Style.errorBoxBackgroundColor
+            backgroundColor: Style.errorBoxTextColor
+            borderColor: "transparent"
+            anchors.top: trayWindowUnifiedSearchInputContainer.bottom
+            anchors.left: trayWindowBackground.left
+            anchors.right: trayWindowBackground.right
+            anchors.margins: 10
+        }
+
+        UnifiedSearchResultNothingFound {
+            id: unifiedSearchResultNothingFound
+            visible: false
+            anchors.top: trayWindowUnifiedSearchInputContainer.bottom
+            anchors.left: trayWindowBackground.left
+            anchors.right: trayWindowBackground.right
+            anchors.topMargin: 10
+
+            text: UserModel.currentUser.unifiedSearchResultsListModel.searchTerm
+
+            property bool isSearchRunning: UserModel.currentUser.unifiedSearchResultsListModel.isSearchInProgress
+            property bool isSearchResultsEmpty: unifiedSearchResultsListView.count === 0
+            property bool nothingFound: text && isSearchResultsEmpty && !UserModel.currentUser.unifiedSearchResultsListModel.errorString
+
+            onIsSearchRunningChanged: {
+                if (unifiedSearchResultNothingFound.isSearchRunning) {
+                    visible = false;
+                } else {
+                    if (nothingFound) {
+                        visible = true;
+                    }
+                }
+            }
+
+            onTextChanged: {
+                visible = false;
+            }
+
+            onIsSearchResultsEmptyChanged: {
+                if (!unifiedSearchResultNothingFound.isSearchResultsEmpty) {
+                    visible = false;
+                }
+            }
+        }
+
+        UnifiedSearchResultItemSkeletonContainer {
+            id: unifiedSearchResultsListViewSkeleton
+            visible: !unifiedSearchResultNothingFound.visible && !unifiedSearchResultsListView.visible && ! UserModel.currentUser.unifiedSearchResultsListModel.errorString &&  UserModel.currentUser.unifiedSearchResultsListModel.searchTerm
+            anchors.top: trayWindowUnifiedSearchInputContainer.bottom
             anchors.left: trayWindowBackground.left
             anchors.right: trayWindowBackground.right
             anchors.bottom: trayWindowBackground.bottom
+            textLeftMargin: trayWindowBackground.Style.unifiedSearchResultTextLeftMargin
+            textRightMargin: trayWindowBackground.Style.unifiedSearchResultTextRightMargin
+            iconWidth: trayWindowBackground.Style.unifiedSearchResulIconWidth
+            iconLeftMargin: trayWindowBackground.Style.unifiedSearchResulIconLeftMargin
+            itemHeight: trayWindowBackground.Style.unifiedSearchItemHeight
+            titleFontSize: trayWindowBackground.Style.unifiedSearchResulTitleFontSize
+            sublineFontSize: trayWindowBackground.Style.unifiedSearchResulSublineFontSize
+            titleColor: trayWindowBackground.Style.unifiedSearchResulTitleColor
+            sublineColor: trayWindowBackground.Style.unifiedSearchResulSublineColor
+            iconColor: "#afafaf"
+        }
+
+        ListView {
+            id: unifiedSearchResultsListView
+            anchors.top: trayWindowUnifiedSearchInputContainer.bottom
+            anchors.left: trayWindowBackground.left
+            anchors.right: trayWindowBackground.right
+            anchors.bottom: trayWindowBackground.bottom
+            spacing: 4
+            visible: count > 0
             clip: true
             ScrollBar.vertical: ScrollBar {
-                id: listViewScrollbar
+                id: unifiedSearchResultsListViewScrollbar
             }
-
-            readonly property int maxActionButtons: 2
 
             keyNavigationEnabled: true
 
+            reuseItems: true
+
             Accessible.role: Accessible.List
-            Accessible.name: qsTr("Activity list")
+            Accessible.name: qsTr("Unified search results list")
 
-            model: activityModel
+            model: UserModel.currentUser.unifiedSearchResultsListModel
 
-            delegate: ActivityItem {  
-                width: activityListView.width
-                height: Style.trayWindowHeaderHeight
-                onClicked: activityModel.triggerDefaultAction(model.index)
+            delegate: UnifiedSearchResultListItem {
+                width: unifiedSearchResultsListView.width
+                height: trayWindowBackground.Style.unifiedSearchItemHeight
+                isSearchInProgress:  unifiedSearchResultsListView.model.isSearchInProgress
+                textLeftMargin: trayWindowBackground.Style.unifiedSearchResultTextLeftMargin
+                textRightMargin: trayWindowBackground.Style.unifiedSearchResultTextRightMargin
+                iconWidth: trayWindowBackground.Style.unifiedSearchResulIconWidth
+                iconLeftMargin: trayWindowBackground.Style.unifiedSearchResulIconLeftMargin
+                titleFontSize: trayWindowBackground.Style.unifiedSearchResulTitleFontSize
+                sublineFontSize: trayWindowBackground.Style.unifiedSearchResulSublineFontSize
+                titleColor: trayWindowBackground.Style.unifiedSearchResulTitleColor
+                sublineColor: trayWindowBackground.Style.unifiedSearchResulSublineColor
+                currentFetchMoreInProgressProviderId: unifiedSearchResultsListView.model.currentFetchMoreInProgressProviderId
+                fetchMoreTriggerClicked: unifiedSearchResultsListView.model.fetchMoreTriggerClicked
+                resultClicked: unifiedSearchResultsListView.model.resultClicked
+                ListView.onPooled: isPooled = true
+                ListView.onReused: isPooled = false
+            }
+
+            section.property: "providerName"
+            section.criteria: ViewSection.FullString
+            section.delegate: UnifiedSearchResultSectionItem {
+                width: unifiedSearchResultsListView.width
             }
         }
-    }       // Rectangle trayWindowBackground
+
+        SyncStatus {
+            id: syncStatus
+
+            visible: !trayWindowBackground.isUnifiedSearchActive
+
+            anchors.top: trayWindowUnifiedSearchInputContainer.bottom
+            anchors.left: trayWindowBackground.left
+            anchors.right: trayWindowBackground.right
+        }
+
+        ActivityList {
+            visible: !trayWindowBackground.isUnifiedSearchActive
+            anchors.top: syncStatus.bottom
+            anchors.left: trayWindowBackground.left
+            anchors.right: trayWindowBackground.right
+            anchors.bottom: trayWindowBackground.bottom
+
+            model: activityModel
+            onShowFileActivity: {
+                openFileActivityDialog(displayPath, absolutePath)
+            }
+            onActivityItemClicked: {
+                model.triggerDefaultAction(index)
+            }
+        }
+
+        Loader {
+            id: fileActivityDialogLoader
+
+            property string displayPath: ""
+            property string absolutePath: ""
+
+            function refresh() {
+                active = true
+                item.model.load(activityModel.accountState, absolutePath)
+                item.show()
+            }
+
+            active: false
+            sourceComponent: FileActivityDialog {
+                title: qsTr("%1 - File activity").arg(fileActivityDialogLoader.displayPath)
+                onClosing: fileActivityDialogLoader.active = false
+            }
+
+            onLoaded: refresh()
+        }
+    } // Rectangle trayWindowBackground
 }

@@ -20,7 +20,7 @@ PathComponents::PathComponents(const char *path)
 }
 
 PathComponents::PathComponents(const QString &path)
-    : QStringList { path.split(QLatin1Char('/'), QString::SkipEmptyParts) }
+    : QStringList { path.split(QLatin1Char('/'), Qt::SkipEmptyParts) }
 {
 }
 
@@ -243,6 +243,15 @@ QString FileInfo::path() const
     return (parentPath.isEmpty() ? QString() : (parentPath + QLatin1Char('/'))) + name;
 }
 
+QString FileInfo::absolutePath() const
+{
+    if (parentPath.endsWith(QLatin1Char('/'))) {
+        return parentPath + name;
+    } else {
+        return parentPath + QLatin1Char('/') + name;
+    }
+}
+
 void FileInfo::fixupParentPathRecursively()
 {
     auto p = path();
@@ -273,7 +282,7 @@ FakePropfindReply::FakePropfindReply(FileInfo &remoteRootFileInfo, QNetworkAcces
         QMetaObject::invokeMethod(this, "respond404", Qt::QueuedConnection);
         return;
     }
-    QString prefix = request.url().path().left(request.url().path().size() - fileName.size());
+    const QString prefix = request.url().path().left(request.url().path().size() - fileName.size());
 
     // Don't care about the request and just return a full propfind
     const QString davUri { QStringLiteral("DAV:") };
@@ -288,11 +297,12 @@ FakePropfindReply::FakePropfindReply(FileInfo &remoteRootFileInfo, QNetworkAcces
     auto writeFileResponse = [&](const FileInfo &fileInfo) {
         xml.writeStartElement(davUri, QStringLiteral("response"));
 
-        QString url = prefix + QString::fromUtf8(QUrl::toPercentEncoding(fileInfo.path(), "/"));
+        auto url = QString::fromUtf8(QUrl::toPercentEncoding(fileInfo.absolutePath(), "/"));
         if (!url.endsWith(QChar('/'))) {
             url.append(QChar('/'));
         }
-        xml.writeTextElement(davUri, QStringLiteral("href"), url);
+        const auto href = OCC::Utility::concatUrlPath(prefix, url).path();
+        xml.writeTextElement(davUri, QStringLiteral("href"), href);
         xml.writeStartElement(davUri, QStringLiteral("propstat"));
         xml.writeStartElement(davUri, QStringLiteral("prop"));
 
@@ -488,9 +498,11 @@ FakeGetReply::FakeGetReply(FileInfo &remoteRootFileInfo, QNetworkAccessManager::
     QString fileName = getFilePathFromUrl(request.url());
     Q_ASSERT(!fileName.isEmpty());
     fileInfo = remoteRootFileInfo.find(fileName);
-    if (!fileInfo)
-        qWarning() << "Could not find file" << fileName << "on the remote";
-    QMetaObject::invokeMethod(this, "respond", Qt::QueuedConnection);
+    if (!fileInfo) {
+        qDebug() << "meh;";
+    }
+    Q_ASSERT_X(fileInfo, Q_FUNC_INFO, "Could not find file on the remote");
+    QMetaObject::invokeMethod(this, &FakeGetReply::respond, Qt::QueuedConnection);
 }
 
 void FakeGetReply::respond()
@@ -697,14 +709,20 @@ void FakeChunkMoveReply::abort()
 }
 
 FakePayloadReply::FakePayloadReply(QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &body, QObject *parent)
-    : FakeReply { parent }
+    : FakePayloadReply(op, request, body, FakePayloadReply::defaultDelay, parent)
+{
+}
+
+FakePayloadReply::FakePayloadReply(
+    QNetworkAccessManager::Operation op, const QNetworkRequest &request, const QByteArray &body, int delay, QObject *parent)
+    : FakeReply{parent}
     , _body(body)
 {
     setRequest(request);
     setUrl(request.url());
     setOperation(op);
     open(QIODevice::ReadOnly);
-    QTimer::singleShot(10, this, &FakePayloadReply::respond);
+    QTimer::singleShot(delay, this, &FakePayloadReply::respond);
 }
 
 void FakePayloadReply::respond()
@@ -740,7 +758,7 @@ FakeErrorReply::FakeErrorReply(QNetworkAccessManager::Operation op, const QNetwo
     open(QIODevice::ReadOnly);
     setAttribute(QNetworkRequest::HttpStatusCodeAttribute, httpErrorCode);
     setError(InternalServerError, QStringLiteral("Internal Server Fake Error"));
-    QMetaObject::invokeMethod(this, "respond", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, &FakeErrorReply::respond, Qt::QueuedConnection);
 }
 
 void FakeErrorReply::respond()
@@ -784,7 +802,7 @@ void FakeHangingReply::abort()
     // Follow more or less the implementation of QNetworkReplyImpl::abort
     close();
     setError(OperationCanceledError, tr("Operation canceled"));
-    emit error(OperationCanceledError);
+    emit errorOccurred(OperationCanceledError);
     setFinished(true);
     emit finished();
 }
@@ -1039,6 +1057,19 @@ OCC::SyncFileItemPtr ItemCompletedSpy::findItem(const QString &path) const
             return item;
     }
     return OCC::SyncFileItemPtr::create();
+}
+
+OCC::SyncFileItemPtr ItemCompletedSpy::findItemWithExpectedRank(const QString &path, int rank) const
+{
+    Q_ASSERT(size() > rank);
+    Q_ASSERT(!(*this)[rank].isEmpty());
+
+    auto item = (*this)[rank][0].value<OCC::SyncFileItemPtr>();
+    if (item->destination() == path) {
+        return item;
+    } else {
+        return OCC::SyncFileItemPtr::create();
+    }
 }
 
 FakeReply::FakeReply(QObject *parent)

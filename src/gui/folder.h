@@ -117,7 +117,7 @@ public:
      */
     Folder(const FolderDefinition &definition, AccountState *accountState, std::unique_ptr<Vfs> vfs, QObject *parent = nullptr);
 
-    ~Folder();
+    ~Folder() override;
 
     using Map = QMap<QString, Folder *>;
     using MapIterator = QMapIterator<QString, Folder *>;
@@ -287,8 +287,12 @@ public:
     bool isVfsOnOffSwitchPending() const { return _vfsOnOffPending; }
     void setVfsOnOffSwitchPending(bool pending) { _vfsOnOffPending = pending; }
 
+    void switchToVirtualFiles();
+
     /** Whether this folder should show selective sync ui */
     bool supportsSelectiveSync() const;
+
+    QString fileFromLocalPath(const QString &localPath) const;
 
 signals:
     void syncStateChange();
@@ -376,8 +380,8 @@ private slots:
     void slotItemCompleted(const SyncFileItemPtr &);
 
     void slotRunEtagJob();
-    void etagRetrieved(const QString &, const QDateTime &tp);
-    void etagRetrievedFromSyncEngine(const QString &, const QDateTime &time);
+    void etagRetrieved(const QByteArray &, const QDateTime &tp);
+    void etagRetrievedFromSyncEngine(const QByteArray &, const QDateTime &time);
 
     void slotEmitFinishedDelayed();
 
@@ -447,7 +451,7 @@ private:
     SyncResult _syncResult;
     QScopedPointer<SyncEngine> _engine;
     QPointer<RequestEtagJob> _requestEtagJob;
-    QString _lastEtag;
+    QByteArray _lastEtag;
     QElapsedTimer _timeSinceLastSyncDone;
     QElapsedTimer _timeSinceLastSyncStart;
     QElapsedTimer _timeSinceLastFullLocalDiscovery;

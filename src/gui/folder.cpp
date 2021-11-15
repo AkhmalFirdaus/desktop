@@ -28,7 +28,7 @@
 #include "clientproxy.h"
 #include "syncengine.h"
 #include "syncrunfilelog.h"
-#include "socketapi.h"
+#include "socketapi/socketapi.h"
 #include "theme.h"
 #include "filesystem.h"
 #include "localdiscoverytracker.h"
@@ -353,7 +353,7 @@ void Folder::slotRunEtagJob()
     // The _requestEtagJob is auto deleting itself on finish. Our guard pointer _requestEtagJob will then be null.
 }
 
-void Folder::etagRetrieved(const QString &etag, const QDateTime &tp)
+void Folder::etagRetrieved(const QByteArray &etag, const QDateTime &tp)
 {
     // re-enable sync if it was disabled because network was down
     FolderMan::instance()->setSyncEnabled(true);
@@ -367,7 +367,7 @@ void Folder::etagRetrieved(const QString &etag, const QDateTime &tp)
     _accountState->tagLastSuccessfullETagRequest(tp);
 }
 
-void Folder::etagRetrievedFromSyncEngine(const QString &etag, const QDateTime &time)
+void Folder::etagRetrievedFromSyncEngine(const QByteArray &etag, const QDateTime &time)
 {
     qCInfo(lcFolder) << "Root etag from during sync:" << etag;
     accountState()->tagLastSuccessfullETagRequest(time);
@@ -669,8 +669,10 @@ void Folder::setVirtualFilesEnabled(bool enabled)
 
         _definition.virtualFilesMode = newMode;
         startVfs();
-        if (newMode != Vfs::Off)
+        if (newMode != Vfs::Off) {
             _saveInFoldersWithPlaceholders = true;
+            switchToVirtualFiles();
+        }
         saveToSettings();
     }
 }
@@ -684,6 +686,11 @@ void Folder::setRootPinState(PinState state)
     // We don't actually need discovery, but it's important to recurse
     // into all folders, so the changes can be applied.
     slotNextSyncFullLocalDiscovery();
+}
+
+void Folder::switchToVirtualFiles()
+{
+    SyncEngine::switchToVirtualFiles(path(), _journal, *_vfs);
 }
 
 bool Folder::supportsSelectiveSync() const
@@ -874,42 +881,15 @@ void Folder::setSyncOptions()
     opt._confirmExternalStorage = cfgFile.confirmExternalStorage();
     opt._moveFilesToTrash = cfgFile.moveToTrash();
     opt._vfs = _vfs;
+    opt._parallelNetworkJobs = _accountState->account()->isHttp2Supported() ? 20 : 6;
 
-    QByteArray chunkSizeEnv = qgetenv("OWNCLOUD_CHUNK_SIZE");
-    if (!chunkSizeEnv.isEmpty()) {
-        opt._initialChunkSize = chunkSizeEnv.toUInt();
-    } else {
-        opt._initialChunkSize = cfgFile.chunkSize();
-    }
-    QByteArray minChunkSizeEnv = qgetenv("OWNCLOUD_MIN_CHUNK_SIZE");
-    if (!minChunkSizeEnv.isEmpty()) {
-        opt._minChunkSize = minChunkSizeEnv.toUInt();
-    } else {
-        opt._minChunkSize = cfgFile.minChunkSize();
-    }
-    QByteArray maxChunkSizeEnv = qgetenv("OWNCLOUD_MAX_CHUNK_SIZE");
-    if (!maxChunkSizeEnv.isEmpty()) {
-        opt._maxChunkSize = maxChunkSizeEnv.toUInt();
-    } else {
-        opt._maxChunkSize = cfgFile.maxChunkSize();
-    }
+    opt._initialChunkSize = cfgFile.chunkSize();
+    opt._minChunkSize = cfgFile.minChunkSize();
+    opt._maxChunkSize = cfgFile.maxChunkSize();
+    opt._targetChunkUploadDuration = cfgFile.targetChunkUploadDuration();
 
-    int maxParallel = qgetenv("OWNCLOUD_MAX_PARALLEL").toUInt();
-    opt._parallelNetworkJobs = maxParallel ? maxParallel : _accountState->account()->isHttp2Supported() ? 20 : 6;
-
-    // Previously min/max chunk size values didn't exist, so users might
-    // have setups where the chunk size exceeds the new min/max default
-    // values. To cope with this, adjust min/max to always include the
-    // initial chunk size value.
-    opt._minChunkSize = qMin(opt._minChunkSize, opt._initialChunkSize);
-    opt._maxChunkSize = qMax(opt._maxChunkSize, opt._initialChunkSize);
-
-    QByteArray targetChunkUploadDurationEnv = qgetenv("OWNCLOUD_TARGET_CHUNK_UPLOAD_DURATION");
-    if (!targetChunkUploadDurationEnv.isEmpty()) {
-        opt._targetChunkUploadDuration = std::chrono::milliseconds(targetChunkUploadDurationEnv.toUInt());
-    } else {
-        opt._targetChunkUploadDuration = cfgFile.targetChunkUploadDuration();
-    }
+    opt.fillFromEnvironmentVariables();
+    opt.verifyChunkSizes();
 
     _engine->setSyncOptions(opt);
 }
@@ -1288,6 +1268,11 @@ void Folder::slotAboutToRemoveAllFiles(SyncFileItem::Direction dir, std::functio
     msgBox->open();
 }
 
+QString Folder::fileFromLocalPath(const QString &localPath) const
+{
+    return localPath.mid(cleanPath().length() + 1);
+}
+
 void FolderDefinition::save(QSettings &settings, const FolderDefinition &folder)
 {
     settings.setValue(QLatin1String("localPath"), folder.localPath);
@@ -1380,5 +1365,6 @@ QString FolderDefinition::defaultJournalPath(AccountPtr account)
 {
     return SyncJournalDb::makeDbName(localPath, account->url(), targetPath, account->credentials()->user());
 }
+
 
 } // namespace OCC

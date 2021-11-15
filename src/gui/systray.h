@@ -18,7 +18,7 @@
 #include <QSystemTrayIcon>
 
 #include "accountmanager.h"
-#include "tray/UserModel.h"
+#include "tray/usermodel.h"
 
 class QScreen;
 class QQmlApplicationEngine;
@@ -48,7 +48,7 @@ class Systray
 
 public:
     static Systray *instance();
-    virtual ~Systray() = default;
+    ~Systray() override = default;
 
     enum class TaskBarPosition { Bottom, Left, Top, Right };
     Q_ENUM(TaskBarPosition);
@@ -79,6 +79,7 @@ signals:
     void hideWindow();
     void showWindow();
     void openShareDialog(const QString &sharePath, const QString &localPath);
+    void showFileActivityDialog(const QString &sharePath, const QString &localPath);
 
 public slots:
     void slotNewUserSelected();
