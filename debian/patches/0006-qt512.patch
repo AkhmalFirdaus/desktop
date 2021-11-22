@@ -24,6 +24,21 @@ index d5391a7a4..1dd464d25 100644
  IF (Qt5DBus_FOUND)
      STRING(TOLOWER "${APPLICATION_VENDOR}" DBUS_VENDOR)
      STRING(REGEX REPLACE "[^A-z0-9]" "" DBUS_VENDOR "${DBUS_VENDOR}")
+diff --git a/src/3rdparty/kirigami/wheelhandler.cpp b/src/3rdparty/kirigami/wheelhandler.cpp
+index ce21e51ac..cc08643c3 100644
+--- a/src/3rdparty/kirigami/wheelhandler.cpp
++++ b/src/3rdparty/kirigami/wheelhandler.cpp
+@@ -189,8 +189,8 @@ KirigamiWheelEvent::~KirigamiWheelEvent() = default;
+ 
+ void KirigamiWheelEvent::initializeFromEvent(QWheelEvent *event)
+ {
+-    m_x = event->position().x();
+-    m_y = event->position().y();
++    m_x = event->x();
++    m_y = event->y();
+     m_angleDelta = event->angleDelta();
+     m_pixelDelta = event->pixelDelta();
+     m_buttons = event->buttons();
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 0c051c9a4..3db5ebd59 100644
 --- a/src/CMakeLists.txt
@@ -64,7 +79,7 @@ index 0e2699051..bf81102b0 100644
          for (const auto &it : changes) {
              journal->schedulePathForRemoteDiscovery(it);
 diff --git a/src/common/syncjournaldb.cpp b/src/common/syncjournaldb.cpp
-index 5c5195bba..11dc84458 100644
+index 0b66a6cc0..545299d87 100644
 --- a/src/common/syncjournaldb.cpp
 +++ b/src/common/syncjournaldb.cpp
 @@ -93,6 +93,7 @@ static QByteArray defaultJournalMode(const QString &dbPath)
@@ -76,10 +91,10 @@ index 5c5195bba..11dc84458 100644
      , _metadataTableIsEmpty(false)
  {
 diff --git a/src/common/syncjournaldb.h b/src/common/syncjournaldb.h
-index ba4c0ede8..8436d4775 100644
+index d51919f49..967eb8dd7 100644
 --- a/src/common/syncjournaldb.h
 +++ b/src/common/syncjournaldb.h
-@@ -393,7 +393,7 @@ private:
+@@ -392,7 +392,7 @@ private:
  
      SqlDatabase _db;
      QString _dbFile;
@@ -114,7 +129,7 @@ index aa528aa49..22ce217a0 100644
  #include "networkjobs.h"
  #include "creds/httpcredentials.h"
 diff --git a/src/gui/iconutils.cpp b/src/gui/iconutils.cpp
-index 40ad051ce..1ef1454e5 100644
+index 40ad051ce..f29339496 100644
 --- a/src/gui/iconutils.cpp
 +++ b/src/gui/iconutils.cpp
 @@ -53,8 +53,7 @@ QPixmap pixmapForBackground(const QString &fileName, const QColor &backgroundCol
@@ -152,7 +167,7 @@ index 6f5e2837d..1cb5cb91a 100644
  namespace {
  QString createRandomPassword()
 diff --git a/src/gui/tray/svgimageprovider.cpp b/src/gui/tray/svgimageprovider.cpp
-index ab5760700..1a9d33332 100644
+index ab5760700..e993970ac 100644
 --- a/src/gui/tray/svgimageprovider.cpp
 +++ b/src/gui/tray/svgimageprovider.cpp
 @@ -30,7 +30,7 @@ namespace Ui {
@@ -187,7 +202,7 @@ index 97a57f519..ded760f8b 100644
  
          if (_imagePaths.isEmpty()) {
 diff --git a/src/gui/tray/unifiedsearchresultslistmodel.cpp b/src/gui/tray/unifiedsearchresultslistmodel.cpp
-index a6cc8569d..ce56538e3 100644
+index 751ab7bbb..6b28d9e0b 100644
 --- a/src/gui/tray/unifiedsearchresultslistmodel.cpp
 +++ b/src/gui/tray/unifiedsearchresultslistmodel.cpp
 @@ -110,7 +110,7 @@ QString generateUrlForThumbnail(const QString &thumbnailUrl, const QUrl &serverU
@@ -199,7 +214,7 @@ index a6cc8569d..ce56538e3 100644
              : QStringList{thumbnailUrlCopy};
          Q_ASSERT(!thumbnailUrlCopySplitted.isEmpty());
          serverUrlCopy.setPath(thumbnailUrlCopySplitted[0]);
-@@ -485,7 +485,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
+@@ -486,7 +486,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
      }
  
      auto job = new JsonApiJob(_accountState->account(),
@@ -352,7 +367,7 @@ index 9c4ae0e8c..276bc4f8d 100644
          QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
          emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
 diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
-index 8fd5b1a3f..edf07b9b1 100644
+index ff7f58e60..6936fcde3 100644
 --- a/src/libsync/theme.cpp
 +++ b/src/libsync/theme.cpp
 @@ -753,17 +753,17 @@ QString Theme::versionSwitchOutput() const
@@ -415,7 +430,7 @@ index eead47953..a5053abd9 100644
          CookieJar jar;
          jar.setAllCookies(cookies);
 diff --git a/test/testiconutils.cpp b/test/testiconutils.cpp
-index 9f16acd7f..a9625eec3 100644
+index 9f16acd7f..b54ac1185 100644
 --- a/test/testiconutils.cpp
 +++ b/test/testiconutils.cpp
 @@ -37,9 +37,9 @@ private slots:
