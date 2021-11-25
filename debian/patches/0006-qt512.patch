@@ -395,7 +395,7 @@ index 330b12902..35c2616a6 100644
  }
  
 diff --git a/test/syncenginetestutils.cpp b/test/syncenginetestutils.cpp
-index 83af262be..84dcfbe61 100644
+index 83af262be..94dd5a95e 100644
 --- a/test/syncenginetestutils.cpp
 +++ b/test/syncenginetestutils.cpp
 @@ -24,7 +24,7 @@ PathComponents::PathComponents(const char *path)
@@ -407,6 +407,15 @@ index 83af262be..84dcfbe61 100644
  {
  }
  
+@@ -439,7 +439,7 @@ QVector<FileInfo *> FakePutMultiFileReply::performMultiPart(FileInfo &remoteRoot
+     constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
+     const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
+     auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
+-    auto allParts = stringPutPayloadRef.split(boundaryValue, Qt::SkipEmptyParts);
++    auto allParts = stringPutPayloadRef.split(boundaryValue, QString::SkipEmptyParts);
+     for (const auto &onePart : allParts) {
+         auto headerEndPosition = onePart.indexOf(QStringLiteral("\r\n\r\n"));
+         auto onePartHeaderPart = onePart.left(headerEndPosition);
 @@ -909,7 +909,7 @@ void FakeHangingReply::abort()
      // Follow more or less the implementation of QNetworkReplyImpl::abort
      close();
@@ -416,6 +425,15 @@ index 83af262be..84dcfbe61 100644
      setFinished(true);
      emit finished();
  }
+@@ -931,7 +931,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
+     constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
+     const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
+     auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
+-    auto allParts = stringPutPayloadRef.split(boundaryValue, Qt::SkipEmptyParts);
++    auto allParts = stringPutPayloadRef.split(boundaryValue, QString::SkipEmptyParts);
+     for (const auto &onePart : qAsConst(allParts)) {
+         auto headerEndPosition = onePart.indexOf(QStringLiteral("\r\n\r\n"));
+         auto onePartHeaderPart = onePart.left(headerEndPosition);
 diff --git a/test/testcookies.cpp b/test/testcookies.cpp
 index eead47953..a5053abd9 100644
 --- a/test/testcookies.cpp
