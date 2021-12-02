@@ -164,6 +164,7 @@ void BulkPropagatorJob::doStartUpload(SyncFileItemPtr item,
         fileToUpload._file = item->_file = item->_renameTarget;
         fileToUpload._path = propagator()->fullLocalPath(fileToUpload._file);
         item->_modtime = FileSystem::getModTime(newFilePathAbsolute);
+        Q_ASSERT(item->_modtime > 0);
     }
 
     const auto remotePath = propagator()->fullRemotePath(fileToUpload._file);
@@ -275,6 +276,7 @@ void BulkPropagatorJob::slotStartUpload(SyncFileItemPtr item,
     // have been changed again, so better check again here.
 
     item->_modtime = FileSystem::getModTime(originalFilePath);
+    Q_ASSERT(item->_modtime > 0);
     if (prevModtime != item->_modtime) {
         propagator()->_anotherSyncNeeded = true;
         qDebug() << "trigger another sync after checking modified time of item" << item->_file << "prevModtime" << prevModtime << "Curr" << item->_modtime;

@@ -210,6 +210,7 @@ void PropagateUploadFileCommon::start()
         }
         _item->_file = _item->_renameTarget;
         _item->_modtime = FileSystem::getModTime(newFilePathAbsolute);
+        Q_ASSERT(_item->_modtime > 0);
     }
 
     SyncJournalFileRecord parentRec;
@@ -312,6 +313,7 @@ void PropagateUploadFileCommon::slotComputeContentChecksum()
     // and not the _fileToUpload because we are checking the original file, not there
     // probably temporary one.
     _item->_modtime = FileSystem::getModTime(filePath);
+    Q_ASSERT(_item->_modtime > 0);
 
     const QByteArray checksumType = propagator()->account()->capabilities().preferredUploadChecksumType();
 
@@ -388,6 +390,7 @@ void PropagateUploadFileCommon::slotStartUpload(const QByteArray &transmissionCh
     // have been changed again, so better check again here.
 
     _item->_modtime = FileSystem::getModTime(originalFilePath);
+    Q_ASSERT(_item->_modtime > 0);
     if (prevModtime != _item->_modtime) {
         propagator()->_anotherSyncNeeded = true;
         qDebug() << "prevModtime" << prevModtime << "Curr" << _item->_modtime;
