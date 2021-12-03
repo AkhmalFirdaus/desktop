@@ -164,6 +164,10 @@ void BulkPropagatorJob::doStartUpload(SyncFileItemPtr item,
         fileToUpload._file = item->_file = item->_renameTarget;
         fileToUpload._path = propagator()->fullLocalPath(fileToUpload._file);
         item->_modtime = FileSystem::getModTime(newFilePathAbsolute);
+        if (item->_modtime <= 0) {
+            done(item, SyncFileItem::NormalError, tr("File Removed (start upload) %1").arg(fileToUpload._path));
+            return;
+        }
         Q_ASSERT(item->_modtime > 0);
     }
 
@@ -271,11 +275,19 @@ void BulkPropagatorJob::slotStartUpload(SyncFileItemPtr item,
     if (!FileSystem::fileExists(fullFilePath)) {
         return slotOnErrorStartFolderUnlock(item, SyncFileItem::SoftError, tr("File removed (start upload) %1").arg(fullFilePath));
     }
-    const time_t prevModtime = item->_modtime; // the _item value was set in PropagateUploadFile::start()
+    const auto prevModtime = item->_modtime; // the _item value was set in PropagateUploadFile::start()
+    if (prevModtime <= 0) {
+        done(item, SyncFileItem::NormalError, tr("File Removed (start upload) %1").arg(fileToUpload._path));
+        return;
+    }
     // but a potential checksum calculation could have taken some time during which the file could
     // have been changed again, so better check again here.
 
     item->_modtime = FileSystem::getModTime(originalFilePath);
+    if (item->_modtime <= 0) {
+        done(item, SyncFileItem::NormalError, tr("File Removed (start upload) %1").arg(fileToUpload._path));
+        return;
+    }
     Q_ASSERT(item->_modtime > 0);
     if (prevModtime != item->_modtime) {
         propagator()->_anotherSyncNeeded = true;

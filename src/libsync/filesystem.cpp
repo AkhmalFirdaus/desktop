@@ -88,7 +88,10 @@ bool FileSystem::fileChanged(const QString &fileName,
     qint64 previousSize,
     time_t previousMtime)
 {
-    Q_ASSERT(getModTime(fileName) > 0);
+    if (getModTime(fileName) <= 0) {
+        return true;
+    }
+
     return getSize(fileName) != previousSize
         || getModTime(fileName) != previousMtime;
 }
