@@ -88,7 +88,7 @@ bool FileSystem::fileChanged(const QString &fileName,
     qint64 previousSize,
     time_t previousMtime)
 {
-    if (getModTime(fileName) <= 0) {
+    if (getModTime(fileName) <= 0 || previousMtime <= 0) {
         return true;
     }
 
@@ -102,8 +102,7 @@ bool FileSystem::verifyFileUnchanged(const QString &fileName,
 {
     const qint64 actualSize = getSize(fileName);
     const time_t actualMtime = getModTime(fileName);
-    Q_ASSERT(actualMtime > 0);
-    if (actualSize != previousSize || actualMtime != previousMtime) {
+    if (actualSize != previousSize || actualMtime != previousMtime || actualMtime <= 0 || previousMtime <= 0) {
         qCInfo(lcFileSystem) << "File" << fileName << "has changed:"
                              << "size: " << previousSize << "<->" << actualSize
                              << ", mtime: " << previousMtime << "<->" << actualMtime;
