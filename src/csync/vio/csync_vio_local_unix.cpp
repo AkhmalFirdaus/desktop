@@ -142,6 +142,7 @@ static int _csync_vio_local_stat_mb(const mbchar_t *wuri, csync_file_stat_t *buf
     csync_stat_t sb;
 
     if (_tstat(wuri, &sb) < 0) {
+        qCDebug(lcCSyncVIOLocal) << "csync_vio_local_stat_mb" << errno << EACCES;
         return -1;
     }
 
