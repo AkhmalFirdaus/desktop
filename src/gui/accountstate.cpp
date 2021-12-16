@@ -223,8 +223,19 @@ void AccountState::setDesktopNotificationsAllowed(bool isAllowed)
 
 void AccountState::checkConnectivity()
 {
-    if (isSignedOut() || _waitingForNewCredentials) {
+    if (_waitingForNewCredentials) {
         return;
+    }
+
+    if (isSignedOut()) {
+        qCWarning(lcAccountState) << "Account is signed-out, but, we're going to try to sign in again.";
+        qCWarning(lcAccountState) << "_connectionErrors are:" << _connectionErrors;
+        qCWarning(lcAccountState) << "_connectionStatus is:" << _connectionStatus;
+        if (account()) {
+            account()->resetRejectedCertificates();
+            signIn();
+            return;
+        }
     }
 
     if (_connectionValidator) {
