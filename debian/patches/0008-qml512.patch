@@ -1,11 +1,3 @@
-commit f8c2872aa24b56c3e1b70e2f449898cd7f28625d
-Author: alex-z <blackslayer4@gmail.com>
-Date:   Wed Dec 29 17:53:34 2021 +0200
-
-    Use QML 5.12 everywhere.
-    
-    Signed-off-by: alex-z <blackslayer4@gmail.com>
-
 diff --git a/src/gui/EmojiPicker.qml b/src/gui/EmojiPicker.qml
 index 6a66dbdcb..a498f42f5 100644
 --- a/src/gui/EmojiPicker.qml
@@ -171,7 +163,7 @@ index 33a05f2d5..c698abfbb 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchResultNothingFound.qml b/src/gui/tray/UnifiedSearchResultNothingFound.qml
-index 36cea93a6..eb8265960 100644
+index 36cea93a6..8878b052c 100644
 --- a/src/gui/tray/UnifiedSearchResultNothingFound.qml
 +++ b/src/gui/tray/UnifiedSearchResultNothingFound.qml
 @@ -1,5 +1,5 @@
@@ -182,11 +174,20 @@ index 36cea93a6..eb8265960 100644
  import QtQuick.Controls 2.3
  import QtQuick.Layouts 1.2
  import Style 1.0
+@@ -7,7 +7,7 @@ import Style 1.0
+ ColumnLayout {
+     id: unifiedSearchResultNothingFoundContainer
+ 
+-    required property string text
++    property string text
+ 
+     spacing: 8
+     anchors.leftMargin: 10
 diff --git a/src/gui/tray/UnifiedSearchResultSectionItem.qml b/src/gui/tray/UnifiedSearchResultSectionItem.qml
-index a6f9fd591..9396727a2 100644
+index a6f9fd591..c7a5fd56c 100644
 --- a/src/gui/tray/UnifiedSearchResultSectionItem.qml
 +++ b/src/gui/tray/UnifiedSearchResultSectionItem.qml
-@@ -1,6 +1,6 @@
+@@ -1,11 +1,11 @@
 -import QtQml 2.15
 -import QtQuick 2.15
 -import QtQuick.Controls 2.15
@@ -196,6 +197,12 @@ index a6f9fd591..9396727a2 100644
  import QtQuick.Layouts 1.2
  import Style 1.0
  
+ Label {
+-    required property string section
++    property string section
+ 
+     topPadding: 8
+     bottomPadding: 8
 diff --git a/src/gui/tray/Window.qml b/src/gui/tray/Window.qml
 index 631097879..5b107b113 100644
 --- a/src/gui/tray/Window.qml
