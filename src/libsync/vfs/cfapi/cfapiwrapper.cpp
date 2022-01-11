@@ -589,11 +589,13 @@ bool OCC::CfApiWrapper::isSparseFile(const QString &path)
 OCC::CfApiWrapper::FileHandle OCC::CfApiWrapper::handleForPath(const QString &path)
 {
     if (path.isEmpty()) {
+        qCWarning(lcCfApiWrapper) << "Empty path" << path;
         return {};
     }
 
     QFileInfo pathFileInfo(path);
     if (!pathFileInfo.exists()) {
+        qCWarning(lcCfApiWrapper) << "Path does not exists" << path;
         return {};
     }
 
@@ -603,6 +605,7 @@ OCC::CfApiWrapper::FileHandle OCC::CfApiWrapper::handleForPath(const QString &pa
         if (openResult == S_OK) {
             return {handle, [](HANDLE h) { CfCloseHandle(h); }};
         }
+        qCWarning(lcCfApiWrapper) << "CfOpenFileWithOplock fails with path" << path << "with error:" << GetLastError();
     } else if (pathFileInfo.isFile()) {
         const auto longpath = OCC::FileSystem::longWinPath(path);
         const auto handle = CreateFile(longpath.toStdWString().data(), 0, 0, nullptr,
@@ -613,6 +616,8 @@ OCC::CfApiWrapper::FileHandle OCC::CfApiWrapper::handleForPath(const QString &pa
             qCCritical(lcCfApiWrapper) << "Could not CreateFile for longpath:" << longpath << "with error:" << GetLastError();
         }
     }
+
+    qCWarning(lcCfApiWrapper) << path << "is not a file and not a directory";
 
     return {};
 }
