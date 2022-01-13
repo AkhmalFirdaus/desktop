@@ -116,6 +116,11 @@ public:
     void setUrl(const QUrl &url);
     QUrl url() const { return _url; }
 
+    bool isPublicShareLink() const
+    {
+        return _isPublicLink;
+    }
+
     /// Adjusts _userVisibleUrl once the host to use is discovered.
     void setUserVisibleHost(const QString &host);
 
@@ -326,6 +331,7 @@ private:
 #endif
     QMap<QString, QVariant> _settingsMap;
     QUrl _url;
+    bool _isPublicLink = false;
 
     /** If url to use for any user-visible urls.
      *
