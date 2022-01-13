@@ -116,6 +116,19 @@ index 887213f09..8b3f1d1b9 100644
      } else {
          if (!QFile::remove(desktopFileLocation)) {
              qCWarning(lcUtility) << "Could not remove autostart desktop file";
+diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+index 744d6501a..deeaa1287 100644
+--- a/src/gui/CMakeLists.txt
++++ b/src/gui/CMakeLists.txt
+@@ -59,7 +59,7 @@ set(client_UI_SRCS
+ if(QUICK_COMPILER)
+     qtquick_compiler_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
+ else()
+-    qt_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
++    qt5_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
+ endif()
+ 
+ set(client_SRCS
 diff --git a/src/gui/creds/oauth.cpp b/src/gui/creds/oauth.cpp
 index aa528aa49..22ce217a0 100644
 --- a/src/gui/creds/oauth.cpp
@@ -154,11 +167,23 @@ index 09e147da3..760d8869b 100644
  
  namespace OCC {
  
+diff --git a/src/gui/passwordinputdialog.h b/src/gui/passwordinputdialog.h
+index 50528a252..9df1a76f9 100644
+--- a/src/gui/passwordinputdialog.h
++++ b/src/gui/passwordinputdialog.h
+@@ -15,6 +15,7 @@
+ #pragma once
+ 
+ #include <QDialog>
++#include <memory>
+ 
+ namespace OCC {
+ 
 diff --git a/src/gui/sharedialog.cpp b/src/gui/sharedialog.cpp
-index 6f5e2837d..1cb5cb91a 100644
+index b88bf5409..b575dd0d8 100644
 --- a/src/gui/sharedialog.cpp
 +++ b/src/gui/sharedialog.cpp
-@@ -33,6 +33,7 @@
+@@ -34,6 +34,7 @@
  #include <QPointer>
  #include <QPushButton>
  #include <QFrame>
@@ -224,7 +249,7 @@ index 751ab7bbb..6b28d9e0b 100644
      QUrlQuery params;
      params.addQueryItem(QStringLiteral("term"), _searchTerm);
 diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
-index 5242861ad..ace68395d 100644
+index 35aa36ce4..67c1ddb9e 100644
 --- a/src/libsync/account.cpp
 +++ b/src/libsync/account.cpp
 @@ -49,7 +49,6 @@
@@ -235,7 +260,7 @@ index 5242861ad..ace68395d 100644
  #include <qt5keychain/keychain.h>
  #include "creds/abstractcredentials.h"
  
-@@ -402,7 +401,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+@@ -404,7 +403,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
      sslConfig.setSslOption(QSsl::SslOptionDisableSessionSharing, false);
      sslConfig.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
  
@@ -244,7 +269,7 @@ index 5242861ad..ace68395d 100644
  
      return sslConfig;
  }
-@@ -410,7 +409,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+@@ -412,7 +411,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
  void Account::setApprovedCerts(const QList<QSslCertificate> certs)
  {
      _approvedCerts = certs;
@@ -253,7 +278,7 @@ index 5242861ad..ace68395d 100644
  }
  
  void Account::addApprovedCerts(const QList<QSslCertificate> certs)
-@@ -505,7 +504,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
+@@ -507,7 +506,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
              return;
  
          if (!approvedCerts.isEmpty()) {
@@ -275,10 +300,10 @@ index c894cfc2a..c5d4eb48f 100644
  #include "syncoptions.h"
  #include "syncfileitem.h"
 diff --git a/src/libsync/logger.cpp b/src/libsync/logger.cpp
-index 2a90c976b..fe94ef848 100644
+index 294ad2bb6..8bd85f19e 100644
 --- a/src/libsync/logger.cpp
 +++ b/src/libsync/logger.cpp
-@@ -94,7 +94,7 @@ void Logger::doLog(QtMsgType type, const QMessageLogContext &ctx, const QString
+@@ -118,7 +118,7 @@ void Logger::doLog(QtMsgType type, const QMessageLogContext &ctx, const QString
          _crashLogIndex = (_crashLogIndex + 1) % CrashLogSize;
          _crashLog[_crashLogIndex] = msg;
          if (_logstream) {
@@ -288,7 +313,7 @@ index 2a90c976b..fe94ef848 100644
                  _logstream->flush();
          }
 diff --git a/src/libsync/networkjobs.cpp b/src/libsync/networkjobs.cpp
-index f2ba661e4..0c86ee3ec 100644
+index 82b5e5f4b..87e734b3b 100644
 --- a/src/libsync/networkjobs.cpp
 +++ b/src/libsync/networkjobs.cpp
 @@ -30,6 +30,7 @@
@@ -317,10 +342,10 @@ index 95f3810e2..15e064326 100644
      qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
      return QDateTime::currentDateTime().toTime_t();
 diff --git a/src/libsync/propagatedownload.cpp b/src/libsync/propagatedownload.cpp
-index 10ccd97db..996719d1b 100644
+index 5bdd72d5b..3ff165dc7 100644
 --- a/src/libsync/propagatedownload.cpp
 +++ b/src/libsync/propagatedownload.cpp
-@@ -33,6 +33,7 @@
+@@ -32,6 +32,7 @@
  #include <QNetworkAccessManager>
  #include <QFileInfo>
  #include <QDir>
@@ -367,10 +392,10 @@ index 9c4ae0e8c..276bc4f8d 100644
          QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
          emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
 diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
-index 330b12902..35c2616a6 100644
+index ff7f58e60..6936fcde3 100644
 --- a/src/libsync/theme.cpp
 +++ b/src/libsync/theme.cpp
-@@ -762,17 +762,17 @@ QString Theme::versionSwitchOutput() const
+@@ -753,17 +753,17 @@ QString Theme::versionSwitchOutput() const
      QTextStream stream(&helpText);
      stream << appName()
             << QLatin1String(" version ")
@@ -395,7 +420,7 @@ index 330b12902..35c2616a6 100644
  }
  
 diff --git a/test/syncenginetestutils.cpp b/test/syncenginetestutils.cpp
-index 83af262be..94dd5a95e 100644
+index a5eaaaaf7..465502777 100644
 --- a/test/syncenginetestutils.cpp
 +++ b/test/syncenginetestutils.cpp
 @@ -24,7 +24,7 @@ PathComponents::PathComponents(const char *path)
@@ -416,7 +441,7 @@ index 83af262be..94dd5a95e 100644
      for (const auto &onePart : allParts) {
          auto headerEndPosition = onePart.indexOf(QStringLiteral("\r\n\r\n"));
          auto onePartHeaderPart = onePart.left(headerEndPosition);
-@@ -909,7 +909,7 @@ void FakeHangingReply::abort()
+@@ -905,7 +905,7 @@ void FakeHangingReply::abort()
      // Follow more or less the implementation of QNetworkReplyImpl::abort
      close();
      setError(OperationCanceledError, tr("Operation canceled"));
@@ -425,7 +450,7 @@ index 83af262be..94dd5a95e 100644
      setFinished(true);
      emit finished();
  }
-@@ -931,7 +931,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
+@@ -927,7 +927,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
      constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
      const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
      auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
