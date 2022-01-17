@@ -212,6 +212,8 @@ QString SyncJournalDb::databaseFilePath() const
 // Then the next sync (and the SocketAPI) will have a faster access.
 void SyncJournalDb::walCheckpoint()
 {
+    QMutexLocker locker(&_mutex);
+
     QElapsedTimer t;
     t.start();
     SqlQuery pragma1(_db);
@@ -1019,6 +1021,7 @@ qint64 SyncJournalDb::keyValueStoreGetInt(const QString &key, qint64 defaultValu
 
 void SyncJournalDb::keyValueStoreDelete(const QString &key)
 {
+    QMutexLocker locker(&_mutex);
     const auto query = _queryManager.get(PreparedSqlQueryManager::DeleteKeyValueStoreQuery, QByteArrayLiteral("DELETE FROM key_value_store WHERE key=?1;"), _db);
     if (!query) {
         qCWarning(lcDb) << "Failed to initOrReset _deleteKeyValueStoreQuery";
