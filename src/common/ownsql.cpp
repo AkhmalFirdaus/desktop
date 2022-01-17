@@ -308,8 +308,10 @@ bool SqlQuery::exec()
                 rc = sqlite3_reset(_stmt); /* This will also return SQLITE_LOCKED */
                 n++;
                 OCC::Utility::usleep(SQLITE_SLEEP_TIME_USEC);
+                Q_ASSERT_X(false, "SQLITE_LOCKED", "database is locked");
             } else if (rc == SQLITE_BUSY) {
                 OCC::Utility::usleep(SQLITE_SLEEP_TIME_USEC);
+                Q_ASSERT_X(false, "SQLITE_BUSY", "database is locked");
                 n++;
             }
         } while ((n < SQLITE_REPEAT_COUNT) && ((rc == SQLITE_BUSY) || (rc == SQLITE_LOCKED)));
