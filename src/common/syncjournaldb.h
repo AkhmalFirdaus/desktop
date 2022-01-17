@@ -66,7 +66,7 @@ public:
     bool getFileRecordsByFileId(const QByteArray &fileId, const std::function<void(const SyncJournalFileRecord &)> &rowCallback);
     bool getFilesBelowPath(const QByteArray &path, const std::function<void(const SyncJournalFileRecord&)> &rowCallback);
     bool listFilesInPath(const QByteArray &path, const std::function<void(const SyncJournalFileRecord&)> &rowCallback);
-    Result<void, QString> setFileRecord(const SyncJournalFileRecord &record);
+    [[nodiscard]] Result<void, QString> setFileRecord(const SyncJournalFileRecord &record);
 
     void keyValueStoreSet(const QString &key, QVariant value);
     qint64 keyValueStoreGetInt(const QString &key, qint64 defaultValue);

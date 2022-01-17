@@ -630,7 +630,10 @@ void Folder::implicitlyHydrateFile(const QString &relativepath)
         return;
     }
     record._type = ItemTypeVirtualFileDownload;
-    _journal.setFileRecord(record);
+    auto databaseResult = _journal.setFileRecord(record);
+    if (!databaseResult) {
+        qCWarning(lcFolder()) << "error when trying to update file record of" << record._path << databaseResult.error();
+    }
 
     // Change the file's pin state if it's contradictory to being hydrated
     // (suffix-virtual file's pin state is stored at the hydrated path)

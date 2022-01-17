@@ -51,7 +51,11 @@ void EncryptFolderJob::slotEncryptionFlagSuccess(const QByteArray &fileId)
     _journal->getFileRecord(_path, &rec);
     if (rec.isValid()) {
         rec._isE2eEncrypted = true;
-        _journal->setFileRecord(rec);
+        auto result = _journal->setFileRecord(rec);
+        if (!result) {
+            qDebug() << "Error on the encryption flag of" << fileId << "Database error code:" << result.error();
+            emit finished(Error);
+        }
     }
 
     auto lockJob = new LockEncryptFolderApiJob(_account, fileId, this);

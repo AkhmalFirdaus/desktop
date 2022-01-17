@@ -370,7 +370,12 @@ void OCC::SyncEngine::slotItemDiscovered(const OCC::SyncFileItemPtr &item)
             }
 
             // Updating the db happens on success
-            _journal->setFileRecord(rec);
+            auto updateResult = _journal->setFileRecord(rec);
+            if (!updateResult) {
+                item->_instruction = CSYNC_INSTRUCTION_ERROR;
+                item->_errorString = tr("Could not update virtual file metadata: %1").arg(updateResult.error());
+                return;
+            }
 
             // This might have changed the shared flag, so we must notify SyncFileStatusTracker for example
             emit itemCompleted(item);

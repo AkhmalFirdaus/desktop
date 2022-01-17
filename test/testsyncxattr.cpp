@@ -57,7 +57,7 @@ void triggerDownload(FakeFolder &folder, const QByteArray &path)
     if (!record.isValid())
         return;
     record._type = ItemTypeVirtualFileDownload;
-    journal.setFileRecord(record);
+    QVERIFY(journal.setFileRecord(record));
     journal.schedulePathForRemoteDiscovery(record._path);
 }
 
@@ -69,7 +69,7 @@ void markForDehydration(FakeFolder &folder, const QByteArray &path)
     if (!record.isValid())
         return;
     record._type = ItemTypeVirtualFileDehydration;
-    journal.setFileRecord(record);
+    QVERIFY(journal.setFileRecord(record));
     journal.schedulePathForRemoteDiscovery(record._path);
 }
 

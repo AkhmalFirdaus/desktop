@@ -1323,7 +1323,13 @@ void ProcessDirectoryJob::processFileConflict(const SyncFileItemPtr &item, Proce
             rec._fileSize = serverEntry.size;
             rec._remotePerm = serverEntry.remotePerm;
             rec._checksumHeader = serverEntry.checksumHeader;
-            _discoveryData->_statedb->setFileRecord(rec);
+            auto databaseResult = _discoveryData->_statedb->setFileRecord(rec);
+            if (!databaseResult) {
+                qCWarning(lcDisco) << "setFileRecord: ERROR" << item->_file;
+                item->_instruction = CSYNC_INSTRUCTION_ERROR;
+                item->_errorString = tr("Error updating internal state: %1").arg(databaseResult.error());
+                return;
+            }
         }
         return;
     }

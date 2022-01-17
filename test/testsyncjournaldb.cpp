@@ -81,7 +81,7 @@ private slots:
         record._fileId = "efg";
         record._remotePerm = RemotePermissions::fromDbValue("NV");
         record._fileSize = 289055;
-        _db.setFileRecord(record);
+        QVERIFY(_db.setFileRecord(record));
         QVERIFY(_db.getFileRecord(QByteArrayLiteral("foo"), &storedRecord));
         QVERIFY(storedRecord == record);
 
@@ -215,7 +215,7 @@ private slots:
             record._type = type;
             record._etag = initialEtag;
             record._remotePerm = RemotePermissions::fromDbValue("RW");
-            _db.setFileRecord(record);
+            QVERIFY(_db.setFileRecord(record));
         };
         auto getEtag = [&](const QByteArray &path) {
             SyncJournalFileRecord record;
@@ -277,7 +277,7 @@ private slots:
             SyncJournalFileRecord record;
             record._path = path;
             record._remotePerm = RemotePermissions::fromDbValue("RW");
-            _db.setFileRecord(record);
+            QVERIFY(_db.setFileRecord(record));
         };
 
         QByteArrayList elements;
