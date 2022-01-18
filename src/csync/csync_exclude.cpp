@@ -37,6 +37,8 @@
 #include <QFileInfo>
 #include <QDir>
 
+Q_LOGGING_CATEGORY(lcCSyncExcludes, "nextcloud.sync.csync.excludes", QtInfoMsg)
+
 /** Expands C-like escape sequences (in place)
  */
 OCSYNC_EXPORT void csync_exclude_expand_escapes(QByteArray &input)
@@ -247,6 +249,23 @@ void ExcludedFiles::addExcludeFilePath(const QString &path)
     }
 }
 
+bool ExcludedFiles::removeExcludeFilePath(const QString &path)
+{
+    const QFileInfo excludeFileInfo(path);
+    const auto fileName = excludeFileInfo.fileName();
+    const auto basePath = fileName.compare(QStringLiteral("sync-exclude.lst"), Qt::CaseInsensitive) == 0
+                                                                    ? _localPath
+                                                                    : leftIncludeLast(path, QLatin1Char('/'));
+    auto &excludeFilesLocalPath = _excludeFiles[basePath];
+    auto it = std::find(excludeFilesLocalPath.begin(), excludeFilesLocalPath.end(), path);
+    if (it != excludeFilesLocalPath.end()) {
+        excludeFilesLocalPath.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
 void ExcludedFiles::setExcludeConflictFiles(bool onoff)
 {
     _excludeConflictFiles = onoff;
@@ -425,7 +444,9 @@ CSYNC_EXCLUDE_TYPE ExcludedFiles::traversalPatternMatch(const QString &path, Ite
             addExcludeFilePath(absolutePath);
             reloadExcludeFiles();
         } else {
-            qWarning() << "System exclude list file could not be read:" << absolutePath;
+            if (removeExcludeFilePath(absolutePath)) {
+                reloadExcludeFiles();
+            }
         }
     }
 

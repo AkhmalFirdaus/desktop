@@ -80,6 +80,13 @@ public:
     void addExcludeFilePath(const QString &path);
 
     /**
+     * Removes a new path to a file containing exclude patterns (no op if the file is not in the list).
+     *
+     * Does not load the file. Use reloadExcludeFiles() afterwards.
+     */
+    bool removeExcludeFilePath(const QString &path);
+
+    /**
      * Whether conflict files shall be excluded.
      *
      * Defaults to true.
