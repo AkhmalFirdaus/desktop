@@ -443,11 +443,22 @@ void Account::setUrl(const QUrl &url)
         _url.setUserName(isPublicLink.captured(2));
         setDavUser(isPublicLink.captured(2));
         _isPublicLink = true;
+        _publicShareLinkUrl = url;
     } else {
         _url = url;
     }
 
     _userVisibleUrl = url;
+}
+
+QUrl Account::url() const
+{
+    return _url;
+}
+
+QUrl Account::publicShareLinkUrl() const
+{
+    return _publicShareLinkUrl;
 }
 
 void Account::setUserVisibleHost(const QString &host)
