@@ -22,7 +22,7 @@ Window {
     color:      "transparent"
     flags:      Systray.useNormalWindow ? Qt.Window : Qt.Dialog | Qt.FramelessWindowHint
 
-    LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLef
+    LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
     property var fileActivityDialogAbsolutePath: ""

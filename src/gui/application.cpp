@@ -83,7 +83,8 @@ namespace {
         "  --logflush           : flush the log file after every write.\n"
         "  --logdebug           : also output debug-level messages in the log.\n"
         "  --confdir <dirname>  : Use the given configuration folder.\n"
-        "  --background         : launch the application in the background.\n";
+        "  --background         : launch the application in the background.\n"
+        "  --reverse            : use a reverse layout direction.\n";
 
     QString applicationTrPath()
     {
@@ -636,6 +637,8 @@ void Application::parseOptions(const QStringList &options)
             _backgroundMode = true;
         } else if (option == QLatin1String("--version") || option == QLatin1String("-v")) {
             _versionOnly = true;
+        } else if (option == QLatin1String("--reverse")) {
+            setLayoutDirection(layoutDirection() == Qt::LeftToRight ? Qt::RightToLeft : Qt::LeftToRight);
         } else if (option.endsWith(QStringLiteral(APPLICATION_DOTVIRTUALFILE_SUFFIX))) {
             // virtual file, open it after the Folder were created (if the app is not terminated)
             QTimer::singleShot(0, this, [this, option] { openVirtualFile(option); });

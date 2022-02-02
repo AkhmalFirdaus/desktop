@@ -22,7 +22,7 @@ Window {
 
     flags: Qt.Dialog
     
-    LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLef
+    LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
     UserStatusSelector {
