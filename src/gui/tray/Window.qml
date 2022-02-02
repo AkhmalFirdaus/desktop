@@ -22,6 +22,8 @@ Window {
     color:      "transparent"
     flags:      Systray.useNormalWindow ? Qt.Window : Qt.Dialog | Qt.FramelessWindowHint
 
+    LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLef
+    LayoutMirroring.childrenInherit: true
 
     property var fileActivityDialogAbsolutePath: ""
     readonly property int maxMenuHeight: Style.trayWindowHeight - Style.trayWindowHeaderHeight - 2 * Style.trayWindowBorderWidth

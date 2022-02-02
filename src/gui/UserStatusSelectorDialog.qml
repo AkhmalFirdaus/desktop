@@ -1,3 +1,5 @@
+import QtQml 2.15
+import QtQuick 2.15
 import QtQuick.Window 2.15
 
 import com.nextcloud.desktopclient 1.0 as NC
@@ -20,6 +22,9 @@ Window {
 
     flags: Qt.Dialog
     
+    LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLef
+    LayoutMirroring.childrenInherit: true
+
     UserStatusSelector {
         id: view
         userStatusSelectorModel: model
