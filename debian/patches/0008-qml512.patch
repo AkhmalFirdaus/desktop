@@ -24,7 +24,7 @@ index 8ef5d053c..81b35addd 100644
  import Style 1.0
  
 diff --git a/src/gui/UserStatusSelector.qml b/src/gui/UserStatusSelector.qml
-index 82620a920..bc9b1cca8 100644
+index 5c0b7d86f..d1161b449 100644
 --- a/src/gui/UserStatusSelector.qml
 +++ b/src/gui/UserStatusSelector.qml
 @@ -15,8 +15,8 @@
@@ -49,7 +49,7 @@ index 3f86f8cf9..8bd0d0ad3 100644
  import com.nextcloud.desktopclient 1.0 as NC
  
 diff --git a/src/gui/tray/ActivityList.qml b/src/gui/tray/ActivityList.qml
-index e1ab4f818..86397d08c 100644
+index ced4ad2d6..b45cabefa 100644
 --- a/src/gui/tray/ActivityList.qml
 +++ b/src/gui/tray/ActivityList.qml
 @@ -1,5 +1,5 @@
@@ -58,7 +58,7 @@ index e1ab4f818..86397d08c 100644
 +import QtQuick 2.12
 +import QtQuick.Controls 2.12
  
- import Style 1.0
+ import com.nextcloud.desktopclient 1.0 as NC
  
 diff --git a/src/gui/tray/AutoSizingMenu.qml b/src/gui/tray/AutoSizingMenu.qml
 index fe929eb3c..42a91e65a 100644
@@ -71,7 +71,7 @@ index fe929eb3c..42a91e65a 100644
  
  Menu {
 diff --git a/src/gui/tray/FileActivityDialog.qml b/src/gui/tray/FileActivityDialog.qml
-index 7fcd653d1..39cc32e8d 100644
+index 50452b0f3..1fbc5ea62 100644
 --- a/src/gui/tray/FileActivityDialog.qml
 +++ b/src/gui/tray/FileActivityDialog.qml
 @@ -1,4 +1,4 @@
@@ -204,7 +204,7 @@ index a6f9fd591..c7a5fd56c 100644
      topPadding: 8
      bottomPadding: 8
 diff --git a/src/gui/tray/Window.qml b/src/gui/tray/Window.qml
-index 631097879..5b107b113 100644
+index 262e55920..4fd1e82fe 100644
 --- a/src/gui/tray/Window.qml
 +++ b/src/gui/tray/Window.qml
 @@ -1,6 +1,6 @@
@@ -215,7 +215,7 @@ index 631097879..5b107b113 100644
  import QtQuick.Window 2.3
  import QtQuick.Controls 2.3
  import QtQuick.Layouts 1.2
-@@ -675,7 +675,7 @@ Window {
+@@ -691,7 +691,7 @@ Window {
  
                  keyNavigationEnabled: true
  
