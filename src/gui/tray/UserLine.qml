@@ -191,6 +191,8 @@ MenuItem {
                 }
 
                 MenuItem {
+                    visible: model.canLogout
+                    height: visible ? implicitHeight : 0
                     width: parent.width
                     text: model.isConnected ? qsTr("Log out") : qsTr("Log in")
                     font.pixelSize: Style.topLinePixelSize
