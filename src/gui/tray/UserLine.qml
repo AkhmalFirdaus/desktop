@@ -1,7 +1,7 @@
-import QtQuick 2.9
-import QtQuick.Window 2.3
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.2
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
 // Custom qml modules are in /theme (and included by resources.qrc)
 import Style 1.0
@@ -173,12 +173,14 @@ MenuItem {
 
                 background: Rectangle {
                     border.color: Style.menuBorder
+                    border.width: 1
                     radius: 2
                 }
 
                 MenuItem {
                     visible: model.isConnected && model.serverHasUserStatus
                     height: visible ? implicitHeight : 0
+                    width: parent.width
                     text: qsTr("Set status")
                     font.pixelSize: Style.topLinePixelSize
                     hoverEnabled: true
@@ -186,35 +188,16 @@ MenuItem {
                         showUserStatusSelectorDialog(index)
                         accountMenu.close()
                     }
-
-                    background: Item {
-                        height: parent.height
-                        width: parent.menu.width
-                        Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: 1
-                            color: parent.parent.hovered ? Style.lightHover : "transparent"
-                        }
-                    }
                 }
 
                 MenuItem {
+                    width: parent.width
                     text: model.isConnected ? qsTr("Log out") : qsTr("Log in")
                     font.pixelSize: Style.topLinePixelSize
                     hoverEnabled: true
                     onClicked: {
                         model.isConnected ? UserModel.logout(index) : UserModel.login(index)
                         accountMenu.close()
-                    }
-
-                    background: Item {
-                        height: parent.height
-                        width: parent.menu.width
-                        Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: 1
-                            color: parent.parent.hovered ? Style.lightHover : "transparent"
-                        }
                     }
 
                     Accessible.role: Accessible.Button
@@ -232,22 +215,13 @@ MenuItem {
 
                 MenuItem {
                     id: removeAccountButton
+                    width: parent.width
                     text: qsTr("Remove account")
                     font.pixelSize: Style.topLinePixelSize
                     hoverEnabled: true
                     onClicked: {
                         UserModel.removeAccount(index)
                         accountMenu.close()
-                    }
-
-                    background: Item {
-                        height: parent.height
-                        width: parent.menu.width
-                        Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: 1
-                            color: parent.parent.hovered ? Style.lightHover : "transparent"
-                        }
                     }
 
                     Accessible.role: Accessible.Button
