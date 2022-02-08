@@ -530,6 +530,7 @@ Window {
                 HeaderButton {
                     id: trayWindowAppsButton
                     icon.source: "qrc:///client/theme/white/more-apps.svg"
+                    visible: appsMenu.count
 
                     onClicked: {
                         if(appsMenu.count <= 0) {
