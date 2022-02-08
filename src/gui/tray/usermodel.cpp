@@ -556,6 +556,11 @@ bool User::canLogout() const
     return !_account->account()->isPublicShareLink();
 }
 
+bool User::isPublicShareLink() const
+{
+    return _account->account()->isPublicShareLink();
+}
+
 void User::slotItemCompleted(const QString &folder, const SyncFileItemPtr &item)
 {
     auto folderInstance = FolderMan::instance()->folder(folder);
@@ -1000,6 +1005,9 @@ QVariant UserModel::data(const QModelIndex &index, int role) const
     case CanLogoutRole:
         result = _users[index.row()]->canLogout();
         break;
+    case RemoveAccountTextRole:
+        result = _users[index.row()]->isPublicShareLink() ? tr("Leave share") : tr("Remove account");
+        break;
     }
 
     return result;
@@ -1012,6 +1020,7 @@ QHash<int, QByteArray> UserModel::roleNames() const
     roles[ServerRole] = "server";
     roles[ServerHasUserStatusRole] = "serverHasUserStatus";
     roles[CanLogoutRole] = "canLogout";
+    roles[RemoveAccountTextRole] = "removeAccountText";
     roles[StatusIconRole] = "statusIcon";
     roles[StatusEmojiRole] = "statusEmoji";
     roles[StatusMessageRole] = "statusMessage";
