@@ -72,6 +72,13 @@ time_t FileSystem::getModTime(const QString &filename)
 
 bool FileSystem::setModTime(const QString &filename, time_t modTime)
 {
+    csync_file_stat_t stat;
+
+    /* Avoid truncating modTime to nearest second when resynchronizing locally changed file */
+    if (csync_vio_local_stat(filename, &stat) != -1 && (stat.modtime == modTime) && (stat.type == ItemTypeFile)) {
+        return true;
+    }
+
     struct timeval times[2];
     times[0].tv_sec = times[1].tv_sec = modTime;
     times[0].tv_usec = times[1].tv_usec = 0;

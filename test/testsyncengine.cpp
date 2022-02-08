@@ -835,6 +835,7 @@ private slots:
         fakeFolder.remoteModifier().insert("foo/bar");
         auto datetime = QDateTime::currentDateTime();
         datetime.setSecsSinceEpoch(datetime.toSecsSinceEpoch()); // wipe ms
+        datetime.addSecs(1);
         fakeFolder.remoteModifier().find("foo")->lastModified = datetime;
 
         QVERIFY(fakeFolder.syncOnce());
