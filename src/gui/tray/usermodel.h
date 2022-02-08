@@ -155,18 +155,10 @@ public:
 
     int findUserIdForAccount(AccountState *account) const;
 
-    Q_INVOKABLE void fetchCurrentActivityModel();
-    Q_INVOKABLE void openCurrentAccountLocalFolder();
-    Q_INVOKABLE void openCurrentAccountTalk();
-    Q_INVOKABLE void openCurrentAccountServer();
     Q_INVOKABLE int numUsers();
     Q_INVOKABLE QString currentUserServer();
     int currentUserId() const;
     Q_INVOKABLE bool isUserConnected(const int &id);
-    Q_INVOKABLE void switchCurrentUser(const int &id);
-    Q_INVOKABLE void login(const int &id);
-    Q_INVOKABLE void logout(const int &id);
-    Q_INVOKABLE void removeAccount(const int &id);
 
     Q_INVOKABLE std::shared_ptr<OCC::UserStatusConnector> userStatusConnector(int id);
 
@@ -184,14 +176,24 @@ public:
         AvatarRole,
         IsCurrentUserRole,
         IsConnectedRole,
-        IdRole
+        IdRole,
     };
 
     AccountAppList appList() const;
 
 signals:
-    Q_INVOKABLE void addAccount();
-    Q_INVOKABLE void newUserSelected();
+    void addAccount();
+    void newUserSelected();
+
+public slots:
+    void fetchCurrentActivityModel();
+    void openCurrentAccountLocalFolder();
+    void openCurrentAccountTalk();
+    void openCurrentAccountServer();
+    void switchCurrentUser(const int &id);
+    void login(const int &id);
+    void logout(const int &id);
+    void removeAccount(const int &id);
 
 protected:
     QHash<int, QByteArray> roleNames() const override;
