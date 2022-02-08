@@ -956,34 +956,45 @@ int UserModel::rowCount(const QModelIndex &parent) const
 
 QVariant UserModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= _users.count()) {
-        return QVariant();
+    auto result = QVariant{};
+    switch (role)
+    {
+    case NameRole:
+        result = _users[index.row()]->name();
+        break;
+    case ServerRole:
+        result = _users[index.row()]->server();
+        break;
+    case ServerHasUserStatusRole:
+        result = _users[index.row()]->serverHasUserStatus();
+        break;
+    case StatusIconRole:
+        result = _users[index.row()]->statusIcon();
+        break;
+    case StatusEmojiRole:
+        result = _users[index.row()]->statusEmoji();
+        break;
+    case StatusMessageRole:
+        result = _users[index.row()]->statusMessage();
+        break;
+    case DesktopNotificationsAllowedRole:
+        result = _users[index.row()]->isDesktopNotificationsAllowed();
+        break;
+    case AvatarRole:
+        result = _users[index.row()]->avatarUrl();
+        break;
+    case IsCurrentUserRole:
+        result = _users[index.row()]->isCurrentUser();
+        break;
+    case IsConnectedRole:
+        result = _users[index.row()]->isConnected();
+        break;
+    case IdRole:
+        result = index.row();
+        break;
     }
 
-    if (role == NameRole) {
-        return _users[index.row()]->name();
-    } else if (role == ServerRole) {
-        return _users[index.row()]->server();
-    } else if (role == ServerHasUserStatusRole) {
-        return _users[index.row()]->serverHasUserStatus();
-    } else if (role == StatusIconRole) {
-        return _users[index.row()]->statusIcon();
-    } else if (role == StatusEmojiRole) {
-        return _users[index.row()]->statusEmoji();
-    } else if (role == StatusMessageRole) {
-        return _users[index.row()]->statusMessage();
-    } else if (role == DesktopNotificationsAllowedRole) {
-        return _users[index.row()]->isDesktopNotificationsAllowed();
-    } else if (role == AvatarRole) {
-        return _users[index.row()]->avatarUrl();
-    } else if (role == IsCurrentUserRole) {
-        return _users[index.row()]->isCurrentUser();
-    } else if (role == IsConnectedRole) {
-        return _users[index.row()]->isConnected();
-    } else if (role == IdRole) {
-        return index.row();
-    }
-    return QVariant();
+    return result;
 }
 
 QHash<int, QByteArray> UserModel::roleNames() const
