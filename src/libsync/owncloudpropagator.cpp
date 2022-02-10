@@ -423,6 +423,40 @@ void OwncloudPropagator::start(SyncFileItemVector &&items)
 {
     Q_ASSERT(std::is_sorted(items.begin(), items.end()));
 
+    SyncFileItemVector dirsToRemove;
+    for (const SyncFileItemPtr &item : items) {
+        if (item->isDirectory() && item->_instruction == CSYNC_INSTRUCTION_REMOVE) {
+            dirsToRemove.push_back(item);
+        }
+    }
+
+    for (const SyncFileItemPtr &dirToRemove : dirsToRemove) {
+        auto itFoundFileToUpload =
+            std::find_if(std::cbegin(items), std::cend(items), [&dirToRemove, this](const SyncFileItemPtr &item) {
+                if ((item->_type == ItemTypeFile || item->_type == ItemTypeVirtualFile)
+                    && item->_instruction == CSYNC_INSTRUCTION_NEW && item->_file.startsWith(dirToRemove->_file)) {
+                    // should be either new file or new hydrated placeholder (TODO: not sure if this is a correct conditon, needs to be checked)
+                    return item->_type == ItemTypeFile || syncOptions()._vfs.data() && !syncOptions()._vfs->isDehydratedPlaceholder(fullLocalPath(item->_file));
+                }
+        });
+
+        if (itFoundFileToUpload != std::cend(items)) {
+            const auto dirToRemoveFile = dirToRemove->_file;
+            auto foundDirToRemove = std::find_if(std::cbegin(items), std::cend(items), [&dirToRemoveFile](const SyncFileItemPtr &item) {
+                return item->isDirectory() && item->_instruction == CSYNC_INSTRUCTION_REMOVE && item->_file == dirToRemoveFile;
+            });
+
+            if (foundDirToRemove != std::cend(items)) {
+                items.erase(std::remove_if(items.begin(), items.end(),
+                                [&dirToRemoveFile](const SyncFileItemPtr &item) {
+                                    return item->isDirectory() && item->_instruction == CSYNC_INSTRUCTION_REMOVE
+                                        && item->_file == dirToRemoveFile;
+                                }),
+                    items.end());
+            }
+        }
+    }
+
     /* This builds all the jobs needed for the propagation.
      * Each directory is a PropagateDirectory job, which contains the files in it.
      * In order to do that we loop over the items. (which are sorted by destination)

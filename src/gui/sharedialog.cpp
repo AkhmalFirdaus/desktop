@@ -385,6 +385,8 @@ void ShareDialog::slotLinkShareRequiresPassword(const QString &message)
     passwordInputDialog->setAttribute(Qt::WA_DeleteOnClose);
     passwordInputDialog->open();
 
+    const QString &connection = {};
+
     connect(passwordInputDialog, &QDialog::finished, this, [this, passwordInputDialog](const int result) {
         if (result == QDialog::Accepted && _manager) {
             // Try to create the link share again with the newly entered password
