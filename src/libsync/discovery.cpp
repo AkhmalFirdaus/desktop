@@ -1222,11 +1222,39 @@ void ProcessDirectoryJob::processFileAnalyzeLocalInfo(
     // Check local permission if we are allowed to put move the file here
     // Technically we should use the permissions from the server, but we'll assume it is the same
     auto movePerms = checkMovePermissions(base._remotePerm, originalPath, item->isDirectory());
+    if (movePerms.sourceOk && !item->isDirectory()) {
+        OCC::SyncJournalFileRecord baseParent;
+        auto originalPathSplit = originalPath.split(QLatin1Char('/'));
+
+        if (originalPathSplit.size() > 1) {
+            originalPathSplit.removeLast();
+
+            const auto parentPath = originalPathSplit.join(QLatin1Char('/'));
+
+            if (!parentPath.isEmpty()) {
+                if (_discoveryData->_statedb->getFileRecord(parentPath, &baseParent)
+                    && baseParent.isDirectory()) {
+                    const auto movePermsParent = checkMovePermissions(baseParent._remotePerm, baseParent.path(), true);
+
+                    if (!movePermsParent.sourceOk) {
+                        movePerms.sourceOk = false;
+                    }
+                }
+            }   
+        }
+    }
     if (!movePerms.sourceOk || !movePerms.destinationOk) {
         qCInfo(lcDisco) << "Move without permission to rename base file, "
                         << "source:" << movePerms.sourceOk
                         << ", target:" << movePerms.destinationOk
                         << ", targetNew:" << movePerms.destinationNewOk;
+
+        if (!movePerms.sourceOk && !item->isDirectory()) {
+            QFile newFile(_discoveryData->_localDir + QLatin1Char('/') + item->_file);
+            if (newFile.open(QIODevice::ReadOnly)) {
+                newFile.copy(_discoveryData->_localDir + QLatin1Char('/') + originalPath);
+            }
+        }
 
         // If we can create the destination, do that.
         // Permission errors on the destination will be handled by checkPermissions later.
