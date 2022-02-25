@@ -1,5 +1,5 @@
 diff --git a/shell_integration/dolphin/CMakeLists.txt b/shell_integration/dolphin/CMakeLists.txt
-index 60a38e389..f2fda6e1d 100644
+index 76b6f6ea9..3c460c926 100644
 --- a/shell_integration/dolphin/CMakeLists.txt
 +++ b/shell_integration/dolphin/CMakeLists.txt
 @@ -2,7 +2,7 @@ project(dolphin-owncloud)
@@ -117,7 +117,7 @@ index 887213f09..8b3f1d1b9 100644
          if (!QFile::remove(desktopFileLocation)) {
              qCWarning(lcUtility) << "Could not remove autostart desktop file";
 diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
-index 0834d25c8..e229fdebb 100644
+index 6b3cf688e..071b576cd 100644
 --- a/src/gui/CMakeLists.txt
 +++ b/src/gui/CMakeLists.txt
 @@ -60,7 +60,7 @@ set(client_UI_SRCS
@@ -301,7 +301,7 @@ index 35aa36ce4..67c1ddb9e 100644
              emit wantsAccountSaved(this);
  
 diff --git a/src/libsync/discoveryphase.h b/src/libsync/discoveryphase.h
-index c894cfc2a..c5d4eb48f 100644
+index f5950e8dc..793ef6516 100644
 --- a/src/libsync/discoveryphase.h
 +++ b/src/libsync/discoveryphase.h
 @@ -24,6 +24,7 @@
@@ -354,6 +354,19 @@ index 95f3810e2..15e064326 100644
      }
      qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
      return QDateTime::currentDateTime().toTime_t();
+diff --git a/src/libsync/owncloudpropagator.cpp b/src/libsync/owncloudpropagator.cpp
+index 889c0dce0..47eb2493b 100644
+--- a/src/libsync/owncloudpropagator.cpp
++++ b/src/libsync/owncloudpropagator.cpp
+@@ -426,7 +426,7 @@ void OwncloudPropagator::adjustDeletedFoldersWithNewChildren(SyncFileItemVector
+         }
+ 
+         // #1 get root folder name for the current item that we need to reupload
+-        const auto folderPathSplit = (*it)->_file.split(QLatin1Char('/'), Qt::SkipEmptyParts);
++        const auto folderPathSplit = (*it)->_file.split(QLatin1Char('/'), QString::SkipEmptyParts);
+         if (folderPathSplit.isEmpty()) {
+             continue;
+         }
 diff --git a/src/libsync/propagatedownload.cpp b/src/libsync/propagatedownload.cpp
 index 5bdd72d5b..3ff165dc7 100644
 --- a/src/libsync/propagatedownload.cpp
@@ -405,10 +418,10 @@ index 9c4ae0e8c..276bc4f8d 100644
          QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
          emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
 diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
-index ff7f58e60..6936fcde3 100644
+index 02322bc10..6c4782ec9 100644
 --- a/src/libsync/theme.cpp
 +++ b/src/libsync/theme.cpp
-@@ -753,17 +753,17 @@ QString Theme::versionSwitchOutput() const
+@@ -762,17 +762,17 @@ QString Theme::versionSwitchOutput() const
      QTextStream stream(&helpText);
      stream << appName()
             << QLatin1String(" version ")
