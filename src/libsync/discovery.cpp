@@ -538,6 +538,11 @@ void ProcessDirectoryJob::processFileAnalyzeRemoteInfo(
                 item->_instruction = CSYNC_INSTRUCTION_NEW;
             } else {
                 item->_instruction = CSYNC_INSTRUCTION_SYNC;
+                qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: File" << item->_file << "if (dbEntry._etag != serverEntry.etag)"
+                                << "dbEntry._etag:" << dbEntry._etag
+                                << "serverEntry.etag:" << serverEntry.etag
+                                << "serverEntry.isDirectory:" << serverEntry.isDirectory
+                                << "dbEntry.isDirectory:" << dbEntry.isDirectory();
             }
         } else if (dbEntry._modtime <= 0 && serverEntry.modtime > 0) {
             item->_direction = SyncFileItem::Down;
@@ -551,6 +556,11 @@ void ProcessDirectoryJob::processFileAnalyzeRemoteInfo(
                 item->_instruction = CSYNC_INSTRUCTION_NEW;
             } else {
                 item->_instruction = CSYNC_INSTRUCTION_SYNC;
+                qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: File" << item->_file << "if (dbEntry._modtime <= 0 && serverEntry.modtime > 0"
+                                << "dbEntry._modtime:" << dbEntry._modtime
+                                << "serverEntry.modtime:" << serverEntry.modtime
+                                << "serverEntry.isDirectory:" << serverEntry.isDirectory
+                                << "dbEntry.isDirectory:" << dbEntry.isDirectory();                
             }
         } else if (dbEntry._remotePerm != serverEntry.remotePerm || dbEntry._fileId != serverEntry.fileId || metaDataSizeNeedsUpdateForE2EeFilePlaceholder) {
             if (metaDataSizeNeedsUpdateForE2EeFilePlaceholder) {
@@ -823,6 +833,9 @@ void ProcessDirectoryJob::processFileAnalyzeLocalInfo(
 
     bool serverModified = item->_instruction == CSYNC_INSTRUCTION_NEW || item->_instruction == CSYNC_INSTRUCTION_SYNC
         || item->_instruction == CSYNC_INSTRUCTION_RENAME || item->_instruction == CSYNC_INSTRUCTION_TYPE_CHANGE;
+    
+    qCInfo(lcDisco) << "File" << item->_file << "- servermodified:" << serverModified
+                    << "noServerEntry:" << noServerEntry;
 
     // Decay server modifications to UPDATE_METADATA if the local virtual exists
     bool hasLocalVirtual = localEntry.isVirtualFile || (_queryLocal == ParentNotChanged && dbEntry.isVirtualFile());
@@ -1008,6 +1021,9 @@ void ProcessDirectoryJob::processFileAnalyzeLocalInfo(
             item->_modtime = dbEntry._modtime;
             item->_previousModtime = dbEntry._modtime;
             item->_type = localEntry.isDirectory ? ItemTypeDirectory : ItemTypeFile;
+            qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: File" << item->_file << "if (dbEntry._modtime > 0 && localEntry.modtime <= 0)"
+                            << "dbEntry._modtime:" << dbEntry._modtime
+                            << "localEntry.modtime:" << localEntry.modtime;
             _childModified = true;
         } else {
             // Local file was changed
@@ -1021,6 +1037,13 @@ void ProcessDirectoryJob::processFileAnalyzeLocalInfo(
             item->_size = localEntry.size;
             item->_modtime = localEntry.modtime;
             _childModified = true;
+            
+            qCInfo(lcDisco) << "Local file was changed: File" << item->_file 
+                            << "item->_instruction:" << item->_instruction
+                            << "noServerEntry:" << noServerEntry
+                            << "item->_direction:" << item->_direction
+                            << "item->_size:" << item->_size
+                            << "item->_modtime:" << item->_modtime;
 
             // Checksum comparison at this stage is only enabled for .eml files,
             // check #4754 #4755
@@ -1351,7 +1374,20 @@ void ProcessDirectoryJob::processFileConflict(const SyncFileItemPtr &item, Proce
         // whatever reason.
         item->_instruction = isConflict ? CSYNC_INSTRUCTION_CONFLICT : CSYNC_INSTRUCTION_UPDATE_METADATA;
         item->_direction = isConflict ? SyncFileItem::None : SyncFileItem::Down;
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_CONFLICT: File" << item->_file << "if (serverEntry.checksumHeader.isEmpty())";
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_CONFLICT: serverEntry.size:" << serverEntry.size
+                        << "localEntry.size:" << localEntry.size
+                        << "serverEntry.modtime:" << serverEntry.modtime
+                        << "localEntry.modtime:" << localEntry.modtime; 
         return;
+    }
+    
+    if (!serverEntry.checksumHeader.isEmpty()) {
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_CONFLICT: File" << item->_file << "if (!serverEntry.checksumHeader.isEmpty())";
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_CONFLICT: serverEntry.size:" << serverEntry.size
+                        << "localEntry.size:" << localEntry.size
+                        << "serverEntry.modtime:" << serverEntry.modtime
+                        << "localEntry.modtime:" << localEntry.modtime; 
     }
 
     // Do we have an UploadInfo for this?
@@ -1363,6 +1399,10 @@ void ProcessDirectoryJob::processFileConflict(const SyncFileItemPtr &item, Proce
         item->_instruction = up._modtime == localEntry.modtime && up._size == localEntry.size
             ? CSYNC_INSTRUCTION_NONE : CSYNC_INSTRUCTION_SYNC;
         item->_direction = SyncFileItem::Up;
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: File" << item->_file << "if (up._valid && up._contentChecksum == serverEntry.checksumHeader)";
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: up._valid:" << up._valid
+                        << "up._contentChecksum:" << up._contentChecksum
+                        << "serverEntry.checksumHeader:" << serverEntry.checksumHeader;  
 
         // Update the etag and other server metadata in the journal already
         // (We can't use a typical CSYNC_INSTRUCTION_UPDATE_METADATA because
@@ -1380,6 +1420,13 @@ void ProcessDirectoryJob::processFileConflict(const SyncFileItemPtr &item, Proce
             _discoveryData->_statedb->setFileRecord(rec);
         }
         return;
+    }
+    
+    if (!up._valid || up._contentChecksum != serverEntry.checksumHeader) {
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: File" << item->_file << "if (!up._valid && up._contentChecksum != serverEntry.checksumHeader)";
+        qCInfo(lcDisco) << "CSYNC_INSTRUCTION_SYNC: up._valid:" << up._valid
+                        << "up._contentChecksum:" << up._contentChecksum
+                        << "serverEntry.checksumHeader:" << serverEntry.checksumHeader;
     }
 
     // Rely on content hash comparisons to optimize away non-conflicts inside the job
