@@ -1,10 +1,10 @@
 diff --git a/shell_integration/dolphin/CMakeLists.txt b/shell_integration/dolphin/CMakeLists.txt
-index 76b6f6ea9..3c460c926 100644
+index 1642c80d7..caa2689b7 100644
 --- a/shell_integration/dolphin/CMakeLists.txt
 +++ b/shell_integration/dolphin/CMakeLists.txt
 @@ -2,7 +2,7 @@ project(dolphin-owncloud)
  
- cmake_minimum_required(VERSION 2.8.12)
+ cmake_minimum_required(VERSION 3.16)
  
 -set(QT_MIN_VERSION "5.15.0")
 +set(QT_MIN_VERSION "5.12.0")
@@ -301,7 +301,7 @@ index 35aa36ce4..67c1ddb9e 100644
              emit wantsAccountSaved(this);
  
 diff --git a/src/libsync/discoveryphase.h b/src/libsync/discoveryphase.h
-index f5950e8dc..793ef6516 100644
+index cd210a644..a4fdc86d4 100644
 --- a/src/libsync/discoveryphase.h
 +++ b/src/libsync/discoveryphase.h
 @@ -24,6 +24,7 @@
