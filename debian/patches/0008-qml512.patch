@@ -87,11 +87,13 @@ index fe929eb3c..42a91e65a 100644
  
  Menu {
 diff --git a/src/gui/tray/FileActivityDialog.qml b/src/gui/tray/FileActivityDialog.qml
-index 50452b0f3..1fbc5ea62 100644
+index 785d45806..01e584817 100644
 --- a/src/gui/tray/FileActivityDialog.qml
 +++ b/src/gui/tray/FileActivityDialog.qml
-@@ -1,4 +1,4 @@
+@@ -1,5 +1,5 @@
+-import QtQuick 2.15
 -import QtQuick.Window 2.15
++import QtQuick 2.12
 +import QtQuick.Window 2.12
  
  import com.nextcloud.desktopclient 1.0 as NC
