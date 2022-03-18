@@ -204,6 +204,19 @@ index 6e48b70be..59ff3ecfe 100644
  
  namespace {
  QString createRandomPassword()
+diff --git a/src/gui/tray/asyncimageresponse.cpp b/src/gui/tray/asyncimageresponse.cpp
+index e484ab0de..4323acd1b 100644
+--- a/src/gui/tray/asyncimageresponse.cpp
++++ b/src/gui/tray/asyncimageresponse.cpp
+@@ -26,7 +26,7 @@ AsyncImageResponse::AsyncImageResponse(const QString &id, const QSize &requested
+         return;
+     }
+ 
+-    _imagePaths = id.split(QLatin1Char(';'), Qt::SkipEmptyParts);
++    _imagePaths = id.split(QLatin1Char(';'), QString::SkipEmptyParts);
+     _requestedImageSize = requestedSize;
+ 
+     if (_imagePaths.isEmpty()) {
 diff --git a/src/gui/tray/svgimageprovider.cpp b/src/gui/tray/svgimageprovider.cpp
 index ab5760700..e993970ac 100644
 --- a/src/gui/tray/svgimageprovider.cpp
