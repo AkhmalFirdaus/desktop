@@ -275,7 +275,7 @@ index 537bd71e4..4b6a3ae4d 100644
              emit wantsAccountSaved(this);
  
 diff --git a/src/libsync/discoveryphase.h b/src/libsync/discoveryphase.h
-index f5950e8dc..793ef6516 100644
+index cd210a644..a4fdc86d4 100644
 --- a/src/libsync/discoveryphase.h
 +++ b/src/libsync/discoveryphase.h
 @@ -24,6 +24,7 @@
@@ -312,22 +312,22 @@ index f2ba661e4..0c86ee3ec 100644
  #ifndef TOKEN_AUTH_ONLY
  #include <QPainter>
 diff --git a/src/libsync/ocsuserstatusconnector.cpp b/src/libsync/ocsuserstatusconnector.cpp
-index 95f3810e2..15e064326 100644
+index 19cb34b3d..0a81b3fb3 100644
 --- a/src/libsync/ocsuserstatusconnector.cpp
 +++ b/src/libsync/ocsuserstatusconnector.cpp
 @@ -110,10 +110,10 @@ quint64 clearAtEndOfToTimestamp(const OCC::ClearAt &clearAt)
      Q_ASSERT(clearAt._type == OCC::ClearAtType::EndOf);
  
      if (clearAt._endof == "day") {
--        return QDate::currentDate().addDays(1).startOfDay().toTime_t();
-+        return QDateTime(QDate::currentDate().addDays(1)).toTime_t();
+-        return QDate::currentDate().addDays(1).startOfDay().toSecsSinceEpoch();
++        return QDateTime(QDate::currentDate().addDays(1)).toSecsSinceEpoch();
      } else if (clearAt._endof == "week") {
          const auto days = Qt::Sunday - QDate::currentDate().dayOfWeek();
--        return QDate::currentDate().addDays(days + 1).startOfDay().toTime_t();
-+        return QDateTime(QDate::currentDate().addDays(days + 1)).toTime_t();
+-        return QDate::currentDate().addDays(days + 1).startOfDay().toSecsSinceEpoch();
++        return QDateTime(QDate::currentDate().addDays(days + 1)).toSecsSinceEpoch();
      }
      qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
-     return QDateTime::currentDateTime().toTime_t();
+     return QDateTime::currentDateTime().toSecsSinceEpoch();
 diff --git a/src/libsync/owncloudpropagator.cpp b/src/libsync/owncloudpropagator.cpp
 index 342245701..812181acb 100644
 --- a/src/libsync/owncloudpropagator.cpp
@@ -342,7 +342,7 @@ index 342245701..812181acb 100644
              continue;
          }
 diff --git a/src/libsync/propagatedownload.cpp b/src/libsync/propagatedownload.cpp
-index 93a204d34..16388aa98 100644
+index 780e497c0..470af2c01 100644
 --- a/src/libsync/propagatedownload.cpp
 +++ b/src/libsync/propagatedownload.cpp
 @@ -33,6 +33,7 @@
@@ -354,7 +354,7 @@ index 93a204d34..16388aa98 100644
  
  #ifdef Q_OS_UNIX
 diff --git a/src/libsync/syncengine.cpp b/src/libsync/syncengine.cpp
-index 3ce782e3c..adc37c4c9 100644
+index 0306e0f8c..ba5b309a2 100644
 --- a/src/libsync/syncengine.cpp
 +++ b/src/libsync/syncengine.cpp
 @@ -55,6 +55,7 @@
@@ -365,7 +365,7 @@ index 3ce782e3c..adc37c4c9 100644
  #include <qtextcodec.h>
  
  namespace OCC {
-@@ -697,11 +698,7 @@ void SyncEngine::slotDiscoveryFinished()
+@@ -701,11 +702,7 @@ void SyncEngine::slotDiscoveryFinished()
              const QString script = qEnvironmentVariable("OWNCLOUD_POST_UPDATE_SCRIPT");
  
              qCDebug(lcEngine) << "Post Update Script: " << script;
@@ -420,7 +420,7 @@ index 02322bc10..6c4782ec9 100644
  }
  
 diff --git a/test/syncenginetestutils.cpp b/test/syncenginetestutils.cpp
-index 53369d020..0562a855d 100644
+index 50351c267..3564722d1 100644
 --- a/test/syncenginetestutils.cpp
 +++ b/test/syncenginetestutils.cpp
 @@ -24,7 +24,7 @@ PathComponents::PathComponents(const char *path)
@@ -432,7 +432,7 @@ index 53369d020..0562a855d 100644
  {
  }
  
-@@ -439,7 +439,7 @@ QVector<FileInfo *> FakePutMultiFileReply::performMultiPart(FileInfo &remoteRoot
+@@ -446,7 +446,7 @@ QVector<FileInfo *> FakePutMultiFileReply::performMultiPart(FileInfo &remoteRoot
      constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
      const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
      auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
@@ -441,7 +441,7 @@ index 53369d020..0562a855d 100644
      for (const auto &onePart : allParts) {
          auto headerEndPosition = onePart.indexOf(QStringLiteral("\r\n\r\n"));
          auto onePartHeaderPart = onePart.left(headerEndPosition);
-@@ -909,7 +909,7 @@ void FakeHangingReply::abort()
+@@ -916,7 +916,7 @@ void FakeHangingReply::abort()
      // Follow more or less the implementation of QNetworkReplyImpl::abort
      close();
      setError(OperationCanceledError, tr("Operation canceled"));
@@ -450,7 +450,7 @@ index 53369d020..0562a855d 100644
      setFinished(true);
      emit finished();
  }
-@@ -931,7 +931,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
+@@ -938,7 +938,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
      constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
      const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
      auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
