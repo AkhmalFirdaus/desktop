@@ -53,10 +53,10 @@ index 3f86f8cf9..8bd0d0ad3 100644
  import com.nextcloud.desktopclient 1.0 as NC
  
 diff --git a/src/gui/tray/ActivityItemActions.qml b/src/gui/tray/ActivityItemActions.qml
-index 42875b9d3..d72dc2614 100644
+index 32c3b893f..54ba1ac58 100644
 --- a/src/gui/tray/ActivityItemActions.qml
 +++ b/src/gui/tray/ActivityItemActions.qml
-@@ -86,6 +86,7 @@ RowLayout {
+@@ -87,6 +87,7 @@ RowLayout {
                  function onMovementStarted() {
                      moreActionsButtonContextMenu.close();
                  }
@@ -65,7 +65,7 @@ index 42875b9d3..d72dc2614 100644
  
              ActivityItemContextMenu {
 diff --git a/src/gui/tray/ActivityList.qml b/src/gui/tray/ActivityList.qml
-index ced4ad2d6..b45cabefa 100644
+index fe66267f9..375547dff 100644
 --- a/src/gui/tray/ActivityList.qml
 +++ b/src/gui/tray/ActivityList.qml
 @@ -1,5 +1,5 @@
@@ -99,7 +99,7 @@ index 785d45806..01e584817 100644
  import com.nextcloud.desktopclient 1.0 as NC
  
 diff --git a/src/gui/tray/SyncStatus.qml b/src/gui/tray/SyncStatus.qml
-index 7bf9a2d55..9cd5316fb 100644
+index 83a38cf4f..34e487ec6 100644
 --- a/src/gui/tray/SyncStatus.qml
 +++ b/src/gui/tray/SyncStatus.qml
 @@ -1,6 +1,6 @@
@@ -113,7 +113,7 @@ index 7bf9a2d55..9cd5316fb 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchInputContainer.qml b/src/gui/tray/UnifiedSearchInputContainer.qml
-index 2edbfbac6..953424771 100644
+index df99c6630..2b5b2e9d5 100644
 --- a/src/gui/tray/UnifiedSearchInputContainer.qml
 +++ b/src/gui/tray/UnifiedSearchInputContainer.qml
 @@ -1,5 +1,5 @@
@@ -137,7 +137,7 @@ index 1af2d42ca..2fe07fb32 100644
  import QtQuick.Layouts 1.2
  import Style 1.0
 diff --git a/src/gui/tray/UnifiedSearchResultItem.qml b/src/gui/tray/UnifiedSearchResultItem.qml
-index 0241ed28e..dcf93ae0b 100644
+index 69daa19df..ce558b60a 100644
 --- a/src/gui/tray/UnifiedSearchResultItem.qml
 +++ b/src/gui/tray/UnifiedSearchResultItem.qml
 @@ -1,4 +1,4 @@
@@ -204,10 +204,10 @@ index 36cea93a6..8878b052c 100644
      spacing: 8
      anchors.leftMargin: 10
 diff --git a/src/gui/tray/UnifiedSearchResultSectionItem.qml b/src/gui/tray/UnifiedSearchResultSectionItem.qml
-index a6f9fd591..c7a5fd56c 100644
+index 89ad6bf31..04b687a6d 100644
 --- a/src/gui/tray/UnifiedSearchResultSectionItem.qml
 +++ b/src/gui/tray/UnifiedSearchResultSectionItem.qml
-@@ -1,11 +1,11 @@
+@@ -1,12 +1,12 @@
 -import QtQml 2.15
 -import QtQuick 2.15
 -import QtQuick.Controls 2.15
@@ -216,6 +216,7 @@ index a6f9fd591..c7a5fd56c 100644
 +import QtQuick.Controls 2.12
  import QtQuick.Layouts 1.2
  import Style 1.0
+ import com.nextcloud.desktopclient 1.0
  
  Label {
 -    required property string section
@@ -224,7 +225,7 @@ index a6f9fd591..c7a5fd56c 100644
      topPadding: 8
      bottomPadding: 8
 diff --git a/src/gui/tray/Window.qml b/src/gui/tray/Window.qml
-index 262e55920..b4c11af4e 100644
+index a6f97a680..4da943680 100644
 --- a/src/gui/tray/Window.qml
 +++ b/src/gui/tray/Window.qml
 @@ -1,6 +1,6 @@
@@ -254,14 +255,14 @@ index 262e55920..b4c11af4e 100644
          }
 +        onHideWindow: onHideWindow()
  
-         function onShowFileActivityDialog(displayPath, absolutePath) {
-             openFileActivityDialog(displayPath, absolutePath)
+         function onShowFileActivityDialog(objectName, objectId) {
+             openFileActivityDialog(objectName, objectId)
          }
 +        onShowFileActivityDialog: onShowFileActivityDialog(sharePath, localPath)
      }
  
      OpacityMask {
-@@ -691,7 +695,7 @@ Window {
+@@ -704,7 +708,7 @@ Window {
  
                  keyNavigationEnabled: true
  
@@ -270,7 +271,7 @@ index 262e55920..b4c11af4e 100644
  
                  Accessible.role: Accessible.List
                  Accessible.name: qsTr("Unified search results list")
-@@ -713,8 +717,6 @@ Window {
+@@ -726,8 +730,6 @@ Window {
                      currentFetchMoreInProgressProviderId: unifiedSearchResultsListView.model.currentFetchMoreInProgressProviderId
                      fetchMoreTriggerClicked: unifiedSearchResultsListView.model.fetchMoreTriggerClicked
                      resultClicked: unifiedSearchResultsListView.model.resultClicked
