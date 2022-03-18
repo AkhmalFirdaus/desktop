@@ -53,10 +53,10 @@ index 3f86f8cf9..8bd0d0ad3 100644
  import com.nextcloud.desktopclient 1.0 as NC
  
 diff --git a/src/gui/tray/ActivityItemActions.qml b/src/gui/tray/ActivityItemActions.qml
-index 32c3b893f..54ba1ac58 100644
+index 3f14fbd4d..3dbb2ae88 100644
 --- a/src/gui/tray/ActivityItemActions.qml
 +++ b/src/gui/tray/ActivityItemActions.qml
-@@ -87,6 +87,7 @@ RowLayout {
+@@ -99,6 +99,7 @@ RowLayout {
                  function onMovementStarted() {
                      moreActionsButtonContextMenu.close();
                  }
@@ -77,29 +77,31 @@ index fe66267f9..375547dff 100644
  import com.nextcloud.desktopclient 1.0 as NC
  
 diff --git a/src/gui/tray/AutoSizingMenu.qml b/src/gui/tray/AutoSizingMenu.qml
-index fe929eb3c..42a91e65a 100644
+index efc23d1bf..3c750eaa1 100644
 --- a/src/gui/tray/AutoSizingMenu.qml
 +++ b/src/gui/tray/AutoSizingMenu.qml
 @@ -1,4 +1,4 @@
 -import QtQuick 2.15
 +import QtQuick 2.12
  import QtQuick.Controls 2.3
+ import Style 1.0
  
- Menu {
 diff --git a/src/gui/tray/FileActivityDialog.qml b/src/gui/tray/FileActivityDialog.qml
-index 785d45806..01e584817 100644
+index 58264ef28..61905bcbf 100644
 --- a/src/gui/tray/FileActivityDialog.qml
 +++ b/src/gui/tray/FileActivityDialog.qml
-@@ -1,5 +1,5 @@
+@@ -1,6 +1,6 @@
+-import QtQml 2.15
 -import QtQuick 2.15
 -import QtQuick.Window 2.15
++import QtQml 2.12
 +import QtQuick 2.12
 +import QtQuick.Window 2.12
  
+ import Style 1.0
  import com.nextcloud.desktopclient 1.0 as NC
- 
 diff --git a/src/gui/tray/SyncStatus.qml b/src/gui/tray/SyncStatus.qml
-index 83a38cf4f..34e487ec6 100644
+index 0fd3ea2c1..f2f12de95 100644
 --- a/src/gui/tray/SyncStatus.qml
 +++ b/src/gui/tray/SyncStatus.qml
 @@ -1,6 +1,6 @@
@@ -113,7 +115,7 @@ index 83a38cf4f..34e487ec6 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchInputContainer.qml b/src/gui/tray/UnifiedSearchInputContainer.qml
-index df99c6630..2b5b2e9d5 100644
+index cb5687530..c0b5ec4a0 100644
 --- a/src/gui/tray/UnifiedSearchInputContainer.qml
 +++ b/src/gui/tray/UnifiedSearchInputContainer.qml
 @@ -1,5 +1,5 @@
@@ -125,7 +127,7 @@ index df99c6630..2b5b2e9d5 100644
  import QtGraphicalEffects 1.0
  import Style 1.0
 diff --git a/src/gui/tray/UnifiedSearchResultFetchMoreTrigger.qml b/src/gui/tray/UnifiedSearchResultFetchMoreTrigger.qml
-index 1af2d42ca..2fe07fb32 100644
+index 02ea71f2b..964d33f48 100644
 --- a/src/gui/tray/UnifiedSearchResultFetchMoreTrigger.qml
 +++ b/src/gui/tray/UnifiedSearchResultFetchMoreTrigger.qml
 @@ -1,5 +1,5 @@
@@ -137,7 +139,7 @@ index 1af2d42ca..2fe07fb32 100644
  import QtQuick.Layouts 1.2
  import Style 1.0
 diff --git a/src/gui/tray/UnifiedSearchResultItem.qml b/src/gui/tray/UnifiedSearchResultItem.qml
-index 69daa19df..ce558b60a 100644
+index 702b3a331..7e62f694f 100644
 --- a/src/gui/tray/UnifiedSearchResultItem.qml
 +++ b/src/gui/tray/UnifiedSearchResultItem.qml
 @@ -1,4 +1,4 @@
@@ -147,7 +149,7 @@ index 69daa19df..ce558b60a 100644
  import QtQuick.Controls 2.3
  import QtQuick.Layouts 1.2
 diff --git a/src/gui/tray/UnifiedSearchResultItemSkeleton.qml b/src/gui/tray/UnifiedSearchResultItemSkeleton.qml
-index 3f86c4b9f..5f40a91bf 100644
+index ddc38d29d..b33e203e1 100644
 --- a/src/gui/tray/UnifiedSearchResultItemSkeleton.qml
 +++ b/src/gui/tray/UnifiedSearchResultItemSkeleton.qml
 @@ -1,5 +1,5 @@
@@ -159,7 +161,7 @@ index 3f86c4b9f..5f40a91bf 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchResultItemSkeletonContainer.qml b/src/gui/tray/UnifiedSearchResultItemSkeletonContainer.qml
-index 1b9f8c262..7544cf18a 100644
+index e128f6860..f5298a925 100644
 --- a/src/gui/tray/UnifiedSearchResultItemSkeletonContainer.qml
 +++ b/src/gui/tray/UnifiedSearchResultItemSkeletonContainer.qml
 @@ -1,5 +1,5 @@
@@ -171,7 +173,7 @@ index 1b9f8c262..7544cf18a 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchResultListItem.qml b/src/gui/tray/UnifiedSearchResultListItem.qml
-index 33a05f2d5..c698abfbb 100644
+index 785f8f525..1de75615a 100644
 --- a/src/gui/tray/UnifiedSearchResultListItem.qml
 +++ b/src/gui/tray/UnifiedSearchResultListItem.qml
 @@ -1,5 +1,5 @@
@@ -183,7 +185,7 @@ index 33a05f2d5..c698abfbb 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchResultNothingFound.qml b/src/gui/tray/UnifiedSearchResultNothingFound.qml
-index 36cea93a6..8878b052c 100644
+index 67bd8108e..f012ffc5a 100644
 --- a/src/gui/tray/UnifiedSearchResultNothingFound.qml
 +++ b/src/gui/tray/UnifiedSearchResultNothingFound.qml
 @@ -1,5 +1,5 @@
@@ -225,7 +227,7 @@ index 89ad6bf31..04b687a6d 100644
      topPadding: 8
      bottomPadding: 8
 diff --git a/src/gui/tray/Window.qml b/src/gui/tray/Window.qml
-index a6f97a680..4da943680 100644
+index 2cc13dd7b..6538fdcdf 100644
 --- a/src/gui/tray/Window.qml
 +++ b/src/gui/tray/Window.qml
 @@ -1,6 +1,6 @@
@@ -262,7 +264,7 @@ index a6f97a680..4da943680 100644
      }
  
      OpacityMask {
-@@ -704,7 +708,7 @@ Window {
+@@ -726,7 +730,7 @@ Window {
  
                  keyNavigationEnabled: true
  
@@ -271,7 +273,7 @@ index a6f97a680..4da943680 100644
  
                  Accessible.role: Accessible.List
                  Accessible.name: qsTr("Unified search results list")
-@@ -726,8 +730,6 @@ Window {
+@@ -748,8 +752,6 @@ Window {
                      currentFetchMoreInProgressProviderId: unifiedSearchResultsListView.model.currentFetchMoreInProgressProviderId
                      fetchMoreTriggerClicked: unifiedSearchResultsListView.model.fetchMoreTriggerClicked
                      resultClicked: unifiedSearchResultsListView.model.resultClicked
