@@ -239,11 +239,24 @@ index ab5760700..e993970ac 100644
  
          if (pixmapName.isEmpty() || !pixmapColor.isValid()) {
              qCWarning(lcSvgImageProvider) << "Image id is incorrect!";
+diff --git a/src/gui/tray/talkreply.cpp b/src/gui/tray/talkreply.cpp
+index 4819801cf..83def86b4 100644
+--- a/src/gui/tray/talkreply.cpp
++++ b/src/gui/tray/talkreply.cpp
+@@ -19,7 +19,7 @@ TalkReply::TalkReply(AccountState *accountState, QObject *parent)
+ void TalkReply::sendReplyMessage(const QString &conversationToken, const QString &message, const QString &replyTo)
+ {
+     QPointer<JsonApiJob> apiJob =  new JsonApiJob(_accountState->account(),
+-        QLatin1String("ocs/v2.php/apps/spreed/api/v1/chat/%1").arg(conversationToken),
++        QLatin1String(QString("ocs/v2.php/apps/spreed/api/v1/chat/%1").arg(conversationToken).toLatin1()),
+         this);
+ 
+     QObject::connect(apiJob, &JsonApiJob::jsonReceived, this, [&](const QJsonDocument &response, const int statusCode) {
 diff --git a/src/gui/tray/unifiedsearchresultslistmodel.cpp b/src/gui/tray/unifiedsearchresultslistmodel.cpp
-index 751ab7bbb..6b28d9e0b 100644
+index 708acb7de..f50b4479a 100644
 --- a/src/gui/tray/unifiedsearchresultslistmodel.cpp
 +++ b/src/gui/tray/unifiedsearchresultslistmodel.cpp
-@@ -110,7 +110,7 @@ QString generateUrlForThumbnail(const QString &thumbnailUrl, const QUrl &serverU
+@@ -112,7 +112,7 @@ QString generateUrlForThumbnail(const QString &thumbnailUrl, const QUrl &serverU
          // relative image resource URL, just needs some concatenation with current server URL
          // some icons may contain parameters after (?)
          const QStringList thumbnailUrlCopySplitted = thumbnailUrlCopy.contains(QLatin1Char('?'))
@@ -252,7 +265,7 @@ index 751ab7bbb..6b28d9e0b 100644
              : QStringList{thumbnailUrlCopy};
          Q_ASSERT(!thumbnailUrlCopySplitted.isEmpty());
          serverUrlCopy.setPath(thumbnailUrlCopySplitted[0]);
-@@ -486,7 +486,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
+@@ -490,7 +490,7 @@ void UnifiedSearchResultsListModel::startSearchForProvider(const QString &provid
      }
  
      auto job = new JsonApiJob(_accountState->account(),
@@ -418,7 +431,7 @@ index 9c4ae0e8c..276bc4f8d 100644
          QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
          emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
 diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
-index 1ebee172a..2ca646794 100644
+index 8916cba2f..f7fe2d41a 100644
 --- a/src/libsync/theme.cpp
 +++ b/src/libsync/theme.cpp
 @@ -762,17 +762,17 @@ QString Theme::versionSwitchOutput() const
