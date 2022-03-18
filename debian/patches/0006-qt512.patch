@@ -117,7 +117,7 @@ index 887213f09..8b3f1d1b9 100644
          if (!QFile::remove(desktopFileLocation)) {
              qCWarning(lcUtility) << "Could not remove autostart desktop file";
 diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
-index 6b3cf688e..071b576cd 100644
+index 8b47d33ff..02d0c8376 100644
 --- a/src/gui/CMakeLists.txt
 +++ b/src/gui/CMakeLists.txt
 @@ -60,7 +60,7 @@ set(client_UI_SRCS
@@ -226,19 +226,6 @@ index ab5760700..e993970ac 100644
  
          if (pixmapName.isEmpty() || !pixmapColor.isValid()) {
              qCWarning(lcSvgImageProvider) << "Image id is incorrect!";
-diff --git a/src/gui/tray/unifiedsearchresultimageprovider.cpp b/src/gui/tray/unifiedsearchresultimageprovider.cpp
-index 97a57f519..ded760f8b 100644
---- a/src/gui/tray/unifiedsearchresultimageprovider.cpp
-+++ b/src/gui/tray/unifiedsearchresultimageprovider.cpp
-@@ -31,7 +31,7 @@ public:
-             return;
-         }
- 
--        _imagePaths = id.split(QLatin1Char(';'), Qt::SkipEmptyParts);
-+        _imagePaths = id.split(QLatin1Char(';'), QString::SkipEmptyParts);
-         _requestedImageSize = requestedSize;
- 
-         if (_imagePaths.isEmpty()) {
 diff --git a/src/gui/tray/unifiedsearchresultslistmodel.cpp b/src/gui/tray/unifiedsearchresultslistmodel.cpp
 index 751ab7bbb..6b28d9e0b 100644
 --- a/src/gui/tray/unifiedsearchresultslistmodel.cpp
@@ -262,7 +249,7 @@ index 751ab7bbb..6b28d9e0b 100644
      QUrlQuery params;
      params.addQueryItem(QStringLiteral("term"), _searchTerm);
 diff --git a/src/libsync/account.cpp b/src/libsync/account.cpp
-index 35aa36ce4..67c1ddb9e 100644
+index 27e4d997d..82256ebed 100644
 --- a/src/libsync/account.cpp
 +++ b/src/libsync/account.cpp
 @@ -49,7 +49,6 @@
@@ -273,7 +260,7 @@ index 35aa36ce4..67c1ddb9e 100644
  #include <qt5keychain/keychain.h>
  #include "creds/abstractcredentials.h"
  
-@@ -404,7 +403,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+@@ -433,7 +432,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
      sslConfig.setSslOption(QSsl::SslOptionDisableSessionSharing, false);
      sslConfig.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
  
@@ -282,7 +269,7 @@ index 35aa36ce4..67c1ddb9e 100644
  
      return sslConfig;
  }
-@@ -412,7 +411,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
+@@ -441,7 +440,7 @@ QSslConfiguration Account::getOrCreateSslConfig()
  void Account::setApprovedCerts(const QList<QSslCertificate> certs)
  {
      _approvedCerts = certs;
@@ -291,7 +278,7 @@ index 35aa36ce4..67c1ddb9e 100644
  }
  
  void Account::addApprovedCerts(const QList<QSslCertificate> certs)
-@@ -507,7 +506,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
+@@ -536,7 +535,7 @@ void Account::slotHandleSslErrors(QNetworkReply *reply, QList<QSslError> errors)
              return;
  
          if (!approvedCerts.isEmpty()) {
@@ -338,22 +325,22 @@ index 82b5e5f4b..87e734b3b 100644
  #ifndef TOKEN_AUTH_ONLY
  #include <QPainter>
 diff --git a/src/libsync/ocsuserstatusconnector.cpp b/src/libsync/ocsuserstatusconnector.cpp
-index 95f3810e2..15e064326 100644
+index 19cb34b3d..0a81b3fb3 100644
 --- a/src/libsync/ocsuserstatusconnector.cpp
 +++ b/src/libsync/ocsuserstatusconnector.cpp
 @@ -110,10 +110,10 @@ quint64 clearAtEndOfToTimestamp(const OCC::ClearAt &clearAt)
      Q_ASSERT(clearAt._type == OCC::ClearAtType::EndOf);
  
      if (clearAt._endof == "day") {
--        return QDate::currentDate().addDays(1).startOfDay().toTime_t();
-+        return QDateTime(QDate::currentDate().addDays(1)).toTime_t();
+-        return QDate::currentDate().addDays(1).startOfDay().toSecsSinceEpoch();
++        return QDateTime(QDate::currentDate().addDays(1)).toSecsSinceEpoch();
      } else if (clearAt._endof == "week") {
          const auto days = Qt::Sunday - QDate::currentDate().dayOfWeek();
--        return QDate::currentDate().addDays(days + 1).startOfDay().toTime_t();
-+        return QDateTime(QDate::currentDate().addDays(days + 1)).toTime_t();
+-        return QDate::currentDate().addDays(days + 1).startOfDay().toSecsSinceEpoch();
++        return QDateTime(QDate::currentDate().addDays(days + 1)).toSecsSinceEpoch();
      }
      qCWarning(lcOcsUserStatusConnector) << "Can not handle clear at endof day type" << clearAt._endof;
-     return QDateTime::currentDateTime().toTime_t();
+     return QDateTime::currentDateTime().toSecsSinceEpoch();
 diff --git a/src/libsync/owncloudpropagator.cpp b/src/libsync/owncloudpropagator.cpp
 index 889c0dce0..47eb2493b 100644
 --- a/src/libsync/owncloudpropagator.cpp
@@ -368,7 +355,7 @@ index 889c0dce0..47eb2493b 100644
              continue;
          }
 diff --git a/src/libsync/propagatedownload.cpp b/src/libsync/propagatedownload.cpp
-index 5bdd72d5b..3ff165dc7 100644
+index bc2922070..cf10b4bdd 100644
 --- a/src/libsync/propagatedownload.cpp
 +++ b/src/libsync/propagatedownload.cpp
 @@ -32,6 +32,7 @@
@@ -380,7 +367,7 @@ index 5bdd72d5b..3ff165dc7 100644
  
  #ifdef Q_OS_UNIX
 diff --git a/src/libsync/syncengine.cpp b/src/libsync/syncengine.cpp
-index 3ce782e3c..adc37c4c9 100644
+index 0306e0f8c..ba5b309a2 100644
 --- a/src/libsync/syncengine.cpp
 +++ b/src/libsync/syncengine.cpp
 @@ -55,6 +55,7 @@
@@ -391,7 +378,7 @@ index 3ce782e3c..adc37c4c9 100644
  #include <qtextcodec.h>
  
  namespace OCC {
-@@ -697,11 +698,7 @@ void SyncEngine::slotDiscoveryFinished()
+@@ -701,11 +702,7 @@ void SyncEngine::slotDiscoveryFinished()
              const QString script = qEnvironmentVariable("OWNCLOUD_POST_UPDATE_SCRIPT");
  
              qCDebug(lcEngine) << "Post Update Script: " << script;
@@ -418,7 +405,7 @@ index 9c4ae0e8c..276bc4f8d 100644
          QString parentPath = QStringList(splitPath.mid(0, i)).join(QLatin1String("/"));
          emit fileStatusChanged(getSystemDestination(parentPath), fileStatus(parentPath));
 diff --git a/src/libsync/theme.cpp b/src/libsync/theme.cpp
-index 02322bc10..6c4782ec9 100644
+index 1ebee172a..2ca646794 100644
 --- a/src/libsync/theme.cpp
 +++ b/src/libsync/theme.cpp
 @@ -762,17 +762,17 @@ QString Theme::versionSwitchOutput() const
@@ -446,7 +433,7 @@ index 02322bc10..6c4782ec9 100644
  }
  
 diff --git a/test/syncenginetestutils.cpp b/test/syncenginetestutils.cpp
-index a5eaaaaf7..465502777 100644
+index 1d813e3ff..2dbb87430 100644
 --- a/test/syncenginetestutils.cpp
 +++ b/test/syncenginetestutils.cpp
 @@ -24,7 +24,7 @@ PathComponents::PathComponents(const char *path)
@@ -458,7 +445,7 @@ index a5eaaaaf7..465502777 100644
  {
  }
  
-@@ -439,7 +439,7 @@ QVector<FileInfo *> FakePutMultiFileReply::performMultiPart(FileInfo &remoteRoot
+@@ -446,7 +446,7 @@ QVector<FileInfo *> FakePutMultiFileReply::performMultiPart(FileInfo &remoteRoot
      constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
      const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
      auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
@@ -467,7 +454,7 @@ index a5eaaaaf7..465502777 100644
      for (const auto &onePart : allParts) {
          auto headerEndPosition = onePart.indexOf(QStringLiteral("\r\n\r\n"));
          auto onePartHeaderPart = onePart.left(headerEndPosition);
-@@ -905,7 +905,7 @@ void FakeHangingReply::abort()
+@@ -912,7 +912,7 @@ void FakeHangingReply::abort()
      // Follow more or less the implementation of QNetworkReplyImpl::abort
      close();
      setError(OperationCanceledError, tr("Operation canceled"));
@@ -476,7 +463,7 @@ index a5eaaaaf7..465502777 100644
      setFinished(true);
      emit finished();
  }
-@@ -927,7 +927,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
+@@ -934,7 +934,7 @@ QJsonObject FakeQNAM::forEachReplyPart(QIODevice *outgoingData,
      constexpr int boundaryPosition = sizeof("multipart/related; boundary=");
      const QString boundaryValue = QStringLiteral("--") + contentType.mid(boundaryPosition, contentType.length() - boundaryPosition - 1) + QStringLiteral("\r\n");
      auto stringPutPayloadRef = QString{stringPutPayload}.left(stringPutPayload.size() - 2 - boundaryValue.size());
