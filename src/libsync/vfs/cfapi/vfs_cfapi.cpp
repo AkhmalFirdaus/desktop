@@ -109,8 +109,8 @@ Result<void, QString> VfsCfApi::updateMetadata(const QString &filePath, time_t m
 {
     const auto localPath = QDir::toNativeSeparators(filePath);
     const auto handle = cfapi::handleForPath(localPath);
-    if (handle) {
-        auto result = cfapi::updatePlaceholderInfo(handle, modtime, size, fileId);
+    if (!localPath.isEmpty()) {
+        auto result = cfapi::updatePlaceholderInfo(localPath, modtime, size, fileId);
         if (result) {
             return {};
         } else {
@@ -133,9 +133,8 @@ Result<void, QString> VfsCfApi::createPlaceholder(const SyncFileItem &item)
 Result<void, QString> VfsCfApi::dehydratePlaceholder(const SyncFileItem &item)
 {
     const auto localPath = QDir::toNativeSeparators(_setupParams.filesystemPath + item._file);
-    const auto handle = cfapi::handleForPath(localPath);
-    if (handle) {
-        auto result = cfapi::dehydratePlaceholder(handle, item._modtime, item._size, item._fileId);
+    if (!localPath.isEmpty()) {
+        auto result = cfapi::dehydratePlaceholder(localPath, item._modtime, item._size, item._fileId);
         if (result) {
             return {};
         } else {
@@ -152,14 +151,13 @@ Result<Vfs::ConvertToPlaceholderResult, QString> VfsCfApi::convertToPlaceholder(
     const auto localPath = QDir::toNativeSeparators(filename);
     const auto replacesPath = QDir::toNativeSeparators(replacesFile);
 
-    const auto handle = cfapi::handleForPath(localPath);
-    if (!handle) {
+    if (localPath.isEmpty()) {
         return { "Invalid handle for path " + localPath };
     }
-    if (cfapi::findPlaceholderInfo(handle)) {
-        return cfapi::updatePlaceholderInfo(handle, item._modtime, item._size, item._fileId, replacesPath);
+    if (cfapi::findPlaceholderInfo(localPath)) {
+        return cfapi::updatePlaceholderInfo(localPath, item._modtime, item._size, item._fileId, replacesPath);
     } else {
-        return cfapi::convertToPlaceholder(handle, item._modtime, item._size, item._fileId, replacesPath);
+        return cfapi::convertToPlaceholder(localPath, item._modtime, item._size, item._fileId, replacesPath);
     }
 }
 
@@ -230,13 +228,12 @@ bool VfsCfApi::setPinState(const QString &folderPath, PinState state)
 Optional<PinState> VfsCfApi::pinState(const QString &folderPath)
 {
     const auto localPath = QDir::toNativeSeparators(params().filesystemPath + folderPath);
-    const auto handle = cfapi::handleForPath(localPath);
-    if (!handle) {
+    if (localPath.isEmpty()) {
         qCWarning(lcCfApi) << "Couldn't find pin state for non existing file" << localPath;
         return {};
     }
 
-    const auto info = cfapi::findPlaceholderInfo(handle);
+    const auto info = cfapi::findPlaceholderInfo(localPath);
     if (!info) {
         qCWarning(lcCfApi) << "Couldn't find pin state for regular non-placeholder file" << localPath;
         return {};

@@ -617,13 +617,14 @@ OCC::CfApiWrapper::FileHandle OCC::CfApiWrapper::handleForPath(const QString &pa
     return {};
 }
 
-OCC::CfApiWrapper::PlaceHolderInfo OCC::CfApiWrapper::findPlaceholderInfo(const FileHandle &handle)
+OCC::CfApiWrapper::PlaceHolderInfo OCC::CfApiWrapper::findPlaceholderInfo(const QString filePath)
 {
-    Q_ASSERT(handle);
+    Q_ASSERT(!filePath.isEmpty());
 
     constexpr auto fileIdMaxLength = 128;
     const auto infoSize = sizeof(CF_PLACEHOLDER_BASIC_INFO) + fileIdMaxLength;
     auto info = PlaceHolderInfo(reinterpret_cast<CF_PLACEHOLDER_BASIC_INFO *>(new char[infoSize]), deletePlaceholderInfo);
+    auto handle = handleForPath(filePath);
     const qint64 result = CfGetPlaceholderInfo(handle.get(), CF_PLACEHOLDER_INFO_BASIC, info.get(), sizeToDWORD(infoSize), nullptr);
 
     if (result == S_OK) {
@@ -647,7 +648,7 @@ OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::se
     }
 }
 
-OCC::Result<void, QString> OCC::CfApiWrapper::createPlaceholderInfo(const QString &path, time_t modtime, qint64 size, const QByteArray &fileId)
+OCC::Result<void, QString> OCC::CfApiWrapper::createPlaceholderInfo(const QString path, time_t modtime, qint64 size, const QByteArray &fileId)
 {
     if (modtime <= 0) {
         return {QString{"Could not update metadata due to invalid modification time for %1: %2"}.arg(path).arg(modtime)};
@@ -685,8 +686,8 @@ OCC::Result<void, QString> OCC::CfApiWrapper::createPlaceholderInfo(const QStrin
         return { "Couldn't create placeholder info" };
     }
 
-    const auto parentHandle = handleForPath(QDir::toNativeSeparators(QFileInfo(path).absolutePath()));
-    const auto parentInfo = findPlaceholderInfo(parentHandle);
+    const auto parentHandlePath = QDir::toNativeSeparators(QFileInfo(path).absolutePath());
+    const auto parentInfo = findPlaceholderInfo(parentHandlePath);
     const auto state = parentInfo && parentInfo->PinState == CF_PIN_STATE_UNPINNED ? CF_PIN_STATE_UNPINNED : CF_PIN_STATE_INHERIT;
 
     const auto handle = handleForPath(path);
@@ -697,16 +698,16 @@ OCC::Result<void, QString> OCC::CfApiWrapper::createPlaceholderInfo(const QStrin
     return {};
 }
 
-OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::updatePlaceholderInfo(const FileHandle &handle, time_t modtime, qint64 size, const QByteArray &fileId, const QString &replacesPath)
+OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::updatePlaceholderInfo(const QString filePath, time_t modtime, qint64 size, const QByteArray &fileId, const QString &replacesPath)
 {
-    Q_ASSERT(handle);
+    Q_ASSERT(!filePath.isEmpty());
 
     if (modtime <= 0) {
-        return {QString{"Could not update metadata due to invalid modification time for %1: %2"}.arg(pathForHandle(handle)).arg(modtime)};
+        return {QString{"Could not update metadata due to invalid modification time for %1: %2"}.arg(filePath).arg(modtime)};
     }
 
-    const auto info = replacesPath.isEmpty() ? findPlaceholderInfo(handle)
-                                             : findPlaceholderInfo(handleForPath(replacesPath));
+    const auto info = replacesPath.isEmpty() ? findPlaceholderInfo(filePath)
+                                             : findPlaceholderInfo(replacesPath);
     if (!info) {
         return { "Can't update non existing placeholder info" };
     }
@@ -723,6 +724,7 @@ OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::up
     OCC::Utility::UnixTimeToLargeIntegerFiletime(modtime, &metadata.BasicInfo.ChangeTime);
     metadata.BasicInfo.FileAttributes = 0;
 
+    auto handle = handleForPath(filePath);
     const qint64 result = CfUpdatePlaceholder(handle.get(), &metadata,
                                               fileIdentity.data(), sizeToDWORD(fileIdentitySize),
                                               nullptr, 0, CF_UPDATE_FLAG_MARK_IN_SYNC, nullptr, nullptr);
@@ -740,15 +742,15 @@ OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::up
     return OCC::Vfs::ConvertToPlaceholderResult::Ok;
 }
 
-OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::dehydratePlaceholder(const FileHandle &handle, time_t modtime, qint64 size, const QByteArray &fileId)
+OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::dehydratePlaceholder(const QString filePath, time_t modtime, qint64 size, const QByteArray &fileId)
 {
-    Q_ASSERT(handle);
+    Q_ASSERT(!filePath.isEmpty());
 
     if (modtime <= 0) {
-        return {QString{"Could not update metadata due to invalid modification time for %1: %2"}.arg(pathForHandle(handle)).arg(modtime)};
+        return {QString{"Could not update metadata due to invalid modification time for %1: %2"}.arg(filePath).arg(modtime)};
     }
 
-    const auto info = findPlaceholderInfo(handle);
+    const auto info = findPlaceholderInfo(filePath);
     if (!info) {
         return { "Can't update non existing placeholder info" };
     }
@@ -759,6 +761,8 @@ OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::de
     CF_FILE_RANGE dehydrationRange;
     dehydrationRange.StartingOffset.QuadPart = 0;
     dehydrationRange.Length.QuadPart = size;
+
+    auto handle = handleForPath(filePath);
 
     const qint64 result = CfUpdatePlaceholder(handle.get(), nullptr,
                                               fileIdentity.data(), sizeToDWORD(fileIdentitySize),
@@ -772,15 +776,16 @@ OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::de
     return OCC::Vfs::ConvertToPlaceholderResult::Ok;
 }
 
-OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::convertToPlaceholder(const FileHandle &handle, time_t modtime, qint64 size, const QByteArray &fileId, const QString &replacesPath)
+OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::convertToPlaceholder(const QString filePath, time_t modtime, qint64 size, const QByteArray &fileId, const QString &replacesPath)
 {
     Q_UNUSED(modtime);
     Q_UNUSED(size);
 
-    Q_ASSERT(handle);
+    Q_ASSERT(!filePath.isEmpty());
 
     const auto fileIdentity = QString::fromUtf8(fileId).toStdWString();
     const auto fileIdentitySize = (fileIdentity.length() + 1) * sizeof(wchar_t);
+    auto handle = handleForPath(filePath);
     const qint64 result = CfConvertToPlaceholder(handle.get(), fileIdentity.data(), sizeToDWORD(fileIdentitySize), CF_CONVERT_FLAG_MARK_IN_SYNC, nullptr, nullptr);
     Q_ASSERT(result == S_OK);
     if (result != S_OK) {
@@ -788,8 +793,7 @@ OCC::Result<OCC::Vfs::ConvertToPlaceholderResult, QString> OCC::CfApiWrapper::co
         return { "Couldn't convert to placeholder" };
     }
 
-    const auto originalHandle = handleForPath(replacesPath);
-    const auto originalInfo = originalHandle ? findPlaceholderInfo(originalHandle) : PlaceHolderInfo(nullptr, deletePlaceholderInfo);
+    const auto originalInfo = !replacesPath.isEmpty() ? findPlaceholderInfo(replacesPath) : PlaceHolderInfo(nullptr, deletePlaceholderInfo);
     if (!originalInfo) {
         const auto stateResult = setPinState(handle, PinState::Inherited, NoRecurse);
         Q_ASSERT(stateResult);
