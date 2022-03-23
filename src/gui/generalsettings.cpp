@@ -350,7 +350,11 @@ void GeneralSettings::slotUpdateChannelChanged(const QString &channel)
 
 void GeneralSettings::slotUpdateCheckNow()
 {
+#if defined(Q_OS_MAC) && defined(HAVE_SPARKLE)
+    auto *updater = qobject_cast<OCUpdater *>(SparkleUpdater::instance());
+#else
     auto *updater = qobject_cast<OCUpdater *>(Updater::instance());
+#endif
     if (ConfigFile().skipUpdateCheck()) {
         updater = nullptr; // don't show update info if updates are disabled
     }
