@@ -173,7 +173,7 @@ index e128f6860..f5298a925 100644
  import Style 1.0
  
 diff --git a/src/gui/tray/UnifiedSearchResultListItem.qml b/src/gui/tray/UnifiedSearchResultListItem.qml
-index 785f8f525..1de75615a 100644
+index ce942a4d1..69bb3166a 100644
 --- a/src/gui/tray/UnifiedSearchResultListItem.qml
 +++ b/src/gui/tray/UnifiedSearchResultListItem.qml
 @@ -1,5 +1,5 @@
@@ -183,7 +183,7 @@ index 785f8f525..1de75615a 100644
 +import QtQuick 2.12
  import QtQuick.Controls 2.3
  import Style 1.0
- 
+ import com.nextcloud.desktopclient 1.0
 diff --git a/src/gui/tray/UnifiedSearchResultNothingFound.qml b/src/gui/tray/UnifiedSearchResultNothingFound.qml
 index 67bd8108e..f012ffc5a 100644
 --- a/src/gui/tray/UnifiedSearchResultNothingFound.qml
@@ -227,7 +227,7 @@ index 89ad6bf31..04b687a6d 100644
      topPadding: 8
      bottomPadding: 8
 diff --git a/src/gui/tray/Window.qml b/src/gui/tray/Window.qml
-index 2cc13dd7b..6538fdcdf 100644
+index 53cfda8a1..61bf8f4b7 100644
 --- a/src/gui/tray/Window.qml
 +++ b/src/gui/tray/Window.qml
 @@ -1,6 +1,6 @@
