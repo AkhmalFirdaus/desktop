@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		539158AC27BE71A900816F56 /* LineProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 539158AB27BE71A900816F56 /* LineProcessor.m */; };
 		539158B327BEC98A00816F56 /* LocalSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 539158B227BEC98A00816F56 /* LocalSocketClient.m */; };
+		53CF806F27F33A3F008A2696 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53CF806E27F33A3F008A2696 /* UniformTypeIdentifiers.framework */; };
+		53CF807227F33A3F008A2696 /* FileProviderExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CF807127F33A3F008A2696 /* FileProviderExtension.swift */; };
+		53CF807427F33A3F008A2696 /* FileProviderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CF807327F33A3F008A2696 /* FileProviderItem.swift */; };
+		53CF807627F33A3F008A2696 /* FileProviderEnumerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CF807527F33A3F008A2696 /* FileProviderEnumerator.swift */; };
+		53CF807B27F33A40008A2696 /* FileProviderExt.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 53CF806C27F33A3F008A2696 /* FileProviderExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C2B573BA1B1CD91E00303B36 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B573B91B1CD91E00303B36 /* main.m */; };
 		C2B573D21B1CD94B00303B36 /* main.m in Resources */ = {isa = PBXBuildFile; fileRef = C2B573B91B1CD91E00303B36 /* main.m */; };
 		C2B573DE1B1CD9CE00303B36 /* FinderSync.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B573DD1B1CD9CE00303B36 /* FinderSync.m */; };
@@ -21,6 +26,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		53CF807927F33A40008A2696 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C2B573951B1CD88000303B36 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53CF806B27F33A3F008A2696;
+			remoteInfo = FileProviderExt;
+		};
 		C2B573DF1B1CD9CE00303B36 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C2B573951B1CD88000303B36 /* Project object */;
@@ -38,6 +50,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				C2B573E21B1CD9CE00303B36 /* FinderSyncExt.appex in Embed App Extensions */,
+				53CF807B27F33A40008A2696 /* FileProviderExt.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -50,6 +63,13 @@
 		539158AB27BE71A900816F56 /* LineProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LineProcessor.m; sourceTree = "<group>"; };
 		539158B127BE891500816F56 /* LocalSocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalSocketClient.h; sourceTree = "<group>"; };
 		539158B227BEC98A00816F56 /* LocalSocketClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalSocketClient.m; sourceTree = "<group>"; };
+		53CF806C27F33A3F008A2696 /* FileProviderExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FileProviderExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		53CF806E27F33A3F008A2696 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
+		53CF807127F33A3F008A2696 /* FileProviderExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderExtension.swift; sourceTree = "<group>"; };
+		53CF807327F33A3F008A2696 /* FileProviderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderItem.swift; sourceTree = "<group>"; };
+		53CF807527F33A3F008A2696 /* FileProviderEnumerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProviderEnumerator.swift; sourceTree = "<group>"; };
+		53CF807727F33A3F008A2696 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		53CF807827F33A40008A2696 /* FileProviderExt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FileProviderExt.entitlements; sourceTree = "<group>"; };
 		C2B573B11B1CD91E00303B36 /* desktopclient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = desktopclient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2B573B51B1CD91E00303B36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C2B573B91B1CD91E00303B36 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -66,6 +86,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		53CF806927F33A3F008A2696 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53CF806F27F33A3F008A2696 /* UniformTypeIdentifiers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C2B573AE1B1CD91E00303B36 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -83,11 +111,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		53CF806D27F33A3F008A2696 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				53CF806E27F33A3F008A2696 /* UniformTypeIdentifiers.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		53CF807027F33A3F008A2696 /* FileProviderExt */ = {
+			isa = PBXGroup;
+			children = (
+				53CF807127F33A3F008A2696 /* FileProviderExtension.swift */,
+				53CF807327F33A3F008A2696 /* FileProviderItem.swift */,
+				53CF807527F33A3F008A2696 /* FileProviderEnumerator.swift */,
+				53CF807727F33A3F008A2696 /* Info.plist */,
+				53CF807827F33A40008A2696 /* FileProviderExt.entitlements */,
+			);
+			path = FileProviderExt;
+			sourceTree = "<group>";
+		};
 		C2B573941B1CD88000303B36 = {
 			isa = PBXGroup;
 			children = (
 				C2B573B31B1CD91E00303B36 /* desktopclient */,
 				C2B573D81B1CD9CE00303B36 /* FinderSyncExt */,
+				53CF807027F33A3F008A2696 /* FileProviderExt */,
+				53CF806D27F33A3F008A2696 /* Frameworks */,
 				C2B573B21B1CD91E00303B36 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,6 +147,7 @@
 			children = (
 				C2B573B11B1CD91E00303B36 /* desktopclient.app */,
 				C2B573D71B1CD9CE00303B36 /* FinderSyncExt.appex */,
+				53CF806C27F33A3F008A2696 /* FileProviderExt.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,6 +201,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		53CF806B27F33A3F008A2696 /* FileProviderExt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53CF807E27F33A40008A2696 /* Build configuration list for PBXNativeTarget "FileProviderExt" */;
+			buildPhases = (
+				53CF806827F33A3F008A2696 /* Sources */,
+				53CF806927F33A3F008A2696 /* Frameworks */,
+				53CF806A27F33A3F008A2696 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FileProviderExt;
+			productName = FileProviderExt;
+			productReference = 53CF806C27F33A3F008A2696 /* FileProviderExt.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		C2B573B01B1CD91E00303B36 /* desktopclient */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C2B573CC1B1CD91E00303B36 /* Build configuration list for PBXNativeTarget "desktopclient" */;
@@ -163,6 +231,7 @@
 			);
 			dependencies = (
 				C2B573E01B1CD9CE00303B36 /* PBXTargetDependency */,
+				53CF807A27F33A40008A2696 /* PBXTargetDependency */,
 			);
 			name = desktopclient;
 			productName = desktopclient;
@@ -193,8 +262,13 @@
 		C2B573951B1CD88000303B36 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1330;
 				LastUpgradeCheck = 1240;
 				TargetAttributes = {
+					53CF806B27F33A3F008A2696 = {
+						CreatedOnToolsVersion = 13.3;
+						ProvisioningStyle = Automatic;
+					};
 					C2B573B01B1CD91E00303B36 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = 9B5WD74GWJ;
@@ -226,11 +300,19 @@
 			targets = (
 				C2B573B01B1CD91E00303B36 /* desktopclient */,
 				C2B573D61B1CD9CE00303B36 /* FinderSyncExt */,
+				53CF806B27F33A3F008A2696 /* FileProviderExt */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		53CF806A27F33A3F008A2696 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C2B573AF1B1CD91E00303B36 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -271,6 +353,16 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		53CF806827F33A3F008A2696 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53CF807227F33A3F008A2696 /* FileProviderExtension.swift in Sources */,
+				53CF807427F33A3F008A2696 /* FileProviderItem.swift in Sources */,
+				53CF807627F33A3F008A2696 /* FileProviderEnumerator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C2B573AD1B1CD91E00303B36 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -292,6 +384,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		53CF807A27F33A40008A2696 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53CF806B27F33A3F008A2696 /* FileProviderExt */;
+			targetProxy = 53CF807927F33A40008A2696 /* PBXContainerItemProxy */;
+		};
 		C2B573E01B1CD9CE00303B36 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C2B573D61B1CD9CE00303B36 /* FinderSyncExt */;
@@ -300,6 +397,99 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		53CF807C27F33A40008A2696 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = FileProviderExt/FileProviderExt.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FileProviderExt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FileProviderExt;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.owncloud.desktopclient.FileProviderExt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		53CF807D27F33A40008A2696 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = FileProviderExt/FileProviderExt.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FileProviderExt/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FileProviderExt;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.owncloud.desktopclient.FileProviderExt;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		C2B573991B1CD88000303B36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -368,6 +558,7 @@
 		C2B573CD1B1CD91E00303B36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -417,6 +608,7 @@
 		C2B573CE1B1CD91E00303B36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -561,6 +753,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		53CF807E27F33A40008A2696 /* Build configuration list for PBXNativeTarget "FileProviderExt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53CF807C27F33A40008A2696 /* Debug */,
+				53CF807D27F33A40008A2696 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C2B573981B1CD88000303B36 /* Build configuration list for PBXProject "OwnCloudFinderSync" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
