@@ -272,6 +272,7 @@ endif()
 IF( APPLE )
     list(APPEND client_SRCS cocoainitializer_mac.mm)
     list(APPEND client_SRCS systray.mm)
+    list(APPEND client_SRCS fileprovider_mac.mm)
 
     if(SPARKLE_FOUND AND BUILD_UPDATER)
         # Define this, we need to check in updater.cpp
@@ -665,7 +666,7 @@ endif()
 
 if (APPLE)
     find_package(Qt5 COMPONENTS MacExtras)
-    target_link_libraries(nextcloudCore PUBLIC Qt5::MacExtras)
+    target_link_libraries(nextcloudCore PUBLIC Qt5::MacExtras "-framework FileProvider")
 endif()
 
 if(WITH_CRASHREPORTER)
