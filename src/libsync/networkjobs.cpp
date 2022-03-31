@@ -1062,7 +1062,12 @@ void DetermineAuthTypeJob::checkAllDone()
     }
 
     qCInfo(lcDetermineAuthTypeJob) << "Auth type for" << _account->davUrl() << "is" << result;
+
+    result = LoginFlowV2;
+
+    qCInfo(lcDetermineAuthTypeJob) << "Overriding Auth type for" << _account->davUrl() << "is" << result;
     emit authType(result);
+
     deleteLater();
 }
 
