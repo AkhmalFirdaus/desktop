@@ -249,6 +249,10 @@ bool ProcessDirectoryJob::handleExcluded(const QString &path, const QString &loc
 {
     auto excluded = _discoveryData->_excludes->traversalPatternMatch(path, isDirectory ? ItemTypeDirectory : ItemTypeFile);
 
+    if ((excluded == CSYNC_FILE_EXCLUDE_LEADING_SPACE || excluded == CSYNC_FILE_EXCLUDE_TRAILING_SPACE) && _discoveryData->_leadingAndTrailingSpacesFilesAllowed.contains(_discoveryData->_localDir + path)) {
+        excluded = CSYNC_NOT_EXCLUDED;
+    }
+
     // FIXME: move to ExcludedFiles 's regexp ?
     bool isInvalidPattern = false;
     if (excluded == CSYNC_NOT_EXCLUDED && !_discoveryData->_invalidFilenameRx.pattern().isEmpty()) {

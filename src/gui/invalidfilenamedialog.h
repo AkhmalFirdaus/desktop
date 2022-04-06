@@ -41,6 +41,9 @@ public:
 
     void accept() override;
 
+signals:
+    void acceptedInvalidName();
+
 private:
     std::unique_ptr<Ui::InvalidFilenameDialog> _ui;
 
@@ -59,5 +62,7 @@ private:
     void onRemoteSourceFileDoesNotExist(QNetworkReply *reply);
     void checkIfAllowedToRename();
     void onPropfindPermissionSuccess(const QVariantMap &values);
+private slots:
+    void useInvalidName();
 };
 }
