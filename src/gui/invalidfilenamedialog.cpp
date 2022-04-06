@@ -86,7 +86,7 @@ InvalidFilenameDialog::InvalidFilenameDialog(AccountPtr account, Folder *folder,
     _ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Rename file"));
 
     _ui->descriptionLabel->setText(tr("The file %1 could not be synced because the name contains characters which are not allowed on this system.").arg(_originalFileName));
-    _ui->explanationLabel->setText(tr("The following characters are not allowed on the system: * \" | & ? , ; : \\ / ~ < >"));
+    _ui->explanationLabel->setText(tr("The following characters are not allowed on the system: * \" | & ? , ; : \\ / ~ < > leading/trailing spaces"));
     _ui->filenameLineEdit->setText(filePathFileInfo.fileName());
 
     connect(_ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -138,12 +138,17 @@ void InvalidFilenameDialog::onFilenameLineEditTextChanged(const QString &text)
     const auto illegalContainedCharacters = getIllegalCharsFromString(text);
     const auto containsIllegalChars = !illegalContainedCharacters.empty() || text.endsWith(QLatin1Char('.'));
     const auto isTextValid = isNewFileNameDifferent && !containsIllegalChars;
+    const auto hasLeadingOrTrailingSpaces = text.startsWith(QLatin1Char(' ')) || text.endsWith(QLatin1Char(' '));
 
-    if (isTextValid) {
+    if (isTextValid && !hasLeadingOrTrailingSpaces) {
         _ui->errorLabel->setText("");
     } else {
-        _ui->errorLabel->setText(tr("Filename contains illegal characters: %1")
-                                     .arg(illegalCharacterListToString(illegalContainedCharacters)));
+        if (hasLeadingOrTrailingSpaces) {
+            _ui->errorLabel->setText(tr("Filename contains leading and/or trailing spaces."));
+        } else {
+            _ui->errorLabel->setText(tr("Filename contains illegal characters: %1")
+                                         .arg(illegalCharacterListToString(illegalContainedCharacters)));
+        }
     }
 
     _ui->buttonBox->button(QDialogButtonBox::Ok)
