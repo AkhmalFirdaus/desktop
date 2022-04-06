@@ -53,8 +53,10 @@ private:
 
     void onFilenameLineEditTextChanged(const QString &text);
     void onMoveJobFinished();
-    void onRemoteFileAlreadyExists(const QVariantMap &values);
-    void onRemoteFileDoesNotExist(QNetworkReply *reply);
+    void onRemoteDestinationFileAlreadyExists(const QVariantMap &values);
+    void onRemoteDestinationFileDoesNotExist(QNetworkReply *reply);
+    void onRemoteSourceFileAlreadyExists(const QVariantMap &values);
+    void onRemoteSourceFileDoesNotExist(QNetworkReply *reply);
     void checkIfAllowedToRename();
     void onPropfindPermissionSuccess(const QVariantMap &values);
 };
