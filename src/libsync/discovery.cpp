@@ -329,6 +329,10 @@ bool ProcessDirectoryJob::handleExcluded(const QString &path, const QString &loc
             item->_errorString = tr("Filename contains trailing spaces.");
             item->_status = SyncFileItem::FileNameInvalid;
             break;
+        case CSYNC_FILE_EXCLUDE_LEADING_SPACE:
+            item->_errorString = tr("Filename contains leading spaces.");
+            item->_status = SyncFileItem::FileNameInvalid;
+            break;
         case CSYNC_FILE_EXCLUDE_LONG_FILENAME:
             item->_errorString = tr("Filename is too long.");
             item->_status = SyncFileItem::FileNameInvalid;
