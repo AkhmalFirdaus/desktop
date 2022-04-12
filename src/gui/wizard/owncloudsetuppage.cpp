@@ -83,7 +83,8 @@ void OwncloudSetupPage::setLogo()
 void OwncloudSetupPage::setupServerAddressDescriptionLabel()
 {
     const auto appName = Theme::instance()->appNameGUI();
-    _ui.serverAddressDescriptionLabel->setText(tr("The link to your %1 web interface when you open it in the browser.", "%1 will be replaced with the application name").arg(appName));
+/*    _ui.serverAddressDescriptionLabel->setText(tr("The link to your %1 web interface when you open it in the browser.", "%1 will be replaced with the application name").arg(appName)); mal commented out for Linux on 20220412 1521 */
+    _ui.serverAddressDescriptionLabel->setText(tr("The link to your Xiddigspace web interface when you open it in the browser."));
 }
 
 void OwncloudSetupPage::setServerUrl(const QString &newUrl)
