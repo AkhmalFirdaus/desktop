@@ -57,13 +57,13 @@ void WelcomePage::styleSlideShow()
     const auto backgroundColor = palette().window().color();
 
     const auto wizardNextcloudIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-nextcloud.png", backgroundColor)
-                                                                : Theme::hidpiFileName(":/client/theme/colored/wizard-nextcloud.png");
+                                                                : Theme::hidpiFileName(":/client/theme/black/wizard-nextcloud.png"); /*mal changed from colored to black for Linux on 20220412 1532 */
     const auto wizardFilesIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-files.png", backgroundColor)
-                                                            : Theme::hidpiFileName(":/client/theme/colored/wizard-files.png");
+                                                            : Theme::hidpiFileName(":/client/theme/black/wizard-files.png"); /*mal changed from colored to black for Linux on 20220412 1532 */
     const auto wizardGroupwareIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-groupware.png", backgroundColor)
-                                                                : Theme::hidpiFileName(":/client/theme/colored/wizard-groupware.png");
+                                                                : Theme::hidpiFileName(":/client/theme/black/wizard-groupware.png"); /*mal changed from colored to black for Linux on 20220412 1532 */
     const auto wizardTalkIconFileName = theme->isBranded() ? Theme::hidpiFileName("wizard-talk.png", backgroundColor)
-                                                           : Theme::hidpiFileName(":/client/theme/colored/wizard-talk.png");
+                                                           : Theme::hidpiFileName(":/client/theme/black/wizard-talk.png"); /*mal changed from colored to black for Linux on 20220412 1532 */
 
     _ui->slideShow->addSlide(wizardNextcloudIconFileName, tr("Keep your data secure and under your control"));
     _ui->slideShow->addSlide(wizardFilesIconFileName, tr("Secure collaboration & file exchange"));
