@@ -256,7 +256,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>This is the link to your %1 web interface when you open it in the browser.</string>
+                 <string>This is the link to your Xiddigspace web interface when you open it in the browser.</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
