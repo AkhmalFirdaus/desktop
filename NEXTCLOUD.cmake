@@ -2,7 +2,7 @@ set( APPLICATION_NAME       "Xiddigspace" ) #maledited for Linux on 20220412 160
 set( APPLICATION_SHORTNAME  "Xiddigspace" )
 set( APPLICATION_EXECUTABLE "Xiddigspace" )
 set( APPLICATION_DOMAIN     "xiddigspace.com" )
-set( APPLICATION_VENDOR     "Xiddig Technology Sdn Bhd" )
+set( APPLICATION_VENDOR     "Xiddig Technologies (M) Sdn Bhd" ) #maledited the absolute correct name as in 20220412 1619
 set( APPLICATION_UPDATE_URL "https://xiddigspace.com" CACHE STRING "URL for updater" )
 set( APPLICATION_HELP_URL   "" CACHE STRING "URL for the help menu" )
 set( APPLICATION_ICON_NAME  "Xiddigspace" )
