@@ -106,7 +106,7 @@ void WelcomePage::setupCreateAccountButton()
     connect(_ui->createAccountButton, &QPushButton::clicked, this, [this](bool /*checked*/) {
         _ocWizard->setRegistration(true);
         /*Utility::openBrowser(QStringLiteral("https://nextcloud.com/register")); mal commented out for Linux 20220412 1509*/
-        Utility::openBrowser(QStringLiteral("https://xiddigspace.com"));
+        Utility::openBrowser(QStringLiteral("xiddigspace.com"));
     });
 #endif // WITH_WEBENGINE
 }
