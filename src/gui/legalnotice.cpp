@@ -52,16 +52,16 @@ void LegalNotice::changeEvent(QEvent *e)
 
 void LegalNotice::customizeStyle()
 {
-    #QString notice = tr("<p>Copyright 2017-2021 Nextcloud GmbH<br />"
-    #                    "Copyright 2012-2021 ownCloud GmbH</p>");
+    //QString notice = tr("<p>Copyright 2017-2021 Nextcloud GmbH<br />" //malcommented out on 20220413 1534
+    //                   "Copyright 2012-2021 ownCloud GmbH</p>"); //malcommented out on 20220413 1534
     
-    QString notice = tr("<p>Copyright 2021-2022 Xiddigspace Technology (M) Sdn Bhd<br />"
-                        " </p>");
+    QString notice = tr("<p> <br />"
+                        "Copyright 2021-2022 Xiddigspace Technology (M) Sdn Bhd</p>");
     
-    #notice += tr("<p>Licensed under the GNU General Public License (GPL) Version 2.0 or any later version.</p>");
+    //notice += tr("<p>Licensed under the GNU General Public License (GPL) Version 2.0 or any later version.</p>");
 
     notice += "<p>&nbsp;</p>";
-    #notice += Theme::instance()->aboutDetails();
+    //notice += Theme::instance()->aboutDetails();
 
     Theme::replaceLinkColorStringBackgroundAware(notice);
 
