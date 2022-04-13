@@ -55,7 +55,7 @@ void LegalNotice::customizeStyle()
     #QString notice = tr("<p>Copyright 2017-2021 Nextcloud GmbH<br />"
     #                    "Copyright 2012-2021 ownCloud GmbH</p>");
     
-    QString notice = tr("<p>Copyright Xiddigspace Technology (M) Sdn Bhd<br />"
+    QString notice = tr("<p>Copyright 2021-2022 Xiddigspace Technology (M) Sdn Bhd<br />"
                         " </p>");
     
     #notice += tr("<p>Licensed under the GNU General Public License (GPL) Version 2.0 or any later version.</p>");
